@@ -1,0 +1,233 @@
+﻿@using FGI.Enums
+@model List<Lead>
+@{
+    ViewData["Title"] = "My Leads";
+    var inProgressLeads = Model.Where(l => l.CurrentStatus != LeadStatusType.Canceled &&
+                                        l.CurrentStatus != LeadStatusType.DoneDeal).ToList();
+    var canceledLeads = Model.Where(l => l.CurrentStatus == LeadStatusType.Canceled).ToList();
+    var doneDealLeads = Model.Where(l => l.CurrentStatus == LeadStatusType.DoneDeal).ToList();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h4 text-gray-800 mb-0">
+                <i class="fas fa-user-tie text-primary mr-2"></i>My Leads
+            </h1>
+            <p class="text-muted small mt-1">Manage your assigned leads</p>
+        </div>
+        <a asp-action="AddLead" class="btn btn-primary">
+            <i class="fas fa-plus-circle mr-2"></i>Add New Lead
+        </a>
+    </div>
+
+    <!-- In Progress Leads Section -->
+    <div class="card border-0 shadow-sm rounded-lg mb-4">
+        <div class="card-header bg-white border-bottom-0 py-3">
+            <h6 class="m-0 font-weight-normal text-gray-700">
+                <i class="fas fa-tasks text-primary mr-1"></i> In Progress Leads
+                <span class="badge badge-primary ml-2">@inProgressLeads.Count</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            @if (inProgressLeads.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="pl-4">Client</th>
+                                <th>Contact</th>
+                                <th>Project</th>
+                                <th>Unit Code</th>
+                                <th>Status</th>
+                                <th class="text-right pr-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lead in inProgressLeads.OrderByDescending(l => l.CreatedAt))
+                            {
+                                <tr>
+                                    <td class="pl-4 font-weight-medium">@lead.ClientName</td>
+                                    <td>
+                                        <a href="tel:@lead.ClientPhone" class="text-muted">
+                                            <i class="fas fa-phone-alt mr-1 text-primary"></i>@lead.ClientPhone
+                                        </a>
+                                    </td>
+                                    <td>@lead.Project?.Name ?? "N/A"</td>
+                                    <td>@lead.Unit?.UnitCode ?? "N/A"</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(lead.CurrentStatus)">
+                                            @lead.CurrentStatus
+                                        </span>
+                                    </td>
+                                  
+                                    <td class="text-right pr-4">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="LeadDetails" asp-route-id="@lead.Id"
+                                               class="btn btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="EditLead" asp-route-id="@lead.Id"
+                                               class="btn btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-4 text-center text-muted">
+                    No leads in progress
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Done Deal Leads Section -->
+    <div class="card border-0 shadow-sm rounded-lg">
+        <div class="card-header bg-white border-bottom-0 py-3">
+            <h6 class="m-0 font-weight-normal text-gray-700">
+                <i class="fas fa-check-circle text-success mr-1"></i> Done Deals
+                <span class="badge badge-success ml-2">@doneDealLeads.Count</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            @if (doneDealLeads.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="pl-4">Client</th>
+                                <th>Contact</th>
+                                <th>Project</th>
+                                <th>Unit Code</th>
+                                <th>Closed Date</th>
+                                <th>Unit Type</th>
+                                <th>Price</th>
+                                <th>Area</th>
+                                <th class="text-right pr-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lead in doneDealLeads.OrderByDescending(l => l.CreatedAt))
+                            {
+                                <tr>
+                                    <td class="pl-4 font-weight-medium">@lead.ClientName</td>
+                                    <td>
+                                        <a href="tel:@lead.ClientPhone" class="text-muted">
+                                            <i class="fas fa-phone-alt mr-1 text-primary"></i>@lead.ClientPhone
+                                        </a>
+                                    </td>
+                                    <td>@lead.Project?.Name</td>
+                                    <td>@lead.Unit?.UnitCode</td>
+                                    <td>@lead.UpdatedAt?.ToString("dd/MM/yyy")</td>
+                                    <td>@lead.Unit?.Type.ToString()</td>
+                                    <td>@(lead.Unit != null ? $"{lead.Unit.Price:C}" : "-")</td>
+                                    <td>@(lead.Unit?.Area ?? 0)</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(lead.CurrentStatus)">
+                                            @lead.CurrentStatus
+                                        </span>
+                                    </td>
+                                    <td class="text-right pr-4">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="LeadDetails" asp-route-id="@lead.Id"
+                                               class="btn btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-4 text-center text-muted">
+                    No completed deals
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(LeadStatusType status)
+    {
+        return status switch
+        {
+            LeadStatusType.New => "badge-primary",
+            LeadStatusType.WrongNumber => "badge-info",
+            LeadStatusType.NoAnswer => "badge-warning",
+            LeadStatusType.FollowUp => "badge-secondary",
+            LeadStatusType.DoneDeal => "badge-success",
+            LeadStatusType.Canceled => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+}
+@section Styles {
+    <style>
+        /* Improved badge styling */
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35em 0.65em;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Color adjustments for better visibility */
+        .badge-primary {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .badge-info {
+            background-color: #36b9cc;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #f6c23e;
+            color: #2e2e2e;
+        }
+
+        .badge-secondary {
+            background-color: #858796;
+            color: white;
+        }
+
+        .badge-success {
+            background-color: #1cc88a;
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: #e74a3b;
+            color: white;
+        }
+
+        /* Table row hover effect */
+        .table tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+            /* Ensure badges stand out on hover */
+            .table tbody tr:hover .badge {
+                opacity: 0.9;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            }
+    </style>
+}

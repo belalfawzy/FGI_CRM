@@ -1,0 +1,225 @@
+﻿using FGI.Controllers;
+using FGI.Enums;
+using FGI.Interfaces;
+using FGI.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace FGI.Services
+{
+    public class LeadService : ILeadService
+    {
+        private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<LeadController> _logger;
+
+        public LeadService(AppDbContext context, IHttpContextAccessor httpContextAccessor, ILogger<LeadController> logger)
+        {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+        }
+
+        public async Task CreateLeadAsync(Lead lead, int createdById)
+        {
+            // التحقق من أن الوحدة موجودة
+            var unit = await _context.Units.FindAsync(lead.UnitId);
+            if (unit == null)
+            {
+                throw new Exception("الوحدة المحددة غير موجودة");
+            }
+
+            // إذا كان هناك مشروع، التحقق من وجوده
+            if (lead.ProjectId.HasValue)
+            {
+                var projectExists = await _context.Projects.AnyAsync(p => p.Id == lead.ProjectId);
+                if (!projectExists)
+                {
+                    throw new Exception("المشروع المحدد غير موجود");
+                }
+            }
+
+            // تعيين القيم المطلوبة للـ Lead
+            lead.CreatedById = createdById;
+            lead.CreatedAt = DateTime.Now;
+            lead.CurrentStatus = LeadStatusType.New;
+
+            // إضافة الـ Lead إلى قاعدة البيانات
+            _context.Leads.Add(lead);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Lead>> GetLeadsForUserAsync(User user)
+        {
+            if (user.Role == "Admin" || user.Role == "MarketingLeader")
+            {
+                return await _context.Leads
+                    .Include(l => l.Project)
+                    .Include(l => l.AssignedTo)
+                    .ToListAsync();
+            }
+
+            if (user.Role == "Marketing")
+            {
+                return await _context.Leads
+                    .Where(l => l.CreatedById == user.Id)
+                    .Include(l => l.Project)
+                    .Include(l => l.AssignedTo)
+                    .ToListAsync();
+            }
+
+            // Sales
+            return await _context.Leads
+                .Where(l => l.AssignedToId == user.Id)
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .ToListAsync();
+        }
+
+        public async Task AssignLeadAsync(int leadId, int toSalesId, int changedById)
+        {
+            var lead = await _context.Leads.FindAsync(leadId);
+            if (lead == null) return;
+
+            var history = new LeadAssignmentHistory
+            {
+                LeadId = leadId,
+                FromSalesId = lead.AssignedToId,
+                ToSalesId = toSalesId,
+                ChangedById = changedById,
+                ChangedAt = DateTime.Now
+            };
+
+            lead.AssignedToId = toSalesId;
+            lead.UpdatedAt = DateTime.Now;
+
+            _context.LeadAssignmentHistories.Add(history);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ReassignLeadAsync(int leadId, int newSalesId, int changedById)
+        {
+            var lead = await _context.Leads.FindAsync(leadId);
+            if (lead == null) return;
+
+            var history = new LeadAssignmentHistory
+            {
+                LeadId = leadId,
+                FromSalesId = lead.AssignedToId,
+                ToSalesId = newSalesId,
+                ChangedById = changedById,
+                ChangedAt = DateTime.Now
+            };
+
+            lead.AssignedToId = newSalesId;
+            lead.UpdatedAt = DateTime.Now;
+
+            _context.LeadAssignmentHistories.Add(history);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateStatusAsync(int leadId, LeadStatusType status)
+        {
+            var lead = await _context.Leads.FindAsync(leadId);
+            if (lead == null) return;
+
+            lead.CurrentStatus = status;
+            lead.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteLeadAsync(int leadId)
+        {
+            var lead = await _context.Leads.FindAsync(leadId);
+            if (lead == null) return;
+
+            _context.Leads.Remove(lead);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Lead> GetLeadByIdAsync(int id)
+        {
+            return await _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .Include(l => l.CreatedBy)
+                .Include(l => l.AssignedTo)
+                .FirstOrDefaultAsync(l => l.Id == id);
+        }
+        public async Task<List<Lead>> GetAllLeadsAsync()
+        {
+            return await _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .Include(l => l.CreatedBy)
+                .Include(l => l.AssignedTo)
+                .ToListAsync();
+        }
+        public async Task UpdateLeadAsync(Lead lead)
+        {
+            // Get the original lead including the Unit
+            var originalLead = await _context.Leads
+                .Include(l => l.Unit)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.Id == lead.Id);
+
+            // Handle assignment changes
+            if (originalLead?.AssignedToId != lead.AssignedToId)
+            {
+                var history = new LeadAssignmentHistory
+                {
+                    LeadId = lead.Id,
+                    FromSalesId = originalLead?.AssignedToId,
+                    ToSalesId = (int)lead.AssignedToId,
+                    ChangedById = int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)),
+                    ChangedAt = DateTime.Now
+                };
+                _context.LeadAssignmentHistories.Add(history);
+            }
+
+            // Check if status changed to DoneDeal and unit exists
+            if (originalLead?.CurrentStatus != LeadStatusType.DoneDeal &&
+                lead.CurrentStatus == LeadStatusType.DoneDeal &&
+                lead.UnitId.HasValue)
+            {
+                var unit = await _context.Units.FindAsync(lead.UnitId.Value);
+                if (unit != null)
+                {
+                    unit.IsAvailable = false;
+                    _context.Units.Update(unit);
+                }
+            }
+
+            lead.UpdatedAt = DateTime.Now;
+            _context.Leads.Update(lead);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<List<Lead>> GetLeadsBySalesPersonAsync(int salesPersonId)
+        {
+            return await _context.Leads
+                .Where(l => l.AssignedToId == salesPersonId)
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .ToListAsync();
+        }
+        public async Task<bool> LeadExists(int id)
+        {
+            return await _context.Leads.AnyAsync(e => e.Id == id);
+        }
+
+        public async Task<List<Lead>> GetActiveLeadsBySalesPersonAsync(int salesPersonId)
+        {
+            return await _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .Include(l => l.AssignedTo)
+                .Where(l => l.AssignedToId == salesPersonId &&
+                           l.CurrentStatus != LeadStatusType.DoneDeal &&
+                           l.CurrentStatus != LeadStatusType.Canceled)
+                .OrderByDescending(l => l.CreatedAt)
+                .ToListAsync();
+        }
+    }
+}

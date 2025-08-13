@@ -1,0 +1,105 @@
+﻿@model List<Lead>
+@{
+    ViewData["Title"] = "Unassigned Leads";
+}
+
+<div class="container">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Unassigned Leads (@Model.Count)</h6>
+            <div>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#distributeModal">
+                    <i class="fas fa-users me-2"></i> Distribute Leads
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Phone</th>
+                                <th>Project</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lead in Model)
+                            {
+                                <tr>
+                                    <td>@lead.ClientName</td>
+                                    <td>@lead.ClientPhone</td>
+                                    <td>@lead.Project?.Name</td>
+                                    <td>@lead.CreatedAt.ToString("g")</td>
+                                    <td>
+                                        <form asp-action="AssignLeadFromTasks" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="leadId" value="@lead.Id" />
+                                            <select name="salesUserId" class="form-control form-control-sm">
+                                                @foreach (var user in ViewBag.SalesUsers)
+                                                {
+                                                    <option value="@user.Id">@user.FullName</option>
+                                                }
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm mt-1">
+                                                <i class="fas fa-user-check"></i> Assign
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    There are no unassigned leads at the moment.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Distribute Leads Modal -->
+<div class="modal fade" id="distributeModal" tabindex="-1" aria-labelledby="distributeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="distributeModalLabel">Distribute Leads</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="DistributeLeads" method="post">
+                <div class="modal-body">
+                    <p>Distribute <strong>@Model.Count</strong> unassigned leads among <strong>@ViewBag.SalesUsers.Count</strong> sales reps.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Distribution Method</label>
+                        <select name="distributionMethod" class="form-select">
+                            <option value="equal">Equal Distribution</option>
+                            <option value="roundrobin">Round Robin</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Each sales rep will receive approximately <strong>@(Model.Count / ViewBag.SalesUsers.Count)</strong> leads.
+                        @if (Model.Count % ViewBag.SalesUsers.Count != 0)
+                        {
+                            <span>The remaining <strong>@(Model.Count % ViewBag.SalesUsers.Count)</strong> leads will be assigned manually.</span>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Distribute Leads</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,231 @@
+﻿@model List<User>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="container">
+    <h1 class="my-4 text-center fw-bold" style="color: #2c3e50;">User Management</h1>
+
+    <!-- Notification Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="userForm" asp-action="CreateUser" method="post" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Full Name</label>
+                            <input type="text" asp-for="@Model.FirstOrDefault().FullName" class="form-control rounded-pill" required>
+                            <span asp-validation-for="@Model.FirstOrDefault().FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fas fa-envelope"></i></span>
+                                <input type="email" asp-for="@Model.FirstOrDefault().Email" class="form-control rounded-end-pill" required>
+                            </div>
+                            <span asp-validation-for="@Model.FirstOrDefault().Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text rounded-start-pill"><i class="fas fa-lock"></i></span>
+                                <input type="password" asp-for="@Model.FirstOrDefault().PasswordHash" id="password"
+                                       class="form-control" required>
+                                <button class="btn btn-outline-secondary rounded-end-pill" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="@Model.FirstOrDefault().PasswordHash" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Role</label>
+                            <select asp-for="@Model.FirstOrDefault().Role" class="form-select rounded-pill" required>
+                                <option value="">Select Role</option>
+                                <option value="Admin">Administrator</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                            </select>
+                            <span asp-validation-for="@Model.FirstOrDefault().Role" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary rounded-pill w-100 py-2 fw-bold">
+                            <i class="fas fa-user-plus me-2"></i>Add User
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>User List</h5>
+                    <span class="badge bg-light text-dark rounded-pill">@Model.Count users</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="rounded-start-pill"><i class="fas fa-user me-2"></i>Name</th>
+                                    <th><i class="fas fa-envelope me-2"></i>Email</th>
+                                    <th class="rounded-end-pill"><i class="fas fa-user-tag me-2"></i>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model)
+                                {
+                                    <tr class="align-middle">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-2">
+                                                    <span class="avatar-title bg-soft-primary rounded-circle fw-bold">
+                                                        @user.FullName?[0]
+                                                    </span>
+                                                </div>
+                                                @user.FullName
+                                            </div>
+                                        </td>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <span class="badge rounded-pill @GetRoleBadgeClass(user.Role)">
+                                                <i class="@GetRoleIcon(user.Role) me-1"></i>
+                                                @user.Role
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetRoleBadgeClass(string role)
+    {
+        return role switch
+        {
+            "Admin" => "bg-soft-danger text-danger",
+            "Marketing" => "bg-soft-warning text-warning",
+            "Sales" => "bg-soft-success text-success",
+            _ => "bg-soft-secondary text-secondary"
+        };
+    }
+
+    string GetRoleIcon(string role)
+    {
+        return role switch
+        {
+            "Admin" => "fas fa-shield-alt",
+            "Marketing" => "fas fa-bullhorn",
+            "Sales" => "fas fa-handshake",
+            _ => "fas fa-user"
+        };
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Form submission effects
+        document.getElementById('userForm').addEventListener('submit', function() {
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+            submitButton.disabled = true;
+        });
+
+        // Real-time validation
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('input', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    </script>
+}
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+    }
+
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bg-soft-primary {
+        background-color: rgba(78, 115, 223, 0.1);
+    }
+
+    .bg-soft-danger {
+        background-color: rgba(231, 74, 59, 0.1);
+    }
+
+    .bg-soft-warning {
+        background-color: rgba(240, 173, 78, 0.1);
+    }
+
+    .bg-soft-success {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-soft-secondary {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+</style>

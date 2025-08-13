@@ -1,0 +1,163 @@
+﻿@model List<Unit>
+@{
+    ViewData["Title"] = "My Units";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-primary text-white">
+            <h6 class="m-0 font-weight-bold">All Your Units</h6>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Unit Code</th>
+                                <th>Type</th>
+                                <th>Location</th>
+                                <th>Area (sqm)</th>
+                                <th>Bed/Bath</th>
+                                <th>Price</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var unit in Model)
+                            {
+                                <tr>
+                                    <td>@(unit.UnitCode ?? "N/A")</td>
+                                    <td>@unit.Type</td>
+                                    <td>@unit.Location</td>
+                                    <td>@unit.Area</td>
+                                    <td>@unit.Bedrooms / @unit.Bathrooms</td>
+                                    <td>@unit.Price.ToString("C")</td>
+                                    <td>@(unit.Project?.Name ?? "N/A")</td>
+                                    <td>
+                                        @if (unit.IsAvailable)
+                                        {
+                                            <span class="badge badge-warning">Available</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success">Sold</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary view-details"
+                                                data-id="@unit.Id"
+                                                title="View Details">
+                                            <i class="fas fa-eye"></i> Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Unit Details Modal -->
+                <div class="modal fade" id="unitDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-home"></i> Unit Details
+                                </h5>
+
+                            </div>
+                            <div class="modal-body" id="unitDetailsContent">
+                                <!-- Content will be loaded here via AJAX -->
+                                <div class="text-center py-5">
+                                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                                    <p>Loading data...</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    You don't have any units yet. <a asp-action="AddUnit">Add your first unit</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .badge-warning {
+            background-color: #f6c23e;
+            color: #000;
+        }
+
+        .badge-success {
+            background-color: #1cc88a;
+            color: #fff;
+        }
+
+        .view-details {
+            min-width: 90px;
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Handle details button click
+            $('.view-details').on('click', function() {
+                var unitId = $(this).data('id');
+                var url = '@Url.Action("GetUnitDetails", "Lead")' + '?id=' + unitId;
+
+                // Show loading spinner
+                $('#unitDetailsContent').html(`
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-3x"></i>
+                        <p>Loading unit details...</p>
+                    </div>
+                `);
+
+                // Show modal
+                $('#unitDetailsModal').modal('show');
+
+                // Load data via AJAX
+                $.get(url)
+                    .done(function(data) {
+                        $('#unitDetailsContent').html(data);
+                    })
+                    .fail(function() {
+                        $('#unitDetailsContent').html(`
+                            <div class="alert alert-danger text-center py-4">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <h5>Error loading unit details</h5>
+                                <p>Please try again later</p>
+                            </div>
+                        `);
+                    });
+            });
+
+            // Clear modal content when closed
+            $('#unitDetailsModal').on('hidden.bs.modal', function () {
+                $('#unitDetailsContent').empty();
+            });
+        });
+    </script>
+}

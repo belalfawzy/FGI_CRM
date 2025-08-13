@@ -1,0 +1,377 @@
+﻿@using FGI.Enums
+@model Lead
+@{
+    ViewData["Title"] = "Lead Details";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Lead Details</h1>
+        <a asp-action="MyLeads" class="d-none d-sm-inline-block btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to My Leads
+        </a>
+    </div>
+
+    <!-- Status Messages -->
+    @if (Model.CurrentStatus == LeadStatusType.DoneDeal)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Congratulations!</strong> The deal has been successfully completed.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    else if (Model.CurrentStatus == LeadStatusType.Canceled)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Sorry!</strong> The deal was not completed.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Client Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Client Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h6 class="text-primary">Basic Information</h6>
+                                <hr class="mt-1 mb-3">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Client Name</dt>
+                                    <dd class="col-sm-8 font-weight-bold">@Model.ClientName</dd>
+
+                                    <dt class="col-sm-4">Phone Number</dt>
+                                    <dd class="col-sm-8">@Model.ClientPhone</dd>
+
+                                    <dt class="col-sm-4">Created On</dt>
+                                    <dd class="col-sm-8">@Model.CreatedAt.ToString("MMM dd, yyyy")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h6 class="text-primary">Project Details</h6>
+                                <hr class="mt-1 mb-3">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Project</dt>
+                                    <dd class="col-sm-8">@Model.Project?.Name</dd>
+
+                                    <dt class="col-sm-4">Status</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge @GetStatusBadgeClass(Model.CurrentStatus)">
+                                            @Model.CurrentStatus
+                                        </span>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unit Details Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-home mr-1"></i> Unit Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Unit != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <dl class="row">
+                                    <dt class="col-sm-5">Unit Code</dt>
+                                    <dd class="col-sm-7">@(Model.Unit.UnitCode ?? "N/A")</dd>
+
+                                    <dt class="col-sm-5">Unit Type</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Type</dd>
+
+                                    <dt class="col-sm-5">Location</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Location</dd>
+
+                                    <dt class="col-sm-5">Price</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Price.ToString("C")</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <dl class="row">
+                                    <dt class="col-sm-5">Area</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Area sqm</dd>
+
+                                    <dt class="col-sm-5">Bedrooms</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Bedrooms</dd>
+
+                                    <dt class="col-sm-5">Bathrooms</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Bathrooms</dd>
+
+                                    <dt class="col-sm-5">Price per Sqm</dt>
+                                    <dd class="col-sm-7">@((Model.Unit.Area > 0 ? Model.Unit.Price / Model.Unit.Area : 0).ToString("C"))</dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <h6 class="text-primary">Availability</h6>
+                            <hr class="mt-1 mb-3">
+                            <span class="badge @(Model.Unit.IsAvailable ? "bg-success" : "bg-danger")">
+                                @(Model.Unit.IsAvailable ? "Available" : "Not Available")
+                            </span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Unit.Description))
+                        {
+                            <div class="mt-3">
+                                <h6 class="text-primary">Additional Notes</h6>
+                                <hr class="mt-1 mb-3">
+                                <p class="text-muted">@Model.Unit.Description</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-home fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No unit assigned to this lead</p>
+                            <a asp-action="AvailableUnits" class="btn btn-primary">
+                                <i class="fas fa-search mr-1"></i> Browse Available Units
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Activity History Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">Activity History</h6>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Feedbacks != null && ((IEnumerable<LeadFeedback>)ViewBag.Feedbacks).Any())
+                    {
+                        <div class="timeline">
+                            @foreach (var feedback in ((IEnumerable<LeadFeedback>)ViewBag.Feedbacks).OrderByDescending(f => f.CreatedAt))
+                            {
+                                <div class="timeline-item">
+                                    <div class="timeline-icon bg-@GetStatusColor(feedback.Status)">
+                                        <i class="fas @GetStatusIcon(feedback.Status) text-white"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between">
+                                            <h6>@feedback.Sales?.FullName</h6>
+                                            <small class="text-muted">@feedback.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</small>
+                                        </div>
+                                        <p class="mb-1"><strong>Status:</strong> @feedback.Status</p>
+                                        <p>@feedback.Comment</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No activity history found</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Panel -->
+        <div class="col-lg-4">
+            @if (Model.CurrentStatus != LeadStatusType.DoneDeal && Model.CurrentStatus != LeadStatusType.Canceled)
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 bg-info text-white">
+                        <h6 class="m-0 font-weight-bold">Lead Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Unit == null)
+                        {
+                            <div class="mb-3">
+                                <a asp-action="AssignUnitToLead" asp-route-leadId="@Model.Id"
+                                   class="btn btn-primary btn-block">
+                                    <i class="fas fa-home mr-1"></i> Assign Unit
+                                </a>
+                            </div>
+                        }
+
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="leadId" value="@Model.Id" />
+
+                            <div class="form-group">
+                                <label for="status">Update Status</label>
+                                <select name="status" class="form-control" required>
+                                    @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
+                                    {
+                                        if (status != LeadStatusType.New && status != Model.CurrentStatus)
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="comment">Add Comment</label>
+                                <textarea name="comment" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-save me-1"></i> Update Lead
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 bg-secondary text-white">
+                        <h6 class="m-0 font-weight-bold">Lead Status</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        @if (Model.CurrentStatus == LeadStatusType.DoneDeal)
+                        {
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">Deal Completed</h5>
+                            <p class="text-muted">No further actions available</p>
+                        }
+                        else
+                        {
+                            <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                            <h5 class="text-danger">Deal Canceled</h5>
+                            <p class="text-muted">No further actions available</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(LeadStatusType status)
+    {
+        return status switch
+        {
+            LeadStatusType.New => "bg-primary",
+            LeadStatusType.WrongNumber => "bg-info",
+            LeadStatusType.NoAnswer => "bg-warning",
+            LeadStatusType.FollowUp => "bg-secondary",
+            LeadStatusType.DoneDeal => "bg-success",
+            LeadStatusType.Canceled => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusColor(LeadStatusType status)
+    {
+        return status switch
+        {
+            LeadStatusType.New => "primary",
+            LeadStatusType.WrongNumber => "info",
+            LeadStatusType.NoAnswer => "warning",
+            LeadStatusType.FollowUp => "secondary",
+            LeadStatusType.DoneDeal => "success",
+            LeadStatusType.Canceled => "danger",
+            _ => "secondary"
+        };
+    }
+
+    string GetStatusIcon(LeadStatusType status)
+    {
+        return status switch
+        {
+            LeadStatusType.New => "fa-user-plus",
+            LeadStatusType.WrongNumber => "fa-phone",
+            LeadStatusType.NoAnswer => "fa-check-circle",
+            LeadStatusType.FollowUp => "fa-clock",
+            LeadStatusType.DoneDeal => "fa-check-double",
+            LeadStatusType.Canceled => "fa-times-circle",
+            _ => "fa-info-circle"
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-content {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .bg-primary {
+            background-color: #4e73df !important;
+        }
+
+        .bg-success {
+            background-color: #1cc88a !important;
+        }
+
+        .bg-info {
+            background-color: #36b9cc !important;
+        }
+
+        .bg-warning {
+            background-color: #f6c23e !important;
+        }
+
+        .bg-danger {
+            background-color: #e74a3b !important;
+        }
+
+        .bg-secondary {
+            background-color: #858796 !important;
+        }
+
+        dl dt {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        dl dd {
+            margin-bottom: 0.5rem;
+        }
+
+        hr {
+            border-top: 1px solid #e3e6f0;
+        }
+    </style>
+}
