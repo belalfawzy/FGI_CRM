@@ -1,13 +1,13 @@
 ﻿@model Unit
 @{
-    ViewData["Title"] = "Add New Unit";
+    ViewData["Title"] = "Edit Unit";
 }
 
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-primary text-white">
             <h6 class="m-0 font-weight-bold">
-                <i class="fas fa-plus-circle me-2"></i>@ViewData["Title"]
+                <i class="fas fa-edit me-2"></i>@ViewData["Title"]
             </h6>
         </div>
         <div class="card-body">
@@ -30,7 +30,9 @@
                 </div>
             }
 
-            <form asp-action="AddUnit" method="post" id="unitForm">
+            <form asp-action="EditUnit" method="post" id="unitForm">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedBy" />
                 @Html.AntiForgeryToken()
 
                 <div class="row">
@@ -107,19 +109,19 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label asp-for="Area" class="font-weight-bold">Area (sqm)</label>
-                                    <input asp-for="Area" class="form-control numeric-input" type="text" placeholder="Enter area" value="" />
+                                    <input asp-for="Area" class="form-control formatted-number" type="text" placeholder="Enter area" />
                                     <span asp-validation-for="Area" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label asp-for="Bedrooms" class="font-weight-bold">Bedrooms</label>
-                                    <input asp-for="Bedrooms" class="form-control numeric-input" type="text" placeholder="Enter number of bedrooms" value="" />
+                                    <input asp-for="Bedrooms" class="form-control formatted-number" type="text" placeholder="Enter number of bedrooms" />
                                     <span asp-validation-for="Bedrooms" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label asp-for="Bathrooms" class="font-weight-bold">Bathrooms</label>
-                                    <input asp-for="Bathrooms" class="form-control numeric-input" type="text" placeholder="Enter number of bathrooms" value="" />
+                                    <input asp-for="Bathrooms" class="form-control formatted-number" type="text" placeholder="Enter number of bathrooms" />
                                     <span asp-validation-for="Bathrooms" class="text-danger small"></span>
                                 </div>
                             </div>
@@ -136,7 +138,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label asp-for="Price" class="font-weight-bold">Price *</label>
+                                    <label asp-for="Price" class="font-weight-bold">Price</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <select asp-for="Currency" class="form-control currency-selector" style="max-width: 100px;">
@@ -144,12 +146,7 @@
                                                 <option value="USD">USD</option>
                                             </select>
                                         </div>
-                                        <input asp-for="Price"
-                                               class="form-control numeric-input"
-                                               type="text"
-                                               placeholder="Enter price"
-                                               value=""
-                                               required />
+                                        <input asp-for="Price" class="form-control formatted-number" type="text" placeholder="Enter price" />
                                     </div>
                                     <span asp-validation-for="Price" class="text-danger small"></span>
                                 </div>
@@ -157,7 +154,7 @@
                                 <div class="form-group">
                                     <label class="font-weight-bold">Owner</label>
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control" id="ownerSearch" placeholder="Search owner by ID or name">
+                                        <input type="text" class="form-control" id="ownerSearch" placeholder="Search owner by phone or name" value="@(Model.Owner?.Phone ?? Model.Owner?.Name ?? "")">
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button" id="searchOwnerBtn">
                                                 <i class="fas fa-search"></i> Search
@@ -202,13 +199,13 @@
                                     </div>
 
                                     <!-- Hidden field for actual owner ID -->
-                                    <input type="hidden" asp-for="OwnerId" id="selectedOwnerId" />
+                                    <input type="hidden" asp-for="OwnerId" id="selectedOwnerId" value="@Model.OwnerId" />
                                     <span asp-validation-for="OwnerId" class="text-danger small"></span>
 
                                     <!-- Display selected owner info -->
-                                    <div id="selectedOwnerInfo" class="alert alert-info mt-2" style="display: none;">
+                                    <div id="selectedOwnerInfo" class="alert alert-info mt-2" style="@(Model.OwnerId == null ? "display: none;" : "")">
                                         <i class="fas fa-user-check me-2"></i>
-                                        <span id="selectedOwnerText"></span>
+                                        <span id="selectedOwnerText">@(Model.Owner?.Name ?? "")</span>
                                         <button type="button" class="close" id="clearOwnerSelection">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -221,6 +218,16 @@
                                             Add new owner
                                         </button>
                                     </div>
+                                </div>
+
+
+
+                                <div class="form-group">
+                                    <label asp-for="IsAvailable" class="font-weight-bold">Status</label>
+                                    <select asp-for="IsAvailable" class="form-control custom-select">
+                                        <option value="true">Available</option>
+                                        <option value="false">Sold/Not Available</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -244,11 +251,11 @@
                 </div>
 
                 <div class="form-group text-right mt-4">
-                    <a asp-action="AllUnits" class="btn btn-secondary mr-2">
+                    <a asp-action="MyUnits" class="btn btn-secondary mr-2">
                         <i class="fas fa-times me-2"></i>Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Save Unit
+                        <i class="fas fa-save me-2"></i>Save Changes
                     </button>
                 </div>
             </form>
@@ -256,153 +263,20 @@
     </div>
 </div>
 
-@section Styles {
-    <style>
-        .card {
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        }
-
-        .card-header {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 0.75rem 1.25rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        label {
-            font-weight: 600;
-            color: #4a4a4a;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .input-group-text {
-            background-color: #f8f9fc;
-            color: #4a4a4a;
-        }
-
-        .form-control, .custom-select {
-            border-radius: 0.35rem;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-        }
-
-            .form-control:focus, .custom-select:focus {
-                border-color: #bac8f3;
-                box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-            }
-
-        #pricePerSqm {
-            background-color: #f8f9fc;
-            color: #4a4a4a;
-        }
-
-        .text-danger.small {
-            font-size: 0.8rem;
-        }
-
-        .btn {
-            padding: 0.375rem 1.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
-        }
-
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
-        }
-
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
-        }
-
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
-        }
-
-        .border-left-secondary {
-            border-left: 0.25rem solid #858796 !important;
-        }
-
-        /* Owner search styling */
-        #ownerSearchResults, #addNewOwnerForm {
-            border-left: 3px solid #4e73df;
-        }
-
-        #selectedOwnerInfo {
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-        }
-
-            #selectedOwnerInfo .close {
-                margin-left: auto;
-                font-size: 1.5rem;
-                line-height: 1;
-            }
-
-        #ownerNotFound {
-            padding: 0.5rem 1rem;
-        }
-
-        /* Number input styling */
-        .numeric-input {
-            text-align: left !important;
-            font-family: Arial, sans-serif !important;
-        }
-
-        /* Required field indicator */
-        .font-weight-bold[required]::after {
-            content: " *";
-            color: red;
-        }
-    </style>
-}
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
 
+            // Update currency symbol when changed
+            $('.currency-selector').change(function() {
+                const currency = $(this).val();
+                $('.price-per-sqm-currency').text(currency);
+                $('#Price').trigger('input');
+            });
+
             // Initialize price per sqm on page load
             $('#Price').trigger('input');
-
-            // Validate UnitCode only when Project is selected
-            $('#ProjectId').change(function() {
-                if ($(this).val()) {
-                    $('#UnitCode').rules('add', {
-                        required: false
-                    });
-                } else {
-                    $('#UnitCode').rules('add', {
-                        required: false
-                    });
-                }
-            });
-
-            // Initial validation setup
-            $('#unitForm').validate({
-                rules: {
-                    UnitCode: {
-                        required: function() {
-                            return $('#ProjectId').val() !== '';
-                        }
-                    }
-                },
-                messages: {
-                    UnitCode: {
-                        required: "Unit code is required when project is selected"
-                    }
-                }
-            });
-
-            // ========== OWNER SELECTION FUNCTIONALITY ========== //
 
             // Owner search functionality
             $('#searchOwnerBtn').click(searchOwner);
@@ -450,7 +324,7 @@
 
                 // AJAX call to save new owner
                 $.ajax({
-                    url: '@Url.Action("AddOwnerAjax", "Sales")',
+                    url: '@Url.Action("AddOwnerAjax", "Admin")',
                     type: 'POST',
                     data: {
                         name: name,
@@ -494,7 +368,7 @@
 
                 // AJAX call to search for owner
                 $.ajax({
-                    url: '@Url.Action("SearchOwner", "Sales")',
+                    url: '@Url.Action("SearchOwner", "Admin")',
                     type: 'GET',
                     data: { term: searchTerm },
                     success: function(response) {
@@ -504,6 +378,7 @@
                                 <p><strong>Name:</strong> ${response.name}</p>
                                 <p><strong>Phone:</strong> ${response.phone || 'N/A'}</p>
                                 <p><strong>Email:</strong> ${response.email || 'N/A'}</p>
+                                <small class="text-muted">Found by ${response.searchType === 'phone' ? 'phone number' : 'name'}</small>
                             `);
                             $('#useSelectedOwner')
                                 .data('owner-id', response.id)

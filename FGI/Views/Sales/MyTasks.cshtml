@@ -40,6 +40,7 @@
                                 <th>Project</th>
                                 <th>Unit</th>
                                 <th>Type</th>
+                                <th>Sale Type</th>
                                 <th>Price</th>
                                 <th>Area</th>
                                 <th>Status</th>
@@ -53,6 +54,10 @@
                                 <tr>
                                     <td>
                                         <div class="font-weight-bold">@lead.ClientName</div>
+                                        @if (!string.IsNullOrEmpty(lead.Comment))
+                                        {
+                                            <small class="text-muted">@lead.Comment</small>
+                                        }
                                     </td>
                                     <td>
                                         <a href="tel:@lead.ClientPhone" class="text-primary">
@@ -62,8 +67,9 @@
                                     <td>@lead.Project?.Name</td>
                                     <td>@lead.Unit?.UnitCode</td>
                                     <td>@lead.Unit?.Type.ToString()</td>
-                                    <td>@lead.Unit?.Price</td>
-                                    <td>@lead.Unit?.Area</td>
+                                    <td>@lead.Unit?.UnitType.ToString()</td>
+                                    <td>@lead.Unit?.Price.ToString("C")</td>
+                                    <td>@lead.Unit?.Area sqm</td>
                                     <td>
                                         <span class="badge @GetStatusBadgeClass(lead.CurrentStatus)">
                                             @lead.CurrentStatus
@@ -74,12 +80,7 @@
                                         <a asp-action="LeadDetails" asp-route-id="@lead.Id"
                                            class="btn btn-sm btn-info me-1" title="View Details">
                                             <i class="fas fa-eye"></i>
-                                        </a><!--
-                                        <button type="button" class="btn btn-sm btn-primary"
-                                                data-bs-toggle="modal" data-bs-target="#statusModal"
-                                                data-lead-id="@lead.Id" data-lead-status="@lead.CurrentStatus">
-                                            <i class="fas fa-edit me-1"></i> Update
-                                        </button> -->
+                                        </a>
                                     </td>
                                 </tr>
                             }
@@ -90,59 +91,6 @@
         </div>
     </div>
 </div>
-<!-- Status Update Modal -->
-<!--
-<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="statusModalLabel">Update Lead Status</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form asp-action="UpdateStatus" asp-controller="Sales" method="post" id="statusForm">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="leadId" id="modalLeadId" />
-
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Current Status</label>
-                        <div class="p-2 rounded bg-light">
-                            <span id="currentStatusBadge" class="badge"></span>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="status" class="form-label">New Status *</label>
-                        <select name="status" class="form-select" id="statusSelect" required>
-                            @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
-                            {
-                                if (status != LeadStatusType.New)
-                                {
-                                    <option value="@status">@status</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="comment" class="form-label">Comments *</label>
-                        <textarea name="comment" class="form-control" id="commentText" rows="3" required></textarea>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="saveStatusBtn">
-                        <i class="fas fa-save me-1"></i> Save Changes
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
--->
 
 @functions {
     string GetStatusBadgeClass(LeadStatusType status)
@@ -184,8 +132,21 @@
             display: inline-block;
             text-align: center;
         }
+
+        /* Added for comment display */
+        td small.text-muted {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 }
+
 @section Scripts {
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -195,46 +156,18 @@
 
     <!-- DataTables Bootstrap 5 integration -->
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
-
-                $(document).on('submit', '#statusForm', function(e) {
-            e.preventDefault();
-
-            var $form = $(this);
-            var $btn = $('#saveStatusBtn');
-
-            // Disable button and show loading state
-            $btn.prop('disabled', true);
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
-
-            $.ajax({
-                url: $form.attr('action'),
-                type: 'POST',
-                data: $form.serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success(response.message);
-
-                        // Add slight delay before redirect
-                        setTimeout(function() {
-                            if (response.redirectUrl) {
-                                window.location.href = response.redirectUrl;
-                            }
-                        }, 1000);
-                    } else {
-                        toastr.error(response.message);
-                        $btn.prop('disabled', false);
-                        $btn.html('<i class="fas fa-save me-1"></i> Save Changes');
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error('An error occurred while updating status');
-                    $btn.prop('disabled', false);
-                    $btn.html('<i class="fas fa-save me-1"></i> Save Changes');
-                    console.error('Error:', xhr.responseText);
-                }
+        $(document).ready(function() {
+            $('#leadsTable').DataTable({
+                responsive: true,
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 }, // Client name
+                    { responsivePriority: 2, targets: -1 }, // Actions
+                    { responsivePriority: 3, targets: 1 }, // Contact
+                    { responsivePriority: 4, targets: 8 }   // Status
+                ]
             });
-        });
         });
     </script>
 }

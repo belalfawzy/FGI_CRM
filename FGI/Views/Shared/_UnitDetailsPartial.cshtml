@@ -22,6 +22,10 @@
                                     <span class="detail-label">Location:</span>
                                     <span class="detail-value">@Model.Location</span>
                                 </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Unit Code:</span>
+                                    <span class="detail-value">@(Model.UnitCode ?? "N/A")</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -46,8 +50,12 @@
                                     <span class="detail-value">@Model.Type</span>
                                 </div>
                                 <div class="detail-item">
+                                    <span class="detail-label">Sale Type:</span>
+                                    <span class="detail-value">@Model.UnitType</span>
+                                </div>
+                                <div class="detail-item">
                                     <span class="detail-label">Area:</span>
-                                    <span class="detail-value">@Model.Area sqm</span>
+                                    <span class="detail-value">@Model.Area.ToString("N0") sqm</span>
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">Bedrooms:</span>
@@ -78,11 +86,22 @@
                             <div class="card-text">
                                 <div class="detail-item">
                                     <span class="detail-label">Price:</span>
-                                    <span class="detail-value">@Model.Price.ToString("C")</span>
+                                    <span class="detail-value">
+                                        @if (Model.Currency == Currency.USD)
+                                        {
+                                            <span>$</span>
+                                        }
+                                        else
+                                        {
+                                            <span>EGP</span>
+                                        }
+                                        @Model.Price.ToString("N0")
+                                    </span>
                                 </div>
+                                
                                 <div class="detail-item">
-                                    <span class="detail-label">Price per Sqm:</span>
-                                    <span class="detail-value">@((Model.Area > 0 ? Model.Price / Model.Area : 0).ToString("C"))</span>
+                                    <span class="detail-label">Owner:</span>
+                                    <span class="detail-value">@(Model.Owner?.Name ?? "N/A")</span>
                                 </div>
                             </div>
                         </div>
@@ -90,7 +109,8 @@
                 </div>
             </div>
         </div>
-        <!--Column 4--->
+
+        <!-- Column 4 -->
         @if (User.IsInRole("Admin"))
         {
             <div class="col-lg-6">
@@ -112,6 +132,19 @@
                                         <span class="detail-label">Created At:</span>
                                         <span class="detail-value">@Model.CreatedAt.ToString("f")</span>
                                     </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-value">
+                                            @if (Model.IsAvailable)
+                                            {
+                                                <span class="badge bg-success">Available</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Not Available</span>
+                                            }
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +153,6 @@
             </div>
         }
     </div>
-  
 
     @if (!string.IsNullOrEmpty(Model.Description))
     {
@@ -232,6 +264,11 @@
 
     .action-buttons {
         padding: 0.5rem 0;
+    }
+
+    .badge {
+        font-size: 0.85em;
+        padding: 0.35em 0.65em;
     }
 
     /* Responsive adjustments */

@@ -59,6 +59,16 @@
                     </div>
                 </div>
 
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="Comment" class="control-label">Comment</label>
+                            <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Enter any additional comments"></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Unit Details Section -->
                 <div class="row mt-3" id="unitDetailsContainer" style="display: none;">
                     <div class="col-md-12">
@@ -230,59 +240,56 @@
             });
 
             // Form submission handler
-                $('#leadForm').on('submit', function (e) {
-            e.preventDefault();
+            $('#leadForm').on('submit', function(e) {
+                e.preventDefault();
 
-            if (!$(this).valid()) return false;
+                if (!$(this).valid()) return false;
 
-            var $btn = $('#saveButton');
-            $btn.prop('disabled', true);         // قفل الزرار
-            $('#saveIcon').hide();
-            $('#saveSpinner').show();
-            $('#saveText').text('Saving...');
+                var $btn = $('#saveButton');
+                $btn.prop('disabled', true);
+                $('#saveIcon').hide();
+                $('#saveSpinner').show();
+                $('#saveText').text('Saving...');
 
-            var formData = new FormData(this);
+                var formData = new FormData(this);
 
-            $.ajax({
-                url: '@Url.Action("Create", "Lead")',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        toastr.success(response.message);
-                        // هنا مش هنفعل الزرار تاني عشان العملية نجحت
-                        setTimeout(function () {
-                            window.location.href = response.redirect || '@Url.Action("Index")';
-                        }, 1500);
-                    } else {
-                        toastr.error(response.message);
-                        if (response.errors) {
-                            response.errors.forEach(function (error) {
-                                toastr.error(error);
-                            });
+                $.ajax({
+                    url: '@Url.Action("Create", "Lead")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(function() {
+                                window.location.href = response.redirect || '@Url.Action("Index")';
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                            if (response.errors) {
+                                response.errors.forEach(function(error) {
+                                    toastr.error(error);
+                                });
+                            }
+                            $btn.prop('disabled', false);
+                            $('#saveIcon').show();
+                            $('#saveSpinner').hide();
+                            $('#saveText').text('Save Lead');
                         }
-                        // لو فيه خطأ، فعل الزرار تاني
+                    },
+                    error: function() {
+                        toastr.error('Failed to save lead. Please try again.');
                         $btn.prop('disabled', false);
                         $('#saveIcon').show();
                         $('#saveSpinner').hide();
                         $('#saveText').text('Save Lead');
                     }
-                },
-                error: function () {
-                    toastr.error('Failed to save lead. Please try again.');
-                    // فعل الزرار في حالة الخطأ
-                    $btn.prop('disabled', false);
-                    $('#saveIcon').show();
-                    $('#saveSpinner').hide();
-                    $('#saveText').text('Save Lead');
-                }
+                });
             });
-        });
         });
     </script>
 }

@@ -6,6 +6,9 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="AddUnit" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Unit
+        </a>
     </div>
 
     <div class="card shadow mb-4">
@@ -21,10 +24,12 @@
                             <tr>
                                 <th>Unit Code</th>
                                 <th>Type</th>
+                                <th>Sale Type</th>
                                 <th>Location</th>
                                 <th>Area (sqm)</th>
                                 <th>Bed/Bath</th>
                                 <th>Price</th>
+                                <th>Owner</th>
                                 <th>Project</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -36,27 +41,45 @@
                                 <tr>
                                     <td>@(unit.UnitCode ?? "N/A")</td>
                                     <td>@unit.Type</td>
+                                    <td>@unit.UnitType</td>
                                     <td>@unit.Location</td>
-                                    <td>@unit.Area</td>
+                                    <td>@unit.Area.ToString("N0")</td>
                                     <td>@unit.Bedrooms / @unit.Bathrooms</td>
-                                    <td>@unit.Price.ToString("C")</td>
+                                    <td>
+                                        @if (unit.Currency == Currency.USD)
+                                        {
+                                            <span>$</span>
+                                        }
+                                        else
+                                        {
+                                            <span>EGP</span>
+                                        }
+                                        @unit.Price.ToString("N0")
+                                    </td>
+                                    <td>@(unit.Owner?.Name ?? "N/A")</td>
                                     <td>@(unit.Project?.Name ?? "N/A")</td>
                                     <td>
                                         @if (unit.IsAvailable)
                                         {
-                                            <span class="badge badge-warning">Available</span>
+                                            <span class="badge badge-success">Available</span>
                                         }
                                         else
                                         {
-                                            <span class="badge badge-success">Sold</span>
+                                            <span class="badge badge-danger">Sold</span>
                                         }
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary view-details"
-                                                data-id="@unit.Id"
-                                                title="View Details">
-                                            <i class="fas fa-eye"></i> Details
-                                        </button>
+                                        <div class="d-flex">
+                                            <button class="btn btn-sm btn-primary view-details mr-2"
+                                                    data-id="@unit.Id"
+                                                    title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a asp-action="EditUnit" asp-controller="Sales" asp-route-id="@unit.Id"
+                                               class="btn btn-sm btn-info" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -72,7 +95,9 @@
                                 <h5 class="modal-title">
                                     <i class="fas fa-home"></i> Unit Details
                                 </h5>
-                               
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
                             <div class="modal-body" id="unitDetailsContent">
                                 <!-- Content will be loaded here via AJAX -->
@@ -81,7 +106,9 @@
                                     <p>Loading data...</p>
                                 </div>
                             </div>
-                           
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -89,7 +116,8 @@
             else
             {
                 <div class="alert alert-info">
-                    You don't have any units yet. <a asp-action="AddUnit">Add your first unit</a>
+                    <i class="fas fa-info-circle mr-2"></i> You don't have any units yet.
+                    <a asp-action="AddUnit" class="alert-link">Add your first unit</a>
                 </div>
             }
         </div>
@@ -98,22 +126,41 @@
 
 @section Styles {
     <style>
-        .badge-warning {
-            background-color: #f6c23e;
-            color: #000;
-        }
-
         .badge-success {
             background-color: #1cc88a;
             color: #fff;
         }
 
+        .badge-danger {
+            background-color: #e74a3b;
+            color: #fff;
+        }
+
+        .badge-warning {
+            background-color: #f6c23e;
+            color: #000;
+        }
+
         .view-details {
-            min-width: 90px;
+            min-width: 32px;
         }
 
         .table th {
             white-space: nowrap;
+        }
+
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
     </style>
 }

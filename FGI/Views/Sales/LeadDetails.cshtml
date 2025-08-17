@@ -78,6 +78,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Added Comment Section -->
+                    @if (!string.IsNullOrEmpty(Model.Comment))
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="text-primary">Client Comment</h6>
+                                <hr class="mt-1">
+                                <p>@Model.Comment</p>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -99,6 +111,9 @@
 
                                     <dt class="col-sm-5">Unit Type</dt>
                                     <dd class="col-sm-7">@Model.Unit.Type</dd>
+
+                                    <dt class="col-sm-5">Sale Type</dt>
+                                    <dd class="col-sm-7">@Model.Unit.UnitType</dd>
 
                                     <dt class="col-sm-5">Location</dt>
                                     <dd class="col-sm-7">@Model.Unit.Location</dd>

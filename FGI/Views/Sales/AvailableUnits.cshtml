@@ -109,6 +109,16 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Sale Type</label>
+                            <select name="saleType" class="form-control">
+                                <option value="">Any</option>
+                                <option value="Sale">For Sale</option>
+                                <option value="Rent">For Rent</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -118,6 +128,7 @@
         <div class="card-header py-3 bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold">Available Units</h6>
+                <span class="badge badge-light">@Model.Count Units Found</span>
             </div>
         </div>
         <div class="card-body">
@@ -127,6 +138,7 @@
                         <tr>
                             <th>Unit Code</th>
                             <th>Type</th>
+                            <th>Sale Type</th>
                             <th>Location</th>
                             <th>Area(sqm)</th>
                             <th>Bed/Bath</th>
@@ -141,6 +153,7 @@
                             <tr>
                                 <td>@unit.UnitCode</td>
                                 <td>@unit.Type</td>
+                                <td>@unit.UnitType</td>
                                 <td>@unit.Location</td>
                                 <td>@unit.Area</td>
                                 <td>@unit.Bedrooms / @unit.Bathrooms</td>
@@ -177,6 +190,9 @@
             <div class="modal-body" id="unitDetailsContent">
                 <!-- Content will be loaded here via AJAX -->
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -192,7 +208,7 @@
                 responsive: true,
                 dom: '<"top"f>rt<"bottom"lip><"clear">',
                 columnDefs: [
-                    { orderable: false, targets: 7 } // Disable sorting on actions column
+                    { orderable: false, targets: 8 } // Disable sorting on actions column
                 ]
             });
 
@@ -213,10 +229,11 @@
             $('[name="bedrooms"]').val(urlParams.get('bedrooms') || '');
 
             // Set advanced filters if any exist
-            if (urlParams.get('minArea') || urlParams.get('bathrooms')) {
+            if (urlParams.get('minArea') || urlParams.get('bathrooms') || urlParams.get('saleType')) {
                 $('#advancedFilters').show();
                 $('[name="minArea"]').val(urlParams.get('minArea') || '');
                 $('[name="bathrooms"]').val(urlParams.get('bathrooms') || '');
+                $('[name="saleType"]').val(urlParams.get('saleType') || '');
                 $('#toggleAdvanced i').removeClass('fa-sliders-h').addClass('fa-times');
             }
 
@@ -272,6 +289,10 @@
 
         .view-details {
             min-width: 90px;
+        }
+
+        .modal-lg {
+            max-width: 900px;
         }
     </style>
 }

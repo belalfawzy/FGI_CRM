@@ -53,6 +53,12 @@
 
                                     <dt class="col-sm-4">Created On</dt>
                                     <dd class="col-sm-8">@Model.CreatedAt.ToString("MMM dd, yyyy")</dd>
+
+                                    @if (!string.IsNullOrEmpty(Model.Comment))
+                                    {
+                                        <dt class="col-sm-4">Comment</dt>
+                                        <dd class="col-sm-8">@Model.Comment</dd>
+                                    }
                                 </dl>
                             </div>
                         </div>
@@ -96,15 +102,18 @@
                                     <dt class="col-sm-5">Unit Type</dt>
                                     <dd class="col-sm-7">@Model.Unit.Type</dd>
 
+                                    <dt class="col-sm-5">Sale Type</dt>
+                                    <dd class="col-sm-7">@Model.Unit.UnitType</dd>
+
                                     <dt class="col-sm-5">Location</dt>
                                     <dd class="col-sm-7">@Model.Unit.Location</dd>
-
-                                    <dt class="col-sm-5">Price</dt>
-                                    <dd class="col-sm-7">@Model.Unit.Price.ToString("C")</dd>
                                 </dl>
                             </div>
                             <div class="col-md-6">
                                 <dl class="row">
+                                    <dt class="col-sm-5">Price</dt>
+                                    <dd class="col-sm-7">@Model.Unit.Price.ToString("C")</dd>
+
                                     <dt class="col-sm-5">Area</dt>
                                     <dd class="col-sm-7">@Model.Unit.Area sqm</dd>
 
@@ -113,10 +122,14 @@
 
                                     <dt class="col-sm-5">Bathrooms</dt>
                                     <dd class="col-sm-7">@Model.Unit.Bathrooms</dd>
-
-                                    <dt class="col-sm-5">Price per Sqm</dt>
-                                    <dd class="col-sm-7">@((Model.Unit.Area > 0 ? Model.Unit.Price / Model.Unit.Area : 0).ToString("C"))</dd>
                                 </dl>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <dt class="col-sm-2">Price per Sqm</dt>
+                                <dd class="col-sm-10">@((Model.Unit.Area > 0 ? Model.Unit.Price / Model.Unit.Area : 0).ToString("C"))</dd>
                             </div>
                         </div>
 
@@ -187,6 +200,13 @@
                     <div class="card-body">
                         <form asp-action="Reassign" method="post">
                             <input type="hidden" name="leadId" value="@Model.Id" />
+
+                            <div class="form-group">
+                                <label>Created By</label>
+                                <p class="form-control-static">
+                                    <span class="font-weight-bold">@Model.CreatedBy?.FullName</span>
+                                </p>
+                            </div>
 
                             <div class="form-group">
                                 <label>Current Sales Rep</label>

@@ -1,6 +1,7 @@
 ﻿using FGI.Interfaces;
 using FGI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace FGI.Services
@@ -9,11 +10,13 @@ namespace FGI.Services
     {
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<UnitService> _logger;
 
-        public UnitService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
+        public UnitService(AppDbContext context, IHttpContextAccessor httpContextAccessor, ILogger<UnitService> logger)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         public async Task<List<Unit>> GetUnitsByProjectIdAsync(int projectId)
@@ -23,22 +26,42 @@ namespace FGI.Services
                 .OrderBy(u => u.UnitCode) 
                 .ToListAsync();
         }
-        public async Task<bool> UnitCodeExists(string unitCode, int projectId)
+        public async Task<bool> UnitCodeExists(string unitCode, int? projectId)
         {
+            // If no project is selected or no unit code provided, it can't exist
+            if (projectId == null || string.IsNullOrWhiteSpace(unitCode))
+            {
+                return false;
+            }
+
             return await _context.Units
                 .AnyAsync(u => u.UnitCode == unitCode && u.ProjectId == projectId);
         }
+
         public async Task<Unit> AddUnitAsync(Unit unit)
         {
-            // الحصول على معرف المستخدم الحالي
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // التحقق من صحة المودل قبل الحفظ
+            var validationContext = new ValidationContext(unit);
+            var validationResults = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(unit, validationContext, validationResults, true);
 
-            if (await UnitCodeExists(unit.UnitCode, unit.ProjectId ?? 0))
+            if (!isValid)
             {
-                throw new InvalidOperationException("Unit code already exists for this project.");
+                var errorMessages = validationResults.Select(vr => vr.ErrorMessage);
+                throw new InvalidOperationException(string.Join("; ", errorMessages));
+            }
+
+            // التحقق من تكرار كود الوحدة إذا كان موجوداً
+            if (!string.IsNullOrWhiteSpace(unit.UnitCode) && unit.ProjectId.HasValue)
+            {
+                if (await UnitCodeExists(unit.UnitCode, unit.ProjectId.Value))
+                {
+                    throw new InvalidOperationException("Unit code already exists for this project.");
+                }
             }
 
             // تعيين المستخدم الذي أضاف الوحدة
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (int.TryParse(userId, out int createdById))
             {
                 unit.CreatedById = createdById;
@@ -80,12 +103,41 @@ namespace FGI.Services
                 .Include(u => u.Project)
                 .Where(u => u.CreatedById == creatorId)
                 .OrderBy(u => u.UnitCode)
+                .Include(u=>u.Owner)
                 .ToListAsync();
         }
         public async Task UpdateUnitAsync(Unit unit)
         {
-            _context.Units.Update(unit);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var existingUnit = await _context.Units.FindAsync(unit.Id);
+                if (existingUnit == null)
+                {
+                    throw new KeyNotFoundException("Unit not found");
+                }
+
+                // Save the original created values
+                var createdById = existingUnit.CreatedById;
+                var createdAt = existingUnit.CreatedAt;
+
+                // Update all properties except CreatedById and CreatedAt
+                _context.Entry(existingUnit).CurrentValues.SetValues(unit);
+
+                // Restore the original created values
+                existingUnit.CreatedById = createdById;
+                existingUnit.CreatedAt = createdAt;
+
+                // Handle navigation properties
+                existingUnit.ProjectId = unit.ProjectId;
+                existingUnit.OwnerId = unit.OwnerId;
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating unit");
+                throw;
+            }
         }
         public async Task<IEnumerable<Unit>> GetAvailableUnitsAsync()
         {

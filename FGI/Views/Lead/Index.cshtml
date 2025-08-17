@@ -41,6 +41,7 @@
                                 <th>Project</th>
                                 <th>Unit Code</th>
                                 <th>Unit Type</th>
+                                <th>Sale Type</th>
                                 <th>Price</th>
                                 <th>Area</th>
                                 <th>Status</th>
@@ -61,6 +62,7 @@
                                     <td>@lead.Project?.Name</td>
                                     <td>@lead.Unit?.UnitCode</td>
                                     <td>@lead.Unit?.Type.ToString()</td>
+                                    <td>@lead.Unit?.UnitType.ToString()</td>
                                     <td>@(lead.Unit != null ? $"{lead.Unit.Price:C}" : "-")</td>
                                     <td>@(lead.Unit?.Area ?? 0)</td>
                                     <td>
@@ -127,6 +129,7 @@
                                 <th>Project</th>
                                 <th>Unit Code</th>
                                 <th>Unit Type</th>
+                                <th>Sale Type</th>
                                 <th>Price</th>
                                 <th>Area</th>
                                 <th>Assigned To</th>
@@ -146,6 +149,7 @@
                                     <td>@lead.Project?.Name</td>
                                     <td>@lead.Unit?.UnitCode</td>
                                     <td>@lead.Unit?.Type.ToString()</td>
+                                    <td>@lead.Unit?.UnitType.ToString()</td>
                                     <td>@(lead.Unit != null ? $"{lead.Unit.Price:C}" : "-")</td>
                                     <td>@(lead.Unit?.Area ?? 0)</td>
                                     <td>

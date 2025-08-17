@@ -44,6 +44,14 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
+                                    <label asp-for="ProjectId" class="font-weight-bold">Project</label>
+                                    <select asp-for="ProjectId" class="form-control custom-select" asp-items="ViewBag.Projects">
+                                        <option value="">-- Select Project --</option>
+                                    </select>
+                                    <span asp-validation-for="ProjectId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
                                     <label asp-for="UnitCode" class="font-weight-bold">Unit Code</label>
                                     <input asp-for="UnitCode" class="form-control" placeholder="Enter unit code" />
                                     <span asp-validation-for="UnitCode" class="text-danger small"></span>
@@ -58,11 +66,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label asp-for="ProjectId" class="font-weight-bold">Project</label>
-                                    <select asp-for="ProjectId" class="form-control custom-select" asp-items="ViewBag.Projects">
-                                        <option value="">-- Select Project --</option>
+                                    <label asp-for="UnitType" class="font-weight-bold">Sale Type</label>
+                                    <select asp-for="UnitType" class="form-control custom-select" asp-items="Html.GetEnumSelectList<UnitSaleType>()">
+                                        <option value="">-- Select Sale Type --</option>
                                     </select>
-                                    <span asp-validation-for="ProjectId" class="text-danger small"></span>
+                                    <span asp-validation-for="UnitType" class="text-danger small"></span>
                                 </div>
                             </div>
                         </div>
@@ -99,19 +107,19 @@
                             <div class="card-body">
                                 <div class="form-group">
                                     <label asp-for="Area" class="font-weight-bold">Area (sqm)</label>
-                                    <input asp-for="Area" class="form-control" type="number" step="0.01" placeholder="Enter area" />
+                                    <input asp-for="Area" class="form-control numeric-input" type="text" placeholder="Enter area" value="" />
                                     <span asp-validation-for="Area" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label asp-for="Bedrooms" class="font-weight-bold">Bedrooms</label>
-                                    <input asp-for="Bedrooms" class="form-control" type="number" placeholder="Enter number of bedrooms" />
+                                    <input asp-for="Bedrooms" class="form-control numeric-input" type="text" placeholder="Enter number of bedrooms" value="" />
                                     <span asp-validation-for="Bedrooms" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label asp-for="Bathrooms" class="font-weight-bold">Bathrooms</label>
-                                    <input asp-for="Bathrooms" class="form-control" type="number" placeholder="Enter number of bathrooms" />
+                                    <input asp-for="Bathrooms" class="form-control numeric-input" type="text" placeholder="Enter number of bathrooms" value="" />
                                     <span asp-validation-for="Bathrooms" class="text-danger small"></span>
                                 </div>
                             </div>
@@ -128,29 +136,90 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label asp-for="Price" class="font-weight-bold">Price</label>
+                                    <label asp-for="Price" class="font-weight-bold">Price *</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text">$</span>
+                                            <select asp-for="Currency" class="form-control currency-selector" style="max-width: 100px;">
+                                                <option value="EGP">EGP</option>
+                                                <option value="USD">USD</option>
+                                            </select>
                                         </div>
-                                        <input asp-for="Price" class="form-control" type="number" step="0.01" placeholder="Enter price" />
+                                        <input asp-for="Price"
+                                               class="form-control numeric-input"
+                                               type="text"
+                                               placeholder="Enter price"
+                                               value=""
+                                               required />
                                     </div>
                                     <span asp-validation-for="Price" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group">
-                                    <label asp-for="OwnerPhone" class="font-weight-bold">Owner Phone Number</label>
-                                    <input asp-for="OwnerPhone" class="form-control" placeholder="Enter owner phone number" />
-                                    <span asp-validation-for="OwnerPhone" class="text-danger small"></span>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Price per Sqm</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">$</span>
+                                    <label class="font-weight-bold">Owner</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" id="ownerSearch" placeholder="Search owner by ID or name">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="searchOwnerBtn">
+                                                <i class="fas fa-search"></i> Search
+                                            </button>
                                         </div>
-                                        <input type="text" class="form-control" id="pricePerSqm" readonly />
+                                    </div>
+
+                                    <!-- Owner Search Results -->
+                                    <div id="ownerSearchResults" class="card mb-3" style="display: none;">
+                                        <div class="card-body">
+                                            <div id="foundOwnerDetails"></div>
+                                            <button type="button" class="btn btn-success btn-sm mt-2" id="useSelectedOwner">
+                                                <i class="fas fa-check"></i> Use This Owner
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add New Owner Form (initially hidden) -->
+                                    <div id="addNewOwnerForm" class="card mb-3" style="display: none;">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="m-0 font-weight-bold text-primary">
+                                                <i class="fas fa-user-plus me-2"></i>Add New Owner
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="newOwnerName">Owner Name</label>
+                                                <input type="text" class="form-control" id="newOwnerName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="newOwnerPhone">Phone</label>
+                                                <input type="text" class="form-control" id="newOwnerPhone">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="newOwnerEmail">Email</label>
+                                                <input type="email" class="form-control" id="newOwnerEmail">
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-sm" id="saveNewOwner">
+                                                <i class="fas fa-save"></i> Save Owner
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hidden field for actual owner ID -->
+                                    <input type="hidden" asp-for="OwnerId" id="selectedOwnerId" />
+                                    <span asp-validation-for="OwnerId" class="text-danger small"></span>
+
+                                    <!-- Display selected owner info -->
+                                    <div id="selectedOwnerInfo" class="alert alert-info mt-2" style="display: none;">
+                                        <i class="fas fa-user-check me-2"></i>
+                                        <span id="selectedOwnerText"></span>
+                                        <button type="button" class="close" id="clearOwnerSelection">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- "Owner Not Found" message and "Add New" button -->
+                                    <div id="ownerNotFound" class="alert alert-warning mt-2" style="display: none;">
+                                        <i class="fas fa-exclamation-circle me-2"></i>Owner not found.
+                                        <button type="button" class="btn btn-link p-0 align-baseline" id="showAddOwnerForm">
+                                            Add new owner
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -260,6 +329,39 @@
         .border-left-secondary {
             border-left: 0.25rem solid #858796 !important;
         }
+
+        /* Owner search styling */
+        #ownerSearchResults, #addNewOwnerForm {
+            border-left: 3px solid #4e73df;
+        }
+
+        #selectedOwnerInfo {
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+            #selectedOwnerInfo .close {
+                margin-left: auto;
+                font-size: 1.5rem;
+                line-height: 1;
+            }
+
+        #ownerNotFound {
+            padding: 0.5rem 1rem;
+        }
+
+        /* Number input styling */
+        .numeric-input {
+            text-align: left !important;
+            font-family: Arial, sans-serif !important;
+        }
+
+        /* Required field indicator */
+        .font-weight-bold[required]::after {
+            content: " *";
+            color: red;
+        }
     </style>
 }
 
@@ -267,16 +369,160 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
-            // Calculate price per sqm
-            $('#Price, #Area').on('input', function() {
-                const price = parseFloat($('#Price').val()) || 0;
-                const area = parseFloat($('#Area').val()) || 0;
-                const pricePerSqm = area > 0 ? (price / area).toFixed(2) : 0;
-                $('#pricePerSqm').val(pricePerSqm);
-            });
 
             // Initialize price per sqm on page load
             $('#Price').trigger('input');
+
+            // Validate UnitCode only when Project is selected
+            $('#ProjectId').change(function() {
+                if ($(this).val()) {
+                    $('#UnitCode').rules('add', {
+                        required: false
+                    });
+                } else {
+                    $('#UnitCode').rules('add', {
+                        required: false
+                    });
+                }
+            });
+
+            // Initial validation setup
+            $('#unitForm').validate({
+                rules: {
+                    UnitCode: {
+                        required: function() {
+                            return $('#ProjectId').val() !== '';
+                        }
+                    }
+                },
+                messages: {
+                    UnitCode: {
+                        required: "Unit code is required when project is selected"
+                    }
+                }
+            });
+
+            // ========== OWNER SELECTION FUNCTIONALITY ========== //
+
+            // Owner search functionality
+            $('#searchOwnerBtn').click(searchOwner);
+            $('#ownerSearch').keypress(function(e) {
+                if (e.which === 13) {
+                    searchOwner();
+                    return false;
+                }
+            });
+
+            // Use selected owner
+            $('#useSelectedOwner').click(function() {
+                const ownerId = $(this).data('owner-id');
+                const ownerName = $(this).data('owner-name');
+
+                $('#selectedOwnerId').val(ownerId);
+                $('#selectedOwnerText').text(ownerName);
+                $('#selectedOwnerInfo').show();
+                $('#ownerSearchResults').hide();
+                $('#ownerSearch').val('');
+            });
+
+            // Clear owner selection
+            $('#clearOwnerSelection').click(function() {
+                $('#selectedOwnerId').val('');
+                $('#selectedOwnerInfo').hide();
+            });
+
+            // Show add owner form
+            $('#showAddOwnerForm').click(function() {
+                $('#ownerNotFound').hide();
+                $('#addNewOwnerForm').show();
+            });
+
+            // Save new owner
+            $('#saveNewOwner').click(function() {
+                const name = $('#newOwnerName').val().trim();
+                const phone = $('#newOwnerPhone').val().trim();
+                const email = $('#newOwnerEmail').val().trim();
+
+                if (!name) {
+                    alert('Owner name is required');
+                    return;
+                }
+
+                // AJAX call to save new owner
+                $.ajax({
+                    url: '@Url.Action("AddOwnerAjax", "Admin")',
+                    type: 'POST',
+                    data: {
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Set the new owner as selected
+                            $('#selectedOwnerId').val(response.ownerId);
+                            $('#selectedOwnerText').text(name);
+                            $('#selectedOwnerInfo').show();
+                            $('#addNewOwnerForm').hide();
+                            $('#newOwnerName, #newOwnerPhone, #newOwnerEmail').val('');
+
+                            // Refresh the owners dropdown if needed
+                            if (response.ownerId && response.name) {
+                                var $ownerDropdown = $('#OwnerId');
+                                if ($ownerDropdown.length) {
+                                    $ownerDropdown.append(new Option(response.name, response.ownerId));
+                                    $ownerDropdown.val(response.ownerId);
+                                }
+                            }
+                        } else {
+                            alert(response.message || 'Error saving owner');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error saving owner: ' + error);
+                    }
+                });
+            });
+
+            function searchOwner() {
+                const searchTerm = $('#ownerSearch').val().trim();
+                if (!searchTerm) {
+                    alert('Please enter search term');
+                    return;
+                }
+
+                // AJAX call to search for owner
+                $.ajax({
+                    url: '@Url.Action("SearchOwner", "Admin")',
+                    type: 'GET',
+                    data: { term: searchTerm },
+                    success: function(response) {
+                        if (response.found) {
+                            // Display found owner
+                            $('#foundOwnerDetails').html(`
+                                <p><strong>Name:</strong> ${response.name}</p>
+                                <p><strong>Phone:</strong> ${response.phone || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${response.email || 'N/A'}</p>
+                            `);
+                            $('#useSelectedOwner')
+                                .data('owner-id', response.id)
+                                .data('owner-name', response.name);
+                            $('#ownerSearchResults').show();
+                            $('#ownerNotFound').hide();
+                            $('#addNewOwnerForm').hide();
+                        } else {
+                            // Show "not found" message
+                            $('#ownerSearchResults').hide();
+                            $('#ownerNotFound').show();
+                            $('#addNewOwnerForm').hide();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error searching for owner: ' + error);
+                    }
+                });
+            }
         });
     </script>
 }

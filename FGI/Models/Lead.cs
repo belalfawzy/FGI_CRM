@@ -12,6 +12,7 @@ namespace FGI.Models
         [Required]
         [Phone]
         public string ClientPhone { get; set; }
+        public string? Comment { get; set; }
         public int? ProjectId { get; set; }
         public Project? Project { get; set; }
 

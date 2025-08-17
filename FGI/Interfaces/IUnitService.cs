@@ -6,6 +6,7 @@ namespace FGI.Interfaces
     {
         Task<List<Unit>> GetUnitsByProjectIdAsync(int projectId);
         Task<Unit> AddUnitAsync(Unit unit);
+
         Task UpdateAvailabilityAsync(int unitId, bool isAvailable);
         Task DeleteUnitAsync(int unitId);
         Task<Unit> GetUnitByIdAsync(int unitId);

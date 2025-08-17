@@ -89,6 +89,16 @@
                     </div>
                 </div>
 
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="Comment" class="control-label">Comment</label>
+                            <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Enter any additional comments"></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Unit Details Section -->
                 <div class="row mt-3" id="unitDetailsContainer" style="display: @(Model.Unit != null ? "block" : "none");">
                     <div class="col-md-12">
@@ -103,40 +113,46 @@
                                             @if (Model.Unit != null)
                                             {
                                                 <div class="col-md-6">
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Type:</span>
-                                                        <span>@Model.Unit.Type</span>
-                                                    </div>
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Location:</span>
-                                                        <span>@Model.Unit.Location</span>
-                                                    </div>
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Bedrooms:</span>
-                                                        <span>@Model.Unit.Bedrooms</span>
-                                                    </div>
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Unit Code</dt>
+                                                        <dd class="col-sm-7">@(Model.Unit.UnitCode ?? "N/A")</dd>
+
+                                                        <dt class="col-sm-5">Unit Type</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Type</dd>
+
+                                                        <dt class="col-sm-5">Sale Type</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.UnitType</dd>
+                                                    </dl>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Price:</span>
-                                                        <span>@Model.Unit.Price.ToString("C")</span>
-                                                    </div>
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Area:</span>
-                                                        <span>@Model.Unit.Area sqm</span>
-                                                    </div>
-                                                    <div class="unit-detail-row">
-                                                        <span class="unit-detail-label">Bathrooms:</span>
-                                                        <span>@Model.Unit.Bathrooms</span>
-                                                    </div>
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Location</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Location</dd>
+
+                                                        <dt class="col-sm-5">Price</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Price.ToString("C")</dd>
+
+                                                        <dt class="col-sm-5">Area</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Area sqm</dd>
+                                                    </dl>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Bedrooms</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Bedrooms</dd>
+                                                    </dl>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Bathrooms</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Bathrooms</dd>
+                                                    </dl>
                                                 </div>
                                                 @if (!string.IsNullOrEmpty(Model.Unit.Description))
                                                 {
                                                     <div class="col-12 mt-2">
-                                                        <div class="unit-detail-row">
-                                                            <span class="unit-detail-label">Description:</span>
-                                                            <p>@Model.Unit.Description</p>
-                                                        </div>
+                                                        <dt class="col-sm-2">Description:</dt>
+                                                        <dd class="col-sm-10">@Model.Unit.Description</dd>
                                                     </div>
                                                 }
                                             }
@@ -365,7 +381,7 @@
         @if (Model.UnitId.HasValue)
         {
             <text>
-                    $('#unitDetailsContainer').show();
+                        $('#unitDetailsContainer').show();
             </text>
         }
         });

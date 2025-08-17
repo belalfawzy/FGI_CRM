@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace FGI.Controllers
@@ -42,14 +43,14 @@ namespace FGI.Controllers
         [Authorize(Roles = "Sales")]
         public async Task<IActionResult> MyTasks()
         {
-
             var userId = GetCurrentUserId();
             if (userId == null) return Forbid();
 
             var tasks = await _context.Leads
-    .Where(l => l.AssignedToId == userId.Value
-        && l.CurrentStatus == LeadStatusType.New).Include(l=>l.Unit)
-    .ToListAsync();
+                .Where(l => l.AssignedToId == userId.Value
+                    && l.CurrentStatus == LeadStatusType.New)
+                .Include(l => l.Unit)
+                .ToListAsync();
             return View(tasks);
         }
 
@@ -75,23 +76,10 @@ namespace FGI.Controllers
                 var userId = GetCurrentUserId();
                 if (userId == null) return Forbid();
 
-                // تحقق من وجود OwnerNumber مسبقًا
-                if (!string.IsNullOrEmpty(unit.OwnerPhone))
-                {
-                    bool exists = await _context.Units
-                        .AnyAsync(u => u.OwnerPhone == unit.OwnerPhone);
-
-                    if (exists)
-                    {
-                        ModelState.AddModelError(nameof(unit.OwnerPhone), "This owner phone number is already registered.");
-                        await LoadProjects();
-                        return View(unit);
-                    }
-                }
-
+                // Remove the owner existence check since we're allowing selection of existing owners
                 unit.CreatedById = userId.Value;
                 unit.CreatedAt = DateTime.Now;
-                unit.IsAvailable = true; // Default to available when creating
+                unit.IsAvailable = true;
 
                 await _unitService.AddUnitAsync(unit);
 
@@ -106,63 +94,70 @@ namespace FGI.Controllers
                 return View(unit);
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> EditUnit(int id)
         {
-            var userId = GetCurrentUserId();
-            if (userId == null) return Forbid();
-
-            var unit = await _unitService.GetUnitByIdAsync(id);
-            if (unit == null || unit.CreatedById != userId)
+            try
             {
-                return NotFound();
-            }
+                var unit = await _unitService.GetUnitByIdAsync(id);
+                if (unit == null)
+                {
+                    TempData["ErrorMessage"] = "Unit not found";
+                    return RedirectToAction(nameof(MyUnits));
+                }
 
-            await LoadProjects();
-            return View(unit);
+                await LoadViewData();
+                return View(unit);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading unit for editing");
+                TempData["ErrorMessage"] = "Error loading unit for editing";
+                return RedirectToAction(nameof(MyUnits));
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUnit(int id, Unit unit)
         {
-            if (id != unit.Id)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadProjects();
-                return View(unit);
-            }
-
             try
             {
-                var userId = GetCurrentUserId();
-                if (userId == null) return Forbid();
-
-                var existingUnit = await _unitService.GetUnitByIdAsync(id);
-                if (existingUnit == null || existingUnit.CreatedById != userId)
+                if (id != unit.Id)
                 {
-                    return NotFound();
+                    TempData["ErrorMessage"] = "Unit ID mismatch";
+                    return RedirectToAction(nameof(MyUnits));
                 }
 
-                // Preserve some original values
-                unit.CreatedById = existingUnit.CreatedById;
-                unit.CreatedAt = existingUnit.CreatedAt;
+                // Clean numeric values from formatting
+                if (!string.IsNullOrEmpty(Request.Form["Price"]))
+                {
+                    var priceValue = Request.Form["Price"].ToString().Replace(",", "");
+                    if (decimal.TryParse(priceValue, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal cleanPrice))
+                    {
+                        unit.Price = cleanPrice;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Price", "Please enter a valid price");
+                    }
+                }
 
+                if (!ModelState.IsValid)
+                {
+                    await LoadViewData();
+                    return View(unit);
+                }
+                var existingUnit = _context.Units.AsNoTracking().FirstOrDefault(u => u.Id == unit.Id);
                 await _unitService.UpdateUnitAsync(unit);
-
                 TempData["SuccessMessage"] = "Unit updated successfully";
                 return RedirectToAction(nameof(MyUnits));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating unit");
-                TempData["ErrorMessage"] = "Error updating unit. Please try again.";
-                await LoadProjects();
+                TempData["ErrorMessage"] = "Error updating unit";
+                await LoadViewData();
                 return View(unit);
             }
         }
@@ -210,6 +205,7 @@ namespace FGI.Controllers
                     {
                         UnitCode = "N/A",
                         Type = UnitType.Apartment,
+                        UnitType = UnitSaleType.Sale,
                         Price = 0,
                         Area = 0
                     };
@@ -331,7 +327,7 @@ namespace FGI.Controllers
                     {
                         success = true,
                         message = "Status updated successfully",
-                        redirectUrl = Url.Action("MyAssignedLeads", "Sales")
+                        redirectUrl = Url.Action("MyLeads", "Sales")
                     });
                 }
 
@@ -349,42 +345,43 @@ namespace FGI.Controllers
             return RedirectToAction(nameof(LeadDetails), new { id = leadId });
         }
 
-
-        private async Task LoadProjects()
-        {
-            var projects = await _projectService.GetAllProjectsAsync();
-            ViewBag.Projects = projects.Select(p => new SelectListItem
-            {
-                Value = p.Id.ToString(),
-                Text = p.Name
-            }).ToList();
-        }
-
-        private int? GetCurrentUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userId, out int id) ? id : null;
-        }
         [HttpGet]
         public async Task<IActionResult> GetUnitDetails(int id)
         {
-            var unit = await _unitService.GetUnitByIdAsync(id);
-            if (unit == null)
+            try
             {
-                return NotFound();
-            }
+                var unit = await _unitService.GetUnitByIdAsync(id);
+                if (unit == null)
+                {
+                    return NotFound();
+                }
 
-            return PartialView("_UnitDetailsPartial", unit);
+                // تأكد من تحميل العلاقات إذا لزم الأمر
+                unit = await _context.Units
+                    .Include(u => u.Project)
+                    .Include(u => u.CreatedBy)
+                    .Include(u => u.Owner)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+
+                return PartialView("_UnitDetailsPartial", unit);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting unit details");
+                return StatusCode(500, "Error loading unit details");
+            }
         }
+
         [HttpGet]
         public async Task<IActionResult> AvailableUnits(
-    UnitType? type = null,
-    int? projectId = null,
-    decimal? minPrice = null,
-    decimal? maxPrice = null,
-    int? bedrooms = null,
-    decimal? minArea = null,
-    int? bathrooms = null)
+            UnitType? type = null,
+            int? projectId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            int? bedrooms = null,
+            decimal? minArea = null,
+            int? bathrooms = null,
+            UnitSaleType? saleType = null)
         {
             try
             {
@@ -420,6 +417,9 @@ namespace FGI.Controllers
                         query.Where(u => u.Bathrooms >= 3) :
                         query.Where(u => u.Bathrooms == bathrooms.Value);
 
+                if (saleType.HasValue)
+                    query = query.Where(u => u.UnitType == saleType.Value);
+
                 // Get projects for dropdown
                 var projects = await _projectService.GetAllProjectsAsync();
                 ViewBag.Projects = new SelectList(projects, "Id", "Name");
@@ -440,5 +440,123 @@ namespace FGI.Controllers
             }
         }
 
+        private async Task LoadProjects()
+        {
+            var projects = await _projectService.GetAllProjectsAsync();
+            ViewBag.Projects = projects.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = p.Name
+            }).ToList();
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(userId, out int id) ? id : null;
+        }
+        [HttpGet]
+        public async Task<IActionResult> SearchOwner(string term)
+        {
+            try
+            {
+                var cleanedPhone = new string(term.Where(char.IsDigit).ToArray());
+
+                if (!string.IsNullOrEmpty(cleanedPhone))
+                {
+                    var ownerByPhone = await _context.Owners
+                        .FirstOrDefaultAsync(o => o.Phone != null && o.Phone.Contains(cleanedPhone));
+
+                    if (ownerByPhone != null)
+                    {
+                        return Json(new
+                        {
+                            found = true,
+                            id = ownerByPhone.Id,
+                            name = ownerByPhone.Name,
+                            phone = ownerByPhone.Phone,
+                            email = ownerByPhone.Email,
+                            searchType = "phone"
+                        });
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(term))
+                {
+                    var ownerByName = await _context.Owners
+                        .Where(o => o.Name.Contains(term))
+                        .FirstOrDefaultAsync();
+
+                    if (ownerByName != null)
+                    {
+                        return Json(new
+                        {
+                            found = true,
+                            id = ownerByName.Id,
+                            name = ownerByName.Name,
+                            phone = ownerByName.Phone,
+                            email = ownerByName.Email,
+                            searchType = "name"
+                        });
+                    }
+                }
+
+                return Json(new { found = false });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching owner");
+                return Json(new
+                {
+                    found = false,
+                    error = "An error occurred while searching"
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddOwnerAjax(string name, string phone, string email)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return Json(new { success = false, message = "Owner name is required" });
+                }
+
+                var owner = new Owner
+                {
+                    Name = name,
+                    Phone = phone,
+                    Email = email,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Owners.Add(owner);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    ownerId = owner.Id,
+                    message = "Owner added successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding owner");
+                return Json(new { success = false, message = "Error adding owner" });
+            }
+        }
+        private async Task LoadViewData()
+        {
+            var projects = await _projectService.GetAllProjectsAsync();
+            ViewBag.Projects = new SelectList(projects, "Id", "Name");
+
+            var owners = await _context.Owners.ToListAsync();
+            ViewBag.Owners = new SelectList(owners, "Id", "Name");
+        }
     }
 }

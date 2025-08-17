@@ -12,6 +12,7 @@ namespace FGI.Models
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Owner> Owners { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<Lead> Leads { get; set; }
