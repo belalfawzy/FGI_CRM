@@ -50,8 +50,6 @@ namespace FGI.Controllers
         {
             try
             {
-                _logger.LogInformation($"Searching units - ProjectId: {projectId}, Term: {term}");
-
                 IEnumerable<Unit> units;
 
                 if (projectId > 0)
@@ -73,13 +71,12 @@ namespace FGI.Controllers
                     ).ToList();
                 }
 
-                units = units.Where(u => u.IsAvailable).ToList();
-
                 var results = units.OrderBy(u => u.UnitCode).Select(u => new
                 {
                     id = u.Id,
                     text = $"{(string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode)} - {(string.IsNullOrWhiteSpace(u.Location) ? "NA" : u.Location)}",
                     disabled = !u.IsAvailable,
+                    projectId = u.ProjectId, // Include project ID in the response
                     unit = new
                     {
                         UnitCode = string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode,
@@ -89,8 +86,6 @@ namespace FGI.Controllers
                         Area = u.Area
                     }
                 }).ToList();
-
-                _logger.LogInformation($"Found {results.Count} units matching search");
 
                 return Json(results);
             }
@@ -158,35 +153,118 @@ namespace FGI.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList();
+                // Normalize phone number for checking
+                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(lead.ClientPhone);
 
-                    return Json(new { success = false, message = "Validation failed", errors });
+                // Basic phone validation
+                if (string.IsNullOrWhiteSpace(normalizedPhone) || normalizedPhone.Length < 8)
+                {
+                    ModelState.AddModelError("ClientPhone", "Please enter a valid phone number (at least 8 digits)");
                 }
 
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                await _leadService.CreateLeadAsync(lead, userId);
-
-                return Json(new
+                // Validate unit selection
+                if (!lead.UnitId.HasValue)
                 {
-                    success = true,
-                    message = "Lead saved successfully!",
-                    redirect = Url.Action("Index")
-                });
+                    ModelState.AddModelError("UnitId", "Please select a unit");
+                }
+                else
+                {
+                    // Handle project association based on unit
+                    var unit = await _unitService.GetUnitByIdAsync(lead.UnitId.Value);
+                    if (unit != null && unit.ProjectId.HasValue)
+                    {
+                        lead.ProjectId = unit.ProjectId;
+                    }
+                    else
+                    {
+                        lead.ProjectId = null;
+                    }
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var projects = await _projectService.GetAllProjectsAsync();
+                    ViewBag.Projects = new SelectList(projects, "Id", "Name", lead.ProjectId);
+
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Validation failed",
+                            errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList()
+                        });
+                    }
+                    return View(lead);
+                }
+
+                // Check for duplicates (just for warning, not blocking)
+                var duplicateWarning = "";
+                if (!string.IsNullOrEmpty(normalizedPhone))
+                {
+                    var existingLeads = await _context.Leads.ToListAsync();
+                    var duplicateLead = existingLeads.FirstOrDefault(l =>
+                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+
+                    if (duplicateLead != null)
+                    {
+                        duplicateWarning = $"Note: This phone number is already associated with lead ID: {duplicateLead.Id}";
+                    }
+                }
+
+                // Set creation details
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                lead.CreatedById = userId;
+                lead.CreatedAt = DateTime.Now;
+
+                // Add and save lead
+                _context.Leads.Add(lead);
+                await _context.SaveChangesAsync();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = string.IsNullOrEmpty(duplicateWarning)
+                            ? "Lead saved successfully!"
+                            : $"Lead saved successfully! {duplicateWarning}",
+                        redirect = Url.Action("Details", new { id = lead.Id })
+                    });
+                }
+
+                TempData["Success"] = "Lead saved successfully!";
+                if (!string.IsNullOrEmpty(duplicateWarning))
+                {
+                    TempData["Warning"] = duplicateWarning;
+                }
+                return RedirectToAction("Details", new { id = lead.Id });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating lead");
-                return Json(new
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    success = false,
-                    message = $"Error saving lead: {ex.Message}"
-                });
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Error saving lead: {ex.Message}"
+                    });
+                }
+
+                TempData["Error"] = $"Error saving lead: {ex.Message}";
+                var projects = await _projectService.GetAllProjectsAsync();
+                ViewBag.Projects = new SelectList(projects, "Id", "Name");
+                return View(lead);
             }
+        }
+
+        private bool IsValidPhoneNumber(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return false;
+            // تحقق أساسي من رقم الهاتف
+            return phone.All(c => char.IsDigit(c) || c == '+');
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -494,32 +572,100 @@ namespace FGI.Controllers
         {
             return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchClient(string term)
+        {
+            try
+            {
+                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(term);
+
+                if (!string.IsNullOrEmpty(normalizedPhone))
+                {
+                    // Get all leads and normalize their phone numbers for comparison
+                    var allLeads = await _context.Leads.ToListAsync();
+
+                    var matchingLead = allLeads.FirstOrDefault(l =>
+                        !string.IsNullOrEmpty(l.ClientPhone) &&
+                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+
+                    if (matchingLead != null)
+                    {
+                        return Json(new
+                        {
+                            found = true,
+                            id = matchingLead.Id,
+                            name = matchingLead.ClientName,
+                            phone = matchingLead.ClientPhone,
+                            searchType = "phone"
+                        });
+                    }
+                }
+
+                // Also check by name if no phone match found
+                if (!string.IsNullOrWhiteSpace(term))
+                {
+                    var leadByName = await _context.Leads
+                        .Where(l => l.ClientName.Contains(term))
+                        .FirstOrDefaultAsync();
+
+                    if (leadByName != null)
+                    {
+                        return Json(new
+                        {
+                            found = true,
+                            id = leadByName.Id,
+                            name = leadByName.ClientName,
+                            phone = leadByName.ClientPhone,
+                            searchType = "name"
+                        });
+                    }
+                }
+
+                return Json(new { found = false });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching client");
+                return Json(new
+                {
+                    found = false,
+                    error = "An error occurred while searching"
+                });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> SearchOwner(string term)
         {
             try
             {
-                var cleanedPhone = new string(term.Where(char.IsDigit).ToArray());
+                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(term);
 
-                if (!string.IsNullOrEmpty(cleanedPhone))
+                if (!string.IsNullOrEmpty(normalizedPhone))
                 {
-                    var ownerByPhone = await _context.Owners
-                        .FirstOrDefaultAsync(o => o.Phone != null && o.Phone.Contains(cleanedPhone));
+                    // Get all owners and normalize their phone numbers for comparison
+                    var owners = await _context.Owners.ToListAsync();
 
-                    if (ownerByPhone != null)
+                    var matchingOwner = owners.FirstOrDefault(o =>
+                        !string.IsNullOrEmpty(o.Phone) &&
+                        PhoneNumberHelper.NormalizePhoneNumber(o.Phone) == normalizedPhone);
+
+                    if (matchingOwner != null)
                     {
                         return Json(new
                         {
                             found = true,
-                            id = ownerByPhone.Id,
-                            name = ownerByPhone.Name,
-                            phone = ownerByPhone.Phone,
-                            email = ownerByPhone.Email,
-                            searchType = "phone" 
+                            id = matchingOwner.Id,
+                            name = matchingOwner.Name,
+                            phone = matchingOwner.Phone,
+                            email = matchingOwner.Email,
+                            searchType = "phone"
                         });
                     }
                 }
 
+                // Also check by name if no phone match found
                 if (!string.IsNullOrWhiteSpace(term))
                 {
                     var ownerByName = await _context.Owners
@@ -535,7 +681,7 @@ namespace FGI.Controllers
                             name = ownerByName.Name,
                             phone = ownerByName.Phone,
                             email = ownerByName.Email,
-                            searchType = "name" 
+                            searchType = "name"
                         });
                     }
                 }
@@ -553,6 +699,27 @@ namespace FGI.Controllers
             }
         }
 
+        public static class PhoneNumberHelper
+        {
+            public static string NormalizePhoneNumber(string phoneNumber)
+            {
+                if (string.IsNullOrWhiteSpace(phoneNumber))
+                    return string.Empty;
+
+                // Remove all non-digit characters
+                var normalized = new string(phoneNumber.Where(char.IsDigit).ToArray());
+
+                // Remove leading zeros and country codes (assuming Egyptian numbers)
+                // For Egypt: numbers typically start with 1 after removing +20 or 0
+                if (normalized.StartsWith("20")) // Egypt country code without +
+                    normalized = normalized.Substring(2);
+
+                if (normalized.StartsWith("0"))
+                    normalized = normalized.Substring(1);
+
+                return normalized;
+            }
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

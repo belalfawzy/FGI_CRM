@@ -24,15 +24,20 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label asp-for="ClientName" class="control-label">Client Name *</label>
-                            <input asp-for="ClientName" class="form-control" placeholder="Enter client name" required />
+                            <input asp-for="ClientName" class="form-control"
+                                   placeholder="Enter client name (max 25 chars)"
+                                   maxlength="25" required />
                             <span asp-validation-for="ClientName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label asp-for="ClientPhone" class="control-label">Phone Number *</label>
-                            <input asp-for="ClientPhone" class="form-control" placeholder="Enter phone number" required />
+                            <input asp-for="ClientPhone" class="form-control"
+                                   placeholder="Enter phone number"
+                                   type="tel" required />
                             <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                            <small class="form-text text-muted search-hint">Start typing to search for existing owners</small>
                         </div>
                     </div>
                 </div>
@@ -63,13 +68,15 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label asp-for="Comment" class="control-label">Comment</label>
-                            <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Enter any additional comments"></textarea>
+                            <textarea asp-for="Comment" class="form-control" rows="3"
+                                      placeholder="Enter any additional comments (max 1000 chars)"
+                                      maxlength="1000"></textarea>
                             <span asp-validation-for="Comment" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Unit Details Section -->
+                <!-- Enhanced Unit Details Section -->
                 <div class="row mt-3" id="unitDetailsContainer" style="display: none;">
                     <div class="col-md-12">
                         <div class="card border-left-primary shadow h-100 py-2">
@@ -147,6 +154,24 @@
             color: #6c757d;
             margin-top: 5px;
         }
+
+        .unit-detail-badge {
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        .is-invalid .select2-selection {
+            border-color: #dc3545 !important;
+        }
+
+        .is-duplicate {
+            border-color: #ffc107 !important;
+            background-color: #fff8e1 !important;
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+        }
     </style>
 }
 
@@ -164,6 +189,27 @@
                 placeholder: "Select an option",
                 allowClear: true
             });
+
+            // Owner phone search functionality
+            $('#ClientPhone').on('input', function() {
+                var phone = $(this).val().trim();
+                if (phone.length >= 3) {
+                    searchOwnerByPhone(phone);
+                }
+            });
+
+            function searchOwnerByPhone(phone) {
+                $.get('@Url.Action("SearchOwner", "Lead")', { term: phone })
+                    .done(function(data) {
+                        if (data.found) {
+                            $('#ClientName').val(data.name);
+                            toastr.success('Owner found: ' + data.name);
+                        }
+                    })
+                    .fail(function() {
+                        console.log('Owner search failed');
+                    });
+            }
 
             // Unit search functionality
             var unitSelect = $('#UnitId').select2({
@@ -188,7 +234,8 @@
                                     id: item.id,
                                     text: item.text,
                                     disabled: item.disabled,
-                                    unit: item.unit
+                                    unit: item.unit,
+                                    projectId: item.projectId
                                 };
                             })
                         };
@@ -202,10 +249,10 @@
                     if (item.loading) return item.text;
                     var $result = $('<span>' + item.text + '</span>');
                     if (item.disabled) {
-                        $result.append(' <span class="badge badge-danger">Not Available</span>');
+                        $result.append(' <span class="badge badge-danger unit-detail-badge">Not Available</span>');
                         $result.addClass('text-muted');
                     } else {
-                        $result.append(' <span class="badge badge-success">Available</span>');
+                        $result.append(' <span class="badge badge-success unit-detail-badge">Available</span>');
                     }
                     return $result;
                 },
@@ -215,21 +262,24 @@
                 }
             });
 
-            // Update unit search when project changes
-            $('#ProjectId').on('change', function() {
-                $('#UnitId').val(null).trigger('change');
-            });
-
-            // Show unit details when selected
-            unitSelect.on('change', function() {
+            // When a unit is selected, automatically set the project
+            unitSelect.on('change', function(e) {
                 var unitId = $(this).val();
                 if (unitId) {
+                    // Show loading indicator
                     $('#unitDetailsContent').html('<div class="col-12 text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
                     $('#unitDetailsContainer').show();
 
+                    // Get unit details
                     $.get('@Url.Action("GetUnitDetails", "Lead")', { id: unitId })
                         .done(function(data) {
                             $('#unitDetailsContent').html(data);
+
+                            // If the unit has a project, set it automatically
+                            var projectId = $(data).find('[data-project-id]').data('project-id');
+                            if (projectId) {
+                                $('#ProjectId').val(projectId).trigger('change');
+                            }
                         })
                         .fail(function() {
                             $('#unitDetailsContent').html('<div class="col-12 text-danger">Error loading details</div>');
@@ -237,6 +287,85 @@
                 } else {
                     $('#unitDetailsContainer').hide();
                 }
+            });
+                    // In your $(document).ready function
+        $('#ClientPhone').on('blur', function() {
+            var phone = $(this).val().trim();
+            if (phone.length >= 3) {
+                $.get('@Url.Action("SearchClient", "Lead")', { term: phone })
+                    .done(function(data) {
+                        if (data.found) {
+                            $('#ClientName').val(data.name);
+
+                            // Show warning message
+                            toastr.warning('This phone number already exists in our system', 'Duplicate Found', {
+                                timeOut: 10000,
+                                extendedTimeOut: 5000,
+                                closeButton: true
+                            });
+
+                            // Optionally highlight the field
+                            $(this).addClass('is-duplicate');
+                        }
+                    });
+            }
+        });
+
+            // Form validation
+            $.validator.setDefaults({
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                    $(element).closest('.form-group').find('.select2-selection').addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                    $(element).closest('.form-group').find('.select2-selection').removeClass('is-invalid');
+                },
+                errorElement: 'span',
+                errorClass: 'invalid-feedback',
+                errorPlacement: function(error, element) {
+                    if (element.hasClass('select2-hidden-accessible')) {
+                        error.insertAfter(element.next('.select2-container'));
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+
+            $('#leadForm').validate({
+                rules: {
+                    ClientName: {
+                        required: true,
+                        maxlength: 25
+                    },
+                    ClientPhone: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 20
+                    },
+                    UnitId: {
+                        required: true
+                    }
+                },
+                messages: {
+                    ClientName: {
+                        required: "Please enter client name",
+                        maxlength: "Client name cannot exceed 25 characters"
+                    },
+                    ClientPhone: {
+                        required: "Please enter phone number",
+                        minlength: "Phone number must be at least 8 characters",
+                        maxlength: "Phone number cannot exceed 20 characters"
+                    },
+                    UnitId: {
+                        required: "Please select a unit"
+                    }
+                }
+            });
+
+            // Update unit search when project changes
+            $('#ProjectId').on('change', function() {
+                $('#UnitId').val(null).trigger('change');
             });
 
             // Form submission handler
