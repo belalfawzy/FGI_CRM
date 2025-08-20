@@ -169,6 +169,7 @@ namespace FGI.Controllers
             if (userId == null) return Forbid();
 
             var units = await _unitService.GetUnitsByCreatorAsync(userId.Value);
+            units = units.OrderByDescending(u => u.CreatedAt).ToList();
             return View(units);
         }
 
@@ -374,22 +375,34 @@ namespace FGI.Controllers
 
         [HttpGet]
         public async Task<IActionResult> AvailableUnits(
-            UnitType? type = null,
-            int? projectId = null,
-            decimal? minPrice = null,
-            decimal? maxPrice = null,
-            int? bedrooms = null,
-            decimal? minArea = null,
-            int? bathrooms = null,
-            UnitSaleType? saleType = null)
+       UnitType? type = null,
+       int? projectId = null,
+       decimal? minPrice = null,
+       decimal? maxPrice = null,
+       int? bedrooms = null,
+       decimal? minArea = null,
+       int? bathrooms = null,
+       UnitSaleType? saleType = null,
+       string searchTerm = null)
         {
             try
             {
                 // Get base query for available units only
                 var query = _context.Units
-                    .Include(u => u.Project)
-                    .Where(u => u.IsAvailable) // Only available units
-                    .AsQueryable();
+            .Include(u => u.Project)
+            .Include(u => u.Owner) // Include Owner for phone number search
+            .Where(u => u.IsAvailable)
+            .AsQueryable();
+
+                // Apply search term filter if provided
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var normalizedSearchTerm = searchTerm.Trim().ToLower();
+                    query = query.Where(u =>
+                        (u.UnitCode != null && u.UnitCode.ToLower().Contains(normalizedSearchTerm)) ||
+                        (u.Owner != null && u.Owner.Phone != null && u.Owner.Phone.Contains(normalizedSearchTerm))
+                    );
+                }
 
                 // Apply filters
                 if (type.HasValue)
@@ -424,19 +437,22 @@ namespace FGI.Controllers
                 var projects = await _projectService.GetAllProjectsAsync();
                 ViewBag.Projects = new SelectList(projects, "Id", "Name");
 
-                // Execute query
+                // Execute query with sorting by CreatedAt descending (newest first)
                 var units = await query
-                    .OrderBy(u => u.Project.Name)
-                    .ThenBy(u => u.UnitCode)
-                    .ToListAsync();
+            .OrderByDescending(u => u.CreatedAt)
+            .ThenBy(u => u.Project.Name)
+            .ThenBy(u => u.UnitCode)
+            .ToListAsync();
+
+                units = units.OrderByDescending(u => u.CreatedAt).ToList();
 
                 return View(units);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading available units");
-                TempData["ErrorMessage"] = "Error loading units data";
-                return View(new List<Unit>());
+                TempData["ErrorMessage"] = "Error loading available units. Please try again.";
+                return RedirectToAction("Index");
             }
         }
 

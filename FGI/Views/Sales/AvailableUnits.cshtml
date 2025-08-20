@@ -4,6 +4,7 @@
 }
 
 <div class="container-fluid">
+    <!-- Alerts Section -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -24,49 +25,75 @@
         </div>
     }
 
+    <!-- Filter Card -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-light">
-            <h6 class="m-0 font-weight-bold text-primary">Filter Units</h6>
+        <div class="card-header py-3 bg-primary text-white">
+            <h6 class="m-0 font-weight-bold">
+                <i class="fas fa-filter mr-2"></i>Filter Units
+            </h6>
         </div>
         <div class="card-body">
             <form id="filterForm" method="get" asp-action="AvailableUnits">
+                <!-- Search Bar -->
+                <div class="form-group mb-4">
+                    <div class="input-group mb-4">
+                        <input type="text" name="searchTerm" class="form-control form-control-lg"
+                               placeholder="Search by Unit Code or Owner Phone..."
+                               value="@Context.Request.Query["searchTerm"]">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search mr-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Filters -->
                 <div class="row">
+                    <!-- Unit Type -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Unit Type</label>
-                            <select name="type" class="form-control">
+                            <label class="font-weight-bold">Unit Type</label>
+                            <select name="type" class="form-control select2">
                                 <option value="">All Types</option>
-                                <option value="Apartment">Apartment</option>
-                                <option value="Villa">Villa</option>
-                                <option value="Chalet">Chalet</option>
-                                <option value="Duplex">Duplex</option>
+                                @foreach (var type in Enum.GetValues(typeof(UnitType)))
+                                {
+                                    <option value="@type">@type</option>
+                                }
                             </select>
                         </div>
                     </div>
+
+                    <!-- Project -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Project</label>
-                            <select name="projectId" class="form-control" asp-items="ViewBag.Projects">
+                            <label class="font-weight-bold">Project</label>
+                            <select name="projectId" class="form-control select2" asp-items="ViewBag.Projects">
                                 <option value="">All Projects</option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-2">
+
+                    <!-- Price Range -->
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label>Min Price</label>
-                            <input type="number" name="minPrice" class="form-control" placeholder="Minimum">
+                            <label class="font-weight-bold">Price Range</label>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="number" name="minPrice" class="form-control" placeholder="Min">
+                                </div>
+                                <div class="col">
+                                    <input type="number" name="maxPrice" class="form-control" placeholder="Max">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
+
+                    <!-- Bedrooms -->
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label>Max Price</label>
-                            <input type="number" name="maxPrice" class="form-control" placeholder="Maximum">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Bedrooms</label>
-                            <select name="bedrooms" class="form-control">
+                            <label class="font-weight-bold">Bedrooms</label>
+                            <select name="bedrooms" class="form-control select2">
                                 <option value="">Any</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -76,32 +103,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-12 text-right">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter"></i> Apply Filters
-                        </button>
-                        <a href="@Url.Action("AvailableUnits")" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
-                        </a>
-                        <button type="button" class="btn btn-outline-info" id="toggleAdvanced">
-                            <i class="fas fa-sliders-h"></i> Advanced
-                        </button>
-                    </div>
+
+                <!-- Advanced Filters Toggle -->
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-link text-primary" id="toggleAdvanced">
+                        <i class="fas fa-sliders-h mr-2"></i>Advanced Filters
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
                 </div>
 
                 <!-- Advanced Filters -->
                 <div id="advancedFilters" class="row mt-3" style="display:none;">
+                    <!-- Min Area -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Min Area (sqm)</label>
-                            <input type="number" name="minArea" class="form-control" placeholder="Minimum">
+                            <label class="font-weight-bold">Min Area (sqm)</label>
+                            <input type="number" name="minArea" class="form-control" placeholder="Minimum area">
                         </div>
                     </div>
+
+                    <!-- Bathrooms -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Bathrooms</label>
-                            <select name="bathrooms" class="form-control">
+                            <label class="font-weight-bold">Bathrooms</label>
+                            <select name="bathrooms" class="form-control select2">
                                 <option value="">Any</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -109,10 +134,12 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Sale Type -->
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Sale Type</label>
-                            <select name="saleType" class="form-control">
+                            <label class="font-weight-bold">Sale Type</label>
+                            <select name="saleType" class="form-control select2">
                                 <option value="">Any</option>
                                 <option value="Sale">For Sale</option>
                                 <option value="Rent">For Rent</option>
@@ -120,10 +147,25 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="@Url.Action("AvailableUnits")" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo mr-2"></i>Reset
+                        </a>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Units Table Card -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
@@ -136,6 +178,7 @@
                 <table class="table table-bordered table-hover" id="unitsTable" width="100%" cellspacing="0">
                     <thead class="thead-light">
                         <tr>
+                            <th>Created</th>
                             <th>Unit Code</th>
                             <th>Type</th>
                             <th>Sale Type</th>
@@ -151,13 +194,24 @@
                         @foreach (var unit in Model)
                         {
                             <tr>
+                                <td>@unit.CreatedAt.ToString("yyyy-MM-dd")</td>
                                 <td>@unit.UnitCode</td>
                                 <td>@unit.Type</td>
                                 <td>@unit.UnitType</td>
                                 <td>@unit.Location</td>
                                 <td>@unit.Area</td>
                                 <td>@unit.Bedrooms / @unit.Bathrooms</td>
-                                <td>@unit.Price.ToString("C")</td>
+                                <td>
+                                    @if (unit.Currency == Currency.USD)
+                                    {
+                                        <span>$</span>
+                                    }
+                                    else
+                                    {
+                                        <span>EGP</span>
+                                    }
+                                    @unit.Price.ToString("N0")
+                                </td>
                                 <td>@unit.Project?.Name</td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-info view-details"
@@ -203,19 +257,19 @@
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTable without export buttons
+            // Initialize DataTable
             var table = $('#unitsTable').DataTable({
                 responsive: true,
                 dom: '<"top"f>rt<"bottom"lip><"clear">',
                 columnDefs: [
-                    { orderable: false, targets: 8 } // Disable sorting on actions column
+                    { orderable: false, targets: 9 } // Disable sorting on actions column
                 ]
             });
 
             // Toggle advanced filters
             $('#toggleAdvanced').click(function() {
                 $('#advancedFilters').toggle();
-                $(this).find('i').toggleClass('fa-sliders-h fa-times');
+                $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
             });
 
             // Preserve filter values
@@ -234,7 +288,7 @@
                 $('[name="minArea"]').val(urlParams.get('minArea') || '');
                 $('[name="bathrooms"]').val(urlParams.get('bathrooms') || '');
                 $('[name="saleType"]').val(urlParams.get('saleType') || '');
-                $('#toggleAdvanced i').removeClass('fa-sliders-h').addClass('fa-times');
+                $('#toggleAdvanced i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
             }
 
             // Handle details button click
@@ -293,6 +347,30 @@
 
         .modal-lg {
             max-width: 900px;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px !important;
+        }
+
+        .card-header {
+            border-bottom: none;
+        }
+
+        .form-control {
+            border-radius: 0.35rem;
+        }
+
+        #toggleAdvanced {
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            margin-left: 0.5em;
         }
     </style>
 }

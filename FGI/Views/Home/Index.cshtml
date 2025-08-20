@@ -5,318 +5,473 @@
     var salesUnits = ViewBag.SalesUnits as List<Unit>;
 }
 
-<div class="container">
-    <div class="greeting-card">
-        <h1 class="display-4 mb-3">@greeting, @User.Identity?.Name!</h1>
-        <p class="lead text-muted">Welcome to FGI CRM System. Here's what you can do today.</p>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - FGI CRM System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4e73df;
+            --primary-dark: #3a56c4;
+            --secondary: #6f42c1;
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f8f9fc;
+            --dark: #5a5c69;
+            --bg-gradient: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --transition: all 0.3s ease-in-out;
+        }
 
-    @if (ViewBag.UserRole == "Admin")
-    {
-        <div class="row">
-            <!-- Admin cards remain the same -->
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Users" class="card dashboard-card text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-users-cog"></i>
-                            <h5 class="card-title">User Management</h5>
-                            <p class="card-text text-muted">Manage system users</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Projects" class="card dashboard-card text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-building"></i>
-                            <h5 class="card-title">Projects</h5>
-                            <p class="card-text text-muted">Manage projects</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
+        body {
+            background-color: #f8f9fc;
+            color: #444;
+            min-height: 100vh;
+        }
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Leads" class="card dashboard-card text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-user-tie"></i>
-                            <h5 class="card-title">All Leads</h5>
-                            <p class="card-text text-muted">Manage all leads</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AddUnit" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-square"></i>
-                        <h5 class="card-title">Add Unit</h5>
-                        <p class="card-text text-muted">Add new unit to project</p>
-                    </div>
-                </a>
-            </div>
+        .greeting-card {
+            background: var(--bg-gradient);
+            color: white;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Tasks" class="card dashboard-card text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-tasks"></i>
-                            <h5 class="card-title">Tasks</h5>
-                            <p class="card-text text-muted">Unassigned leads</p>
-                        </div>
-                        @if (ViewBag.UnassignedLeadsCount > 0)
-                        {
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                  style="font-size: 0.8rem; transform: translate(-30%, -50%)">
-                                @ViewBag.UnassignedLeadsCount
-                            </span>
-                        }
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AllUnits" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="bi bi-buildings-fill"></i>
-                        <h5 class="card-title">All Units</h5>
-                        <p class="card-text text-muted">See all units</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="MyLeads" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="bi bi-person-fill-lock"></i>
-                        <h5 class="card-title">My Leads</h5>
-                        <p class="card-text text-muted">View your own leads</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AddLead" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-circle"></i>
-                        <h5 class="card-title">New Lead</h5>
-                        <p class="card-text text-muted">Create new lead</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-    }
-    else if (ViewBag.UserRole == "Marketing")
-    {
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Lead" asp-action="Index" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-user-tie"></i>
-                        <h5 class="card-title">Leads</h5>
-                        <p class="card-text text-muted">View all leads</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Lead" asp-action="Create" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-circle"></i>
-                        <h5 class="card-title">New Lead</h5>
-                        <p class="card-text text-muted">Create new lead</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Lead" asp-action="AddUnit" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-square"></i>
-                        <h5 class="card-title">Add Unit</h5>
-                        <p class="card-text text-muted">Add new unit to project</p>
-                    </div>
-                </a>
-            </div>
+            .greeting-card::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 200%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(25deg);
+                z-index: 0;
+            }
 
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Lead" asp-action="MyUnits" class="card dashboard-card text-decoration-none">
-                    <div class="card-body position-relative">
-                        <i class="fas fa-home"></i>
-                        <h5 class="card-title">My Units</h5>
-                        <p class="card-text text-muted">View your units</p>
-                    </div>
-                </a>
-            </div>
-        </div>
+        .greeting-content {
+            position: relative;
+            z-index: 1;
+        }
 
-    }
-    else if (ViewBag.UserRole == "Sales")
-    {
-        <div class="row justify-content-center">
-            <!-- My Tasks Button -->
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Sales" asp-action="MyTasks" class="card dashboard-card text-decoration-none">
-                    <div class="card-body position-relative">
-                        <i class="fas fa-tasks"></i>
-                        <h5 class="card-title">My Tasks</h5>
-                        <p class="card-text text-muted">New leads assigned to you</p>
-                        @if (ViewBag.NewLeadsCount > 0)
-                        {
-                            <span class="unassigned-badge">@ViewBag.NewLeadsCount</span>
-                        }
-                    </div>
-                </a>
-            </div>
+        .dashboard-card {
+            transition: var(--transition);
+            border: none;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
 
-            <!-- My Leads Button -->
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Sales" asp-action="MyLeads" class="card dashboard-card text-decoration-none">
-                    <div class="card-body position-relative">
-                        <i class="fas fa-users"></i>
-                        <h5 class="card-title">My Leads</h5>
-                        <p class="card-text text-muted">Leads you're working on</p>                        
-                    </div>
-                </a>
-            </div>
+            .dashboard-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+            }
 
-            <!-- My Units Button -->
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Sales" asp-action="MyUnits" class="card dashboard-card text-decoration-none">
-                    <div class="card-body position-relative">
-                        <i class="fas fa-home"></i>
-                        <h5 class="card-title">My Units</h5>
-                        <p class="card-text text-muted">View your units</p>
-                    </div>
-                </a>
-            </div>
+            .dashboard-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+            }
 
-            <!-- Add Unit Button -->
-            <div class="col-md-4 mb-4">
-                <a asp-controller="Sales" asp-action="AddUnit" class="card dashboard-card text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-square"></i>
-                        <h5 class="card-title">Add Unit</h5>
-                        <p class="card-text text-muted">Add new unit</p>
-                    </div>
-                </a>
-            </div>
-             <div class="col-md-4 mb-4">
-            <a asp-controller="Sales" asp-action="AvailableUnits" class="card dashboard-card text-decoration-none">
-                <div class="card-body">
-                    <i class="bi bi-buildings-fill"></i>
-                    <h5 class="card-title">Our Units</h5>
-                    <p class="card-text text-muted">See Available all units</p>
-                </div>
-            </a>
-        </div>
-        </div>
-       
-    }
-</div>
+            .dashboard-card .card-body {
+                padding: 1.5rem;
+                text-align: center;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 180px;
+            }
 
-<style>
-    /* أنماط البادج الجديدة */
-    .unassigned-badge {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background-color: #ff4757;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: bold;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        animation: pulse 1.5s infinite;
-    }
+            .dashboard-card i {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                color: var(--primary);
+                transition: var(--transition);
+            }
 
-    /* تأثير النبض للفت الانتباه */
-    @@keyframes pulse {
-        0% {
+            .dashboard-card:hover i {
+                transform: scale(1.1);
+            }
+
+            .dashboard-card .card-title {
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 0.5rem;
+            }
+
+            .dashboard-card .card-text {
+                color: var(--dark);
+                font-size: 0.9rem;
+                opacity: 0.8;
+            }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            animation: pulse 1.5s infinite;
+            z-index: 10;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
             transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(231, 74, 59, 0.7);
         }
 
-        50% {
-            transform: scale(1.1);
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(231, 74, 59, 0);
+            }
+
+        /* Role-specific card colors */
+        .card-admin::before {
+            background: var(--primary);
         }
 
-        100% {
-            transform: scale(1);
+        .card-marketing::before {
+            background: var(--info);
         }
-    }
 
-    /* باقي الأنماط كما هي */
-    .greeting-card {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
+        .card-sales::before {
+            background: var(--success);
+        }
 
-    .dashboard-card {
-        transition: all 0.3s;
-        border: none;
-        border-radius: 0.5rem;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-        height: 100%;
-        position: relative;
-    }
+        .card-admin:hover i {
+            color: var(--primary-dark);
+        }
 
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.2);
+        .card-marketing:hover i {
+            color: var(--info);
+        }
+
+        .card-sales:hover i {
+            color: var(--success);
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .greeting-card
+
+        {
+            padding: 1.5rem;
         }
 
         .dashboard-card .card-body {
-            padding: 2rem;
-            text-align: center;
-            position: relative;
+            min-height: 150px;
+            padding: 1.25rem;
         }
 
         .dashboard-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #4e73df;
+            font-size: 2rem;
         }
 
-    /* New styles for My Units section */
-    .badge-warning {
-        background-color: #f6c23e;
-        color: #000;
-    }
-
-    .badge-success {
-        background-color: #1cc88a;
-        color: #fff;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .table {
-        width: 100%;
-        margin-bottom: 1rem;
-        color: #212529;
-    }
-
-    .table-bordered {
-        border: 1px solid #dee2e6;
-    }
-
-        .table-bordered th,
-        .table-bordered td {
-            border: 1px solid #dee2e6;
         }
 
-    .table thead th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-    }
-</style>
+        /* Animation for page load */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Focus styles for accessibility */
+        .dashboard-card:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="greeting-card">
+            <div class="greeting-content">
+                <h1 class="display-4 mb-2">@greeting, <span class="fw-bold">@User.Identity?.Name!</span></h1>
+                <p class="lead mb-0">Welcome to FGI CRM System. Here's what you can do today.</p>
+            </div>
+        </div>
+
+        @if (ViewBag.UserRole == "Admin")
+        {
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative">
+                        <a asp-controller="Admin" asp-action="Users" class="card dashboard-card card-admin text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-users-cog"></i>
+                                <h5 class="card-title">User Management</h5>
+                                <p class="card-text">Manage system users</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative">
+                        <a asp-controller="Admin" asp-action="Projects" class="card dashboard-card card-admin text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-building"></i>
+                                <h5 class="card-title">Projects</h5>
+                                <p class="card-text">Manage projects</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative">
+                        <a asp-controller="Admin" asp-action="Leads" class="card dashboard-card card-admin text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-user-tie"></i>
+                                <h5 class="card-title">All Leads</h5>
+                                <p class="card-text">Manage all leads</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <a asp-controller="Admin" asp-action="AddUnit" class="card dashboard-card card-admin text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-plus-square"></i>
+                            <h5 class="card-title">Add Unit</h5>
+                            <p class="card-text">Add new unit to project</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="position-relative">
+                        <a asp-controller="Admin" asp-action="Tasks" class="card dashboard-card card-admin text-decoration-none">
+                            <div class="card-body">
+                                <i class="fas fa-tasks"></i>
+                                <h5 class="card-title">Tasks</h5>
+                                <p class="card-text">Unassigned leads</p>
+                            </div>
+                            @if (ViewBag.UnassignedLeadsCount > 0)
+                            {
+                                <span class="notification-badge">
+                                    @ViewBag.UnassignedLeadsCount
+                                </span>
+                            }
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <a asp-controller="Admin" asp-action="AllUnits" class="card dashboard-card card-admin text-decoration-none">
+                        <div class="card-body">
+                            <i class="bi bi-buildings-fill"></i>
+                            <h5 class="card-title">All Units</h5>
+                            <p class="card-text">See all units</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <a asp-controller="Admin" asp-action="MyLeads" class="card dashboard-card card-admin text-decoration-none">
+                        <div class="card-body">
+                            <i class="bi bi-person-fill-lock"></i>
+                            <h5 class="card-title">My Leads</h5>
+                            <p class="card-text">View your own leads</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <a asp-controller="Admin" asp-action="AddLead" class="card dashboard-card card-admin text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-plus-circle"></i>
+                            <h5 class="card-title">New Lead</h5>
+                            <p class="card-text">Create new lead</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+        else if (ViewBag.UserRole == "Marketing")
+        {
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Lead" asp-action="Index" class="card dashboard-card card-marketing text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-user-tie"></i>
+                            <h5 class="card-title">Leads</h5>
+                            <p class="card-text">View all leads</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Lead" asp-action="Create" class="card dashboard-card card-marketing text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-plus-circle"></i>
+                            <h5 class="card-title">New Lead</h5>
+                            <p class="card-text">Create new lead</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Lead" asp-action="AddUnit" class="card dashboard-card card-marketing text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-plus-square"></i>
+                            <h5 class="card-title">Add Unit</h5>
+                            <p class="card-text">Add new unit to project</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Lead" asp-action="MyUnits" class="card dashboard-card card-marketing text-decoration-none">
+                        <div class="card-body position-relative">
+                            <i class="fas fa-home"></i>
+                            <h5 class="card-title">My Units</h5>
+                            <p class="card-text">View your units</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+        else if (ViewBag.UserRole == "Sales")
+        {
+            <div class="row justify-content-center">
+                <!-- My Tasks Button -->
+                <div class="col-md-4 mb-4">
+                    <div class="position-relative">
+                        <a asp-controller="Sales" asp-action="MyTasks" class="card dashboard-card card-sales text-decoration-none">
+                            <div class="card-body position-relative">
+                                <i class="fas fa-tasks"></i>
+                                <h5 class="card-title">My Tasks</h5>
+                                <p class="card-text">New leads assigned to you</p>
+                                @if (ViewBag.NewLeadsCount > 0)
+                                {
+                                    <span class="notification-badge">@ViewBag.NewLeadsCount</span>
+                                }
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- My Leads Button -->
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Sales" asp-action="MyLeads" class="card dashboard-card card-sales text-decoration-none">
+                        <div class="card-body position-relative">
+                            <i class="fas fa-users"></i>
+                            <h5 class="card-title">My Leads</h5>
+                            <p class="card-text">Leads you're working on</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- My Units Button -->
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Sales" asp-action="MyUnits" class="card dashboard-card card-sales text-decoration-none">
+                        <div class="card-body position-relative">
+                            <i class="fas fa-home"></i>
+                            <h5 class="card-title">My Units</h5>
+                            <p class="card-text">View your units</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Add Unit Button -->
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Sales" asp-action="AddUnit" class="card dashboard-card card-sales text-decoration-none">
+                        <div class="card-body">
+                            <i class="fas fa-plus-square"></i>
+                            <h5 class="card-title">Add Unit</h5>
+                            <p class="card-text">Add new unit</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <a asp-controller="Sales" asp-action="AvailableUnits" class="card dashboard-card card-sales text-decoration-none">
+                        <div class="card-body">
+                            <i class="bi bi-buildings-fill"></i>
+                            <h5 class="card-title">Our Units</h5>
+                            <p class="card-text">See Available all units</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+
+
+    <script>
+        // Add interactive effects
+        $(document).ready(function() {
+            // Hover effect for cards
+            $('.dashboard-card').hover(
+                function() {
+                    $(this).addClass('shadow-lg');
+                },
+                function() {
+                    $(this).removeClass('shadow-lg');
+                }
+            );
+
+            // Improve accessibility with focus states
+            $('.dashboard-card').on('focus', function() {
+                $(this).addClass('shadow-lg');
+            }).on('blur', function() {
+                $(this).removeClass('shadow-lg');
+            });
+
+            // Stagger card animations on page load
+            $('.dashboard-card').each(function(index) {
+                $(this).css('animation-delay', (index * 0.1) + 's');
+            });
+        });
+    </script>
+</body>
+</html>

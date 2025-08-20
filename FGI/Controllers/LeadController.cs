@@ -136,6 +136,14 @@ namespace FGI.Controllers
                     };
                 }
             }
+            ViewBag.Sales = await _context.Users
+                .Where(u => u.Role == UserRole.Sales.ToString())
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.FullName
+                })
+                .ToListAsync();
 
             return View(leads);
         }
@@ -216,6 +224,7 @@ namespace FGI.Controllers
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 lead.CreatedById = userId;
                 lead.CreatedAt = DateTime.Now;
+                lead.CurrentStatus = LeadStatusType.New;
 
                 // Add and save lead
                 _context.Leads.Add(lead);
@@ -509,6 +518,7 @@ namespace FGI.Controllers
             if (userId == null) return Forbid();
 
             var units = await _unitService.GetUnitsByCreatorAsync(userId.Value);
+            units = units.OrderByDescending(u => u.CreatedAt).ToList();
             return View(units);
         }
         private async Task LoadProjects()

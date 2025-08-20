@@ -1,19 +1,20 @@
-﻿@model List<Unit>
+﻿@using FGI.Enums
+@model List<Unit>
 @{
     ViewData["Title"] = "My Units";
 }
 
 <div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
-        <a asp-action="AddUnit" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Unit
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-dark">@ViewData["Title"]</h1>
+        <a asp-action="AddUnit" class="btn btn-primary shadow-sm">
+            <i class="fas fa-plus me-1"></i> Add New Unit
         </a>
     </div>
 
-    <div class="card shadow mb-4">
+    <div class="card shadow-sm mb-4 fade-in">
         <div class="card-header py-3 bg-primary text-white">
-            <h6 class="m-0 font-weight-bold">All Your Units</h6>
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-home me-1"></i> All Your Units</h6>
         </div>
         <div class="card-body">
             @if (Model.Any())
@@ -69,15 +70,13 @@
                                         }
                                     </td>
                                     <td>
-                                        <div class="d-flex">
-                                            <button class="btn btn-sm btn-primary view-details mr-2"
-                                                    data-id="@unit.Id"
-                                                    title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-primary view-details" data-id="@unit.Id">
+                                                <i class="fas fa-eye me-1"></i> 
                                             </button>
                                             <a asp-action="EditUnit" asp-controller="Sales" asp-route-id="@unit.Id"
-                                               class="btn btn-sm btn-info" title="Edit">
-                                                <i class="fas fa-edit"></i>
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-edit me-1"></i> 
                                             </a>
                                         </div>
                                     </td>
@@ -93,21 +92,18 @@
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title">
-                                    <i class="fas fa-home"></i> Unit Details
+                                    <i class="fas fa-home me-1"></i> Unit Details
                                 </h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body" id="unitDetailsContent">
-                                <!-- Content will be loaded here via AJAX -->
                                 <div class="text-center py-5">
                                     <i class="fas fa-spinner fa-spin fa-3x"></i>
                                     <p>Loading data...</p>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -115,8 +111,8 @@
             }
             else
             {
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle mr-2"></i> You don't have any units yet.
+                <div class="alert alert-info fade-in">
+                    <i class="fas fa-info-circle me-2"></i> You don't have any units yet.
                     <a asp-action="AddUnit" class="alert-link">Add your first unit</a>
                 </div>
             }
@@ -125,86 +121,11 @@
 </div>
 
 @section Styles {
-    <style>
-        .badge-success {
-            background-color: #1cc88a;
-            color: #fff;
-        }
-
-        .badge-danger {
-            background-color: #e74a3b;
-            color: #fff;
-        }
-
-        .badge-warning {
-            background-color: #f6c23e;
-            color: #000;
-        }
-
-        .view-details {
-            min-width: 32px;
-        }
-
-        .table th {
-            white-space: nowrap;
-        }
-
-        .modal-lg {
-            max-width: 900px;
-        }
-
-        .table td, .table th {
-            vertical-align: middle;
-        }
-
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/sales/my-units.css" asp-append-version="true">
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(document).ready(function() {
-            // Handle details button click
-            $('.view-details').on('click', function() {
-                var unitId = $(this).data('id');
-                var url = '@Url.Action("GetUnitDetails", "Sales")' + '?id=' + unitId;
-
-                // Show loading spinner
-                $('#unitDetailsContent').html(`
-                    <div class="text-center py-5">
-                        <i class="fas fa-spinner fa-spin fa-3x"></i>
-                        <p>Loading unit details...</p>
-                    </div>
-                `);
-
-                // Show modal
-                $('#unitDetailsModal').modal('show');
-
-                // Load data via AJAX
-                $.get(url)
-                    .done(function(data) {
-                        $('#unitDetailsContent').html(data);
-                    })
-                    .fail(function() {
-                        $('#unitDetailsContent').html(`
-                            <div class="alert alert-danger text-center py-4">
-                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
-                                <h5>Error loading unit details</h5>
-                                <p>Please try again later</p>
-                            </div>
-                        `);
-                    });
-            });
-
-            // Clear modal content when closed
-            $('#unitDetailsModal').on('hidden.bs.modal', function () {
-                $('#unitDetailsContent').empty();
-            });
-        });
-    </script>
+    <script src="~/js/sales/my-units.js" asp-append-version="true"></script>
 }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

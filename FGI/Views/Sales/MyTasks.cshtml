@@ -1,173 +1,147 @@
 ﻿@using FGI.Enums
 @model List<Lead>
-@{
-    ViewData["Title"] = "My Assigned Leads";
-}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <div>
+                <h1 class="h3 mb-1 text-gray-800">My New Leads</h1>
+                <p class="mb-0 text-muted">New leads assigned to you</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="badge bg-primary text-white rounded-pill p-2 ms-2">
+                    <i class="fas fa-users me-1"></i> <span id="leadCount">@Model.Count</span> Leads
+                </div>
+            </div>
+        </div>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">My Assigned Leads</h1>
-        <div class="d-flex">
-            <div class="badge bg-primary text-white rounded-pill p-2 ms-2">
-                <i class="fas fa-users me-1"></i> @Model.Count Leads
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card primary h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">New Leads</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Table -->
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">New Leads</h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Count == 0)
+                {
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-info-circle me-3 fa-2x"></i>
+                        <div>
+                            <h5 class="alert-heading">No Leads Assigned</h5>
+                            <p class="mb-0">You currently have no leads assigned to you.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="leadsTable" width="100%" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Contact</th>
+                                    <th>Project</th>
+                                    <th>Unit</th>
+                                    <th>Price</th>
+                                    <th>Area</th>
+                                    <th>Created</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lead in Model)
+                                {
+                                    <tr class="lead-card">
+                                        <td>
+                                            <div class="font-weight-bold">@lead.ClientName</div>
+                                            @if (!string.IsNullOrEmpty(lead.Comment))
+                                            {
+                                                <small class="text-muted lead-comment">@lead.Comment</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a href="tel:@lead.ClientPhone" class="text-primary call-link">
+                                                <i class="fas fa-phone-alt me-1"></i> @lead.ClientPhone
+                                            </a>
+                                            @if (!string.IsNullOrEmpty(lead.ClientName))
+                                            {
+                                                <div class="mt-1">
+                                                    <a class="text-muted small">
+                                                        @lead.ClientName
+                                                    </a>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>@(lead.Project?.Name ?? "N/A")</td>
+                                        <td>@(lead.Unit?.UnitCode ?? "N/A")</td>
+                                        <td>@(lead.Unit?.Price.ToString("C") ?? "N/A")</td>
+                                        <td>@(lead.Unit?.Area != null ? $"{lead.Unit.Area} sqm" : "N/A")</td>
+                                        <td>
+                                            <div>@lead.CreatedAt.ToString("dd MMM yyyy")</div>
+                                            <small class="text-muted">@lead.CreatedAt.ToString("h:mm tt")</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center">
+                                                <a asp-action="LeadDetails" asp-route-id="@lead.Id" class="action-btn btn btn-sm btn-info me-1">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="tel:@lead.ClientPhone" class="action-btn btn btn-sm btn-success me-1 call-link">
+                                                    <i class="fas fa-phone"></i>
+                                                </a>
+                                                <a href="#" class="action-btn btn btn-sm btn-secondary note-link" data-comment="@lead.Comment">
+                                                    <i class="fas fa-sticky-note"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-gradient-primary text-white">
-            <h6 class="m-0 font-weight-bold">Leads Management</h6>
-        </div>
-        <div class="card-body">
-            @if (Model.Count == 0)
-            {
-                <div class="alert alert-info d-flex align-items-center">
-                    <i class="fas fa-info-circle me-3 fa-2x"></i>
-                    <div>
-                        <h5 class="alert-heading">No Leads Assigned</h5>
-                        <p class="mb-0">You currently have no leads assigned to you.</p>
-                    </div>
+    <!-- Notes Modal -->
+    <div class="modal fade" id="notesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lead Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover" id="leadsTable" width="100%" cellspacing="0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Client</th>
-                                <th>Contact</th>
-                                <th>Project</th>
-                                <th>Unit</th>
-                                <th>Type</th>
-                                <th>Sale Type</th>
-                                <th>Price</th>
-                                <th>Area</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var lead in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="font-weight-bold">@lead.ClientName</div>
-                                        @if (!string.IsNullOrEmpty(lead.Comment))
-                                        {
-                                            <small class="text-muted">@lead.Comment</small>
-                                        }
-                                    </td>
-                                    <td>
-                                        <a href="tel:@lead.ClientPhone" class="text-primary">
-                                            <i class="fas fa-phone-alt me-1"></i> @lead.ClientPhone
-                                        </a>
-                                    </td>
-                                    <td>@lead.Project?.Name</td>
-                                    <td>@lead.Unit?.UnitCode</td>
-                                    <td>@lead.Unit?.Type.ToString()</td>
-                                    <td>@lead.Unit?.UnitType.ToString()</td>
-                                    <td>@lead.Unit?.Price.ToString("C")</td>
-                                    <td>@lead.Unit?.Area sqm</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(lead.CurrentStatus)">
-                                            @lead.CurrentStatus
-                                        </span>
-                                    </td>
-                                    <td>@lead.CreatedAt.ToString("dd MMM yyyy")</td>
-                                    <td class="text-center">
-                                        <a asp-action="LeadDetails" asp-route-id="@lead.Id"
-                                           class="btn btn-sm btn-info me-1" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="modal-body">
+                    <p id="modalComment"></p>
                 </div>
-            }
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-@functions {
-    string GetStatusBadgeClass(LeadStatusType status)
-    {
-        return status switch
-        {
-            LeadStatusType.New => "bg-primary",
-            LeadStatusType.NoAnswer => "bg-warning",
-            LeadStatusType.FollowUp => "bg-info",
-            LeadStatusType.Busy => "bg-secondary",
-            LeadStatusType.Canceled => "bg-dark",
-            LeadStatusType.DoneDeal => "bg-success",
-            LeadStatusType.NotInterested => "bg-danger",
-            LeadStatusType.WrongNumber => "bg-light text-dark",
-            LeadStatusType.Closed => "bg-dark",
-            _ => "bg-light text-dark"
-        };
-    }
-}
-
-@section Styles {
-    <style>
-        .card-header {
-            border-radius: 0.35rem 0.35rem 0 0 !important;
-        }
-
-        .badge {
-            font-size: 0.8em;
-            font-weight: 500;
-            padding: 0.5em 0.75em;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-
-        .status-badge {
-            min-width: 100px;
-            display: inline-block;
-            text-align: center;
-        }
-
-        /* Added for comment display */
-        td small.text-muted {
-            display: block;
-            margin-top: 0.25rem;
-            font-size: 0.8rem;
-            line-height: 1.2;
-            max-width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-}
-
-@section Scripts {
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- DataTables core JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-    <!-- DataTables Bootstrap 5 integration -->
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#leadsTable').DataTable({
-                responsive: true,
-                columnDefs: [
-                    { responsivePriority: 1, targets: 0 }, // Client name
-                    { responsivePriority: 2, targets: -1 }, // Actions
-                    { responsivePriority: 3, targets: 1 }, // Contact
-                    { responsivePriority: 4, targets: 8 }   // Status
-                ]
-            });
-        });
-    </script>
-}
+   @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Custom JS -->
+    <script src="~/js/sales/my-new-leads.js" asp-append-version="true"></script>
+   }
+<link rel="stylesheet" href="~/css/sales/my-new-leads.css" asp-append-version="true">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

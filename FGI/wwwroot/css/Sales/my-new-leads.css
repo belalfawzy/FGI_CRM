@@ -1,0 +1,120 @@
+﻿
+:root {
+    --primary: #4e73df;
+    --secondary: #6c757d;
+    --success: #1cc88a;
+    --info: #36b9cc;
+    --warning: #f6c23e;
+    --danger: #e74a3b;
+    --light: #f8f9fc;
+    --dark: #5a5c69;
+}
+
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+}
+
+.status-badge {
+    min-width: 100px;
+    display: inline-block;
+    text-align: center;
+    padding: 0.5em 0.75em;
+    border-radius: 0.35rem;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.stat-card {
+    border-left: 4px solid;
+}
+
+    .stat-card.primary {
+        border-left-color: var(--primary);
+    }
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.table thead th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    color: var(--dark);
+    background-color: #eaecf4;
+}
+
+.lead-comment {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+    .empty-state i {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+    }
+
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 15px;
+    }
+}
+
+/* Override Bootstrap button hover effects */
+.btn:hover {
+    background-color: inherit;
+    color: inherit;
+    transform: none;
+}
+
+

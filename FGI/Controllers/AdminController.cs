@@ -834,6 +834,7 @@ namespace FGI.Controllers
                     .OrderBy(u => u.Project.Name)
                     .ThenBy(u => u.UnitCode)
                     .ToListAsync();
+                units = units.OrderByDescending(u => u.CreatedAt).ToList();
 
                 return View(units);
             }
@@ -1020,7 +1021,7 @@ namespace FGI.Controllers
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 lead.CreatedById = userId;
                 lead.CreatedAt = DateTime.Now;
-
+                lead.CurrentStatus = LeadStatusType.New;
                 // Add and save lead
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();

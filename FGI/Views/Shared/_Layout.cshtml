@@ -4,127 +4,27 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - FGI</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/FGI.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - FGI CRM System</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Boxicons CSS -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="~/Images/FgiIcon32.png" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
     @RenderSection("Styles", required: false)
-    <style>
-        /* تحسينات الأيقونات فقط */
-        .navbar-nav .nav-link i {
-            color: white;
-            margin-right: 0.5rem;
-            width: 1.25rem;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .dropdown-item i {
-            color: var(--primary-color);
-            margin-right: 0.5rem;
-            width: 1.25rem;
-            text-align: center;
-        }
-
-        /* تحسين المسافات بين العناصر */
-        .navbar-nav .nav-item {
-            margin: 0 0.25rem;
-        }
-
-        .navbar-nav .nav-link {
-            padding: 0.5rem 0.75rem;
-        }
-
-        /* تحسين شكل الصورة الرمزية للمستخدم */
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link:hover .user-avatar {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* تأثيرات بسيطة عند التحويم */
-        .nav-link:hover i {
-            transform: scale(1.1);
-        }
-
-        /* الحفاظ على الألوان الأصلية كما هي */
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #f8f9fc;
-            --accent-color: #36b9cc;
-        }
-
-        body {
-            background-color: #f8f9fc;
-        }
-
-        .navbar {
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            padding: 0.5rem 1rem;
-        }
-
-        .greeting-card {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .dashboard-card {
-            transition: all 0.3s;
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-            height: 100%;
-        }
-
-            .dashboard-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.2);
-            }
-
-            .dashboard-card .card-body {
-                padding: 2rem;
-                text-align: center;
-            }
-
-            .dashboard-card i {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-                color: var(--primary-color);
-            }
-
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        }
-    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <img src="~/Images/FgiIcon32.png" alt="FGI Logo" height="30" class="me-2">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/Images/FgiIcon32.png" alt="FGI Logo" height="36" class="me-2">
+                    FGI CRM
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -135,7 +35,7 @@
 
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                    <i class="fas fa-home"></i>Home
+                                    <i class='bx bx-home-alt'></i> Home
                                 </a>
                             </li>
 
@@ -143,43 +43,42 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="Users">
-                                        <i class="fas fa-users-cog"></i>Users
+                                        <i class='bx bx-user-circle'></i> Users
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="Projects">
-                                        <i class="fas fa-building"></i>Projects
+                                        <i class='bx bx-briefcase'></i> Projects
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="Leads">
-                                        <i class="fas fa-user-tie"></i>All Leads
+                                        <i class='bx bx-group'></i> All Leads
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="AddUnit">
-                                        <i class="fas fa-plus-square"></i> Add Unit
+                                        <i class='bx bx-plus-medical'></i> Add Unit
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="Tasks">
-                                        <i class="fas fa-tasks"></i>Tasks
+                                        <i class='bx bx-task'></i> Tasks
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="AllUnits">
-                                        <i class="bi bi-buildings-fill"></i>
-                                        <span>All Units</span>
+                                        <i class='bx bx-buildings'></i> All Units
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="MyLeads">
-                                        <i class="bi bi-person-fill-lock"></i>My Leads
+                                        <i class='bx bx-user-pin'></i> My Leads
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Lead" asp-action="AddLead">
-                                        <i class="fas fa-plus-circle"></i>New Lead
+                                        <i class='bx bx-user-plus'></i> New Lead
                                     </a>
                                 </li>
                             }
@@ -187,22 +86,22 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Lead" asp-action="Index">
-                                        <i class="fas fa-user-tie"></i>Leads
+                                        <i class='bx bx-group'></i> Leads
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Lead" asp-action="Create">
-                                        <i class="fas fa-plus-circle"></i>New Lead
+                                        <i class='bx bx-user-plus'></i> New Lead
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Lead" asp-action="MyUnits">
-                                        <i class="fas fa-building"></i>My Units
+                                        <i class='bx bx-home-alt'></i> My Units
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Lead" asp-action="AddUnit">
-                                        <i class="fas fa-plus-square"></i> Add Unit
+                                        <i class='bx bx-plus-medical'></i> Add Unit
                                     </a>
                                 </li>
                             }
@@ -210,45 +109,46 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Sales" asp-action="MyLeads">
-                                        <i class="fas fa-user-check"></i>My Leads
+                                        <i class='bx bx-user-pin'></i> My Leads
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Sales" asp-action="MyTasks">
-                                        <i class="fas fa-tasks"></i>Tasks
+                                        <i class='bx bx-task'></i> Tasks
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Sales" asp-action="MyUnits">
-                                        <i class="fas fa-building"></i>My Units
+                                        <i class='bx bx-home-alt'></i> My Units
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Sales" asp-action="AddUnit">
-                                        <i class="fas fa-plus-square"></i> Add Unit
+                                        <i class='bx bx-plus-medical'></i> Add Unit
                                     </a>
                                 </li>
                             }
                         }
                     </ul>
-                    <ul class="navbar-nav ms-auto align-items-center">
+                    <ul class="navbar-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link user-dropdown" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-avatar me-2">
                                         @User.Identity.Name?[0]
                                     </div>
                                     <span>@User.Identity.Name</span>
+                                    <i class='bx bx-chevron-down ms-2' style="font-size: 1rem;"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i>Settings</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class='bx bx-user'></i> Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class='bx bx-cog'></i> Settings</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
                                             <button type="submit" class="dropdown-item">
-                                                <i class="fas fa-sign-out-alt"></i>Logout
+                                                <i class='bx bx-log-out'></i> Logout
                                             </button>
                                         </form>
                                     </li>
@@ -259,7 +159,7 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Account" asp-action="Login">
-                                    <i class="fas fa-sign-in-alt"></i>Login
+                                    <i class='bx bx-log-in'></i> Login
                                 </a>
                             </li>
                         }
@@ -268,10 +168,22 @@
             </div>
         </nav>
     </header>
-    @RenderBody()
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            &copy; @DateTime.Now.Year FGI CRM System. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Custom JS -->
+    <script src="~/js/layout.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -10,6 +10,8 @@
         DoneDeal = 6,
         NotInterested = 7,
         WrongNumber = 8,
-        Closed = 9
+        Closed = 9,
+        NoBudget = 10,
+        Potential = 11
     }
 }
