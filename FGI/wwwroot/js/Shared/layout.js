@@ -25,4 +25,22 @@
     $('.navbar-nav .nav-link').on('click', function () {
         $('.navbar-collapse').collapse('hide');
     });
+
+    // Improved dropdown interaction
+    $('.user-dropdown').on('click', function (e) {
+        e.stopPropagation();
+    });
+
+    // Handle responsive behavior
+    function handleResize() {
+        if ($(window).width() < 992) {
+            $('.navbar-nav').addClass('mobile-menu');
+        } else {
+            $('.navbar-nav').removeClass('mobile-menu');
+        }
+    }
+
+    // Initial call and on resize
+    handleResize();
+    $(window).resize(handleResize);
 });

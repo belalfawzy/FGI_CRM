@@ -1,151 +1,174 @@
 ﻿@model Unit
+@{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+}
 
-<div class="container unit-details-container py-3">
-    <div class="row g-3">
-        <!-- Column 1 -->
-        <div class="col-lg-6">
-            <!-- Location Card -->
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start">
-                        <div class="icon-shape bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                            <i class="fas fa-map-marked-alt fa-fw"></i>
+<div class="container unit-details-container py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="page-title">
+                    <i class="fas fa-home me-2 text-primary"></i>Unit Details
+                </h3>
+                <div class="unit-code-badge">
+                    <span class="badge bg-primary fs-6 p-2">@(Model.UnitCode ?? "N/A")</span>
+                </div>
+            </div>
+            <hr class="mt-2">
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Location Card -->
+        <div class="col-12">
+            <div class="card h-100 location-card">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape bg-location rounded-3 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-map-marked-alt fa-lg"></i>
                         </div>
-                        <div class="flex-grow-1">
-                            <h5 class="card-title section-title">Location Details</h5>
-                            <div class="card-text">
-                                <div class="detail-item">
-                                    <span class="detail-label">Project:</span>
-                                    <span class="detail-value">@Model.Project?.Name</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Location:</span>
-                                    <span class="detail-value">@Model.Location</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Unit Code:</span>
-                                    <span class="detail-value">@(Model.UnitCode ?? "N/A")</span>
-                                </div>
-                            </div>
+                        <h5 class="card-title ms-3 mb-0">Location Details</h5>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-building me-2"></i>Project
+                        </div>
+                        <div class="detail-value">@(Model.Project?.Name ?? "N/A")</div>
+                    </div>
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Location
+                        </div>
+                        <div class="detail-value">@(Model.Location ?? "N/A")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specifications Card -->
+        <div class="col-12">
+            <div class="card h-100 specs-card">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape bg-specs rounded-3 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-home fa-lg"></i>
+                        </div>
+                        <h5 class="card-title ms-3 mb-0">Specifications</h5>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-tag me-2"></i>Type
+                        </div>
+                        <div class="detail-value">@Model.Type</div>
+                    </div>
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-store me-2"></i>Sale Type
+                        </div>
+                        <div class="detail-value">@Model.UnitType</div>
+                    </div>
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-ruler-combined me-2"></i>Area
+                        </div>
+                        <div class="detail-value">@Model.Area.ToString("N0") sqm</div>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="spec-badge">
+                            <span class="badge-icon"><i class="fas fa-bed"></i></span>
+                            <span class="badge-text">@Model.Bedrooms Bedrooms</span>
+                        </div>
+                        <div class="spec-badge">
+                            <span class="badge-icon"><i class="fas fa-bath"></i></span>
+                            <span class="badge-text">@Model.Bathrooms Bathrooms</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Column 2 -->
-        <div class="col-lg-6">
-            <!-- Specifications Card -->
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start">
-                        <div class="icon-shape bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                            <i class="fas fa-home fa-fw"></i>
+        <!-- Financial Card -->
+        <div class="col-12">
+            <div class="card h-100 financial-card">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape bg-financial rounded-3 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-money-bill-wave fa-lg"></i>
                         </div>
-                        <div class="flex-grow-1">
-                            <h5 class="card-title section-title">Unit Specifications</h5>
-                            <div class="card-text">
-                                <div class="detail-item">
-                                    <span class="detail-label">Type:</span>
-                                    <span class="detail-value">@Model.Type</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Sale Type:</span>
-                                    <span class="detail-value">@Model.UnitType</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Area:</span>
-                                    <span class="detail-value">@Model.Area.ToString("N0") sqm</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Bedrooms:</span>
-                                    <span class="detail-value">@Model.Bedrooms</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Bathrooms:</span>
-                                    <span class="detail-value">@Model.Bathrooms</span>
-                                </div>
-                            </div>
+                        <h5 class="card-title ms-3 mb-0">Financial Details</h5>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="detail-item mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-dollar-sign me-2"></i>Price
                         </div>
+                        <div class="detail-value price-tag">
+                            @if (Model.Currency == Currency.USD)
+                            {
+                                <span>$</span>
+                            }
+                            else
+                            {
+                                <span>EGP</span>
+                            }
+                            @Model.Price.ToString("N0")
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-user-tie me-2"></i>Owner
+                        </div>
+                        <div class="detail-value">@(Model.Owner?.Name ?? "N/A")</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Column 3 -->
-        <div class="col-lg-6">
-            <!-- Financial Card -->
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start">
-                        <div class="icon-shape bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                            <i class="fas fa-money-bill-wave fa-fw"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5 class="card-title section-title">Financial Details</h5>
-                            <div class="card-text">
-                                <div class="detail-item">
-                                    <span class="detail-label">Price:</span>
-                                    <span class="detail-value">
-                                        @if (Model.Currency == Currency.USD)
-                                        {
-                                            <span>$</span>
-                                        }
-                                        else
-                                        {
-                                            <span>EGP</span>
-                                        }
-                                        @Model.Price.ToString("N0")
-                                    </span>
-                                </div>
-                                
-                                <div class="detail-item">
-                                    <span class="detail-label">Owner:</span>
-                                    <span class="detail-value">@(Model.Owner?.Name ?? "N/A")</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Column 4 -->
+        <!-- Admin Card -->
         @if (User.IsInRole("Admin"))
         {
-            <div class="col-lg-6">
-                <!-- Admin Card -->
-                <div class="card h-100 border-start-admin">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start">
-                            <div class="icon-shape bg-admin text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                                <i class="fas fa-user-shield fa-fw"></i>
+            <div class="col-12">
+                <div class="card h-100 admin-card">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-shape bg-admin rounded-3 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user-shield fa-lg"></i>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="card-title section-title">Admin Details</h5>
-                                <div class="card-text">
-                                    <div class="detail-item">
-                                        <span class="detail-label">Created By:</span>
-                                        <span class="detail-value">@Model.CreatedBy?.FullName</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Created At:</span>
-                                        <span class="detail-value">@Model.CreatedAt.ToString("f")</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Status:</span>
-                                        <span class="detail-value">
-                                            @if (Model.IsAvailable)
-                                            {
-                                                <span class="badge bg-success">Available</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">Not Available</span>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
+                            <h5 class="card-title ms-3 mb-0">Admin Details</h5>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <div class="detail-item mb-3">
+                            <div class="detail-label">
+                                <i class="fas fa-user-edit me-2"></i>Created By
+                            </div>
+                            <div class="detail-value">@Model.CreatedBy?.FullName</div>
+                        </div>
+                        <div class="detail-item mb-3">
+                            <div class="detail-label">
+                                <i class="fas fa-calendar-plus me-2"></i>Created At
+                            </div>
+                            <div class="detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <i class="fas fa-circle me-2"></i>Status
+                            </div>
+                            <div class="detail-value">
+                                @if (Model.IsAvailable)
+                                {
+                                    <span class="status-badge available">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge not-available">Not Available</span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -154,141 +177,288 @@
         }
     </div>
 
+    <!-- Notes Section -->
     @if (!string.IsNullOrEmpty(Model.Description))
     {
-        <div class="row mt-3">
+        <div class="row mt-4">
             <div class="col-12">
-                <div class="card border-start-notes">
-                    <div class="card-body">
-                        <h5 class="card-title section-title">
+                <div class="card notes-card">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="card-title">
                             <i class="fas fa-align-left me-2 text-info"></i>Additional Notes
                         </h5>
-                        <p class="card-text notes-content">@Model.Description</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="notes-content">@Model.Description</div>
                     </div>
                 </div>
             </div>
         </div>
     }
 
-    @if (User.IsInRole("Admin"))
-    {
+    <!-- Action Buttons -->
         <div class="row mt-4">
-            <div class="col-12 text-end">
-                <div class="action-buttons">
-                    <a asp-action="EditUnit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm me-2">
-                        <i class="fas fa-edit me-1"></i> Edit Unit
+            <div class="col-12">
+                <div class="d-flex justify-content-end action-buttons">
+                    <a asp-action="EditUnit" asp-route-id="@Model.Id" class="btn btn-action btn-edit me-2">
+                        <i class="fas fa-edit me-2"></i>Edit Unit
                     </a>
-                    <button class="btn btn-outline-secondary btn-sm unit-history" data-id="@Model.Id">
-                        <i class="fas fa-history me-1"></i> View History
+                    <button class="btn btn-action btn-history unit-history" data-id="@Model.Id">
+                        <i class="fas fa-history me-2"></i>View History
                     </button>
                 </div>
             </div>
         </div>
-    }
 </div>
 
 <style>
     .unit-details-container {
-        max-width: 1200px;
+        max-width: 900px;
         margin: 0 auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
     }
 
+    /* تحسينات العنوان */
+    .page-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.75rem;
+    }
+
+    .unit-code-badge .badge {
+        font-size: 1rem !important;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    hr {
+        border-top: 2px solid #e9ecef;
+        opacity: 0.8;
+    }
+
+    /* تحسينات البطاقات */
     .card {
-        border-radius: 0.5rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: 1px solid #e9ecef;
-        margin-bottom: 0;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .border-start-admin {
-        border-left: 4px solid #4e73df !important;
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    /* تحسين رأس البطاقة */
+    .card-header {
+        padding: 1.25rem 1.5rem 0;
     }
 
-    .border-start-notes {
-        border-left: 4px solid #36b9cc !important;
+    .card-body {
+        padding: 0 1.5rem 1.5rem;
     }
 
+    .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.25rem;
+    }
+
+    /* تحسين الأيقونات */
     .icon-shape {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
+        width: 50px;
+        height: 50px;
+    }
+
+    .bg-location {
+        background-color: rgba(41, 128, 185, 0.15);
+        color: #2980b9;
+    }
+
+    .bg-specs {
+        background-color: rgba(39, 174, 96, 0.15);
+        color: #27ae60;
+    }
+
+    .bg-financial {
+        background-color: rgba(241, 196, 15, 0.15);
+        color: #f39c12;
     }
 
     .bg-admin {
-        background-color: #4e73df;
+        background-color: rgba(155, 89, 182, 0.15);
+        color: #9b59b6;
     }
 
-    .bg-primary {
-        background-color: #1cc88a;
-    }
-
-    .bg-success {
-        background-color: #36b9cc;
-    }
-
-    .bg-warning {
-        background-color: #f6c23e;
-    }
-
-    .section-title {
-        color: #5a5c69;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
-    }
-
+    /* تحسين العناصر التفصيلية */
     .detail-item {
         display: flex;
-        margin-bottom: 0.5rem;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f2f6;
     }
 
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
     .detail-label {
-        font-weight: 600;
-        color: #5a5c69;
-        min-width: 120px;
-        display: inline-block;
+        font-weight: 500;
+        color: #7f8c8d;
+        display: flex;
+        align-items: center;
     }
 
     .detail-value {
+        font-weight: 600;
+        color: #2c3e50;
+        text-align: right;
+    }
+
+    .price-tag {
+        color: #27ae60;
+        font-size: 1.1rem;
+    }
+
+    /* تحسين شبكة المواصفات */
+    .detail-grid {
+        display: flex;
+        gap: 15px;
+        margin-top: 1rem;
+    }
+
+    .spec-badge {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .badge-icon {
+        margin-right: 8px;
         color: #6c757d;
     }
 
+    /* تحسين حالة التوفر */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+        .status-badge.available {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: #27ae60;
+        }
+
+        .status-badge.not-available {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+        }
+
+    /* تحسين قسم الملاحظات */
+    .notes-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #3498db;
+    }
+
     .notes-content {
-        color: #495057;
         line-height: 1.6;
+        color: #34495e;
+        white-space: pre-line;
+    }
+
+    /* تحسين أزرار الإجراءات */
+    .action-buttons {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-action {
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit {
+        background-color: #3498db;
+        color: white;
+        border: none;
+    }
+
+        .btn-edit:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+    .btn-history {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+
+        .btn-history:hover {
+            background-color: #e9ecef;
+            color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+        }
+
+    /* تحسينات للشاشات الصغيرة */
+    @@media (max-width: 768px) {
+        .detail-item
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .detail-value {
+        text-align: left;
+        margin-top: 0.25rem;
+        margin-left: 1.8rem;
+    }
+
+    .detail-grid {
+        flex-direction: column;
+        gap: 10px;
     }
 
     .action-buttons {
-        padding: 0.5rem 0;
+        flex-direction: column;
+        gap: 10px;
     }
 
-    .badge {
-        font-size: 0.85em;
-        padding: 0.35em 0.65em;
+    .btn-action {
+        width: 100%;
+        justify-content: center;
     }
 
-    /* Responsive adjustments */
-    @@media (max-width: 768px) {
-        .detail-label {
-            min-width: 100px;
-        }
-
-        .icon-shape {
-            margin-right: 15px;
-        }
     }
 </style>
 
 <script>
-    $(document).ready(function() {
-        $('.unit-history').click(function() {
+    $(document).ready(function () {
+        $('.unit-history').click(function () {
             var unitId = $(this).data('id');
-            // Implement history functionality here
-            alert('Unit history functionality would be implemented for ID: ' + unitId);
+            $(this).prop('disabled', true);
+            $(this).html('<i class="fas fa-spinner fa-spin me-2"></i>Loading...');
+            setTimeout(function () {
+                alert('Unit history functionality would be implemented for ID: ' + unitId);
+                $('.unit-history').prop('disabled', false);
+                $('.unit-history').html('<i class="fas fa-history me-2"></i>View History');
+            }, 1000);
         });
     });
 </script>

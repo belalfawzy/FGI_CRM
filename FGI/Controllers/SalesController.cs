@@ -50,6 +50,7 @@ namespace FGI.Controllers
                 .Where(l => l.AssignedToId == userId.Value
                     && l.CurrentStatus == LeadStatusType.New)
                 .Include(l => l.Unit)
+                .Include(l => l.Project)
                 .ToListAsync();
             return View(tasks);
         }
@@ -183,9 +184,7 @@ namespace FGI.Controllers
                 .Include(l => l.Project)
                 .Include(l => l.Unit)
                 .Include(l => l.AssignedTo)
-                .Where(l => l.AssignedToId == userId &&
-                            l.CurrentStatus != LeadStatusType.DoneDeal &&
-                            l.CurrentStatus != LeadStatusType.Canceled)
+                .Where(l => l.AssignedToId == userId)
                 .OrderByDescending(l => l.CreatedAt)
                 .ToListAsync();
 

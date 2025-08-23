@@ -11,9 +11,9 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="~/Images/FgiIcon32.png" />
+    <link rel="icon" type="image/x-icon" href="~/Images/FGIcon.png" />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/shared/layout.css" asp-append-version="true">
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -21,8 +21,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <img src="~/Images/FgiIcon32.png" alt="FGI Logo" height="36" class="me-2">
-                    FGI CRM
+                    <img src="~/Images/FGIcon32.png" alt="FGI Logo" height="36" class="me-2">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -183,7 +182,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="~/js/layout.js" asp-append-version="true"></script>
+    <script src="~/js/shared/layout.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

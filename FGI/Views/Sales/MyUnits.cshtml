@@ -2,130 +2,88 @@
 @model List<Unit>
 @{
     ViewData["Title"] = "My Units";
+    var userRole = User.IsInRole("Sales") ? "Sales" : "Marketing";
 }
 
-<div class="container-fluid">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-dark">@ViewData["Title"]</h1>
-        <a asp-action="AddUnit" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus me-1"></i> Add New Unit
-        </a>
+<div class="app-container">
+    <div class="header">
+        <h1 class="page-title"><i class="fas fa-home"></i> @ViewData["Title"]</h1>
+        <a asp-action="AddUnit" class="add-btn"><i class="fas fa-plus"></i> Add New Unit</a>
     </div>
 
-    <div class="card shadow-sm mb-4 fade-in">
-        <div class="card-header py-3 bg-primary text-white">
-            <h6 class="m-0 font-weight-bold"><i class="fas fa-home me-1"></i> All Your Units</h6>
+    <section class="units-section">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-list"></i> All Your Units</h2>
         </div>
-        <div class="card-body">
+        <div class="units-container">
             @if (Model.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Unit Code</th>
-                                <th>Type</th>
-                                <th>Sale Type</th>
-                                <th>Location</th>
-                                <th>Area (sqm)</th>
-                                <th>Bed/Bath</th>
-                                <th>Price</th>
-                                <th>Owner</th>
-                                <th>Project</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var unit in Model)
-                            {
-                                <tr>
-                                    <td>@(unit.UnitCode ?? "N/A")</td>
-                                    <td>@unit.Type</td>
-                                    <td>@unit.UnitType</td>
-                                    <td>@unit.Location</td>
-                                    <td>@unit.Area.ToString("N0")</td>
-                                    <td>@unit.Bedrooms / @unit.Bathrooms</td>
-                                    <td>
-                                        @if (unit.Currency == Currency.USD)
-                                        {
-                                            <span>$</span>
-                                        }
-                                        else
-                                        {
-                                            <span>EGP</span>
-                                        }
-                                        @unit.Price.ToString("N0")
-                                    </td>
-                                    <td>@(unit.Owner?.Name ?? "N/A")</td>
-                                    <td>@(unit.Project?.Name ?? "N/A")</td>
-                                    <td>
-                                        @if (unit.IsAvailable)
-                                        {
-                                            <span class="badge badge-success">Available</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-danger">Sold</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <button class="btn btn-sm btn-primary view-details" data-id="@unit.Id">
-                                                <i class="fas fa-eye me-1"></i> 
-                                            </button>
-                                            <a asp-action="EditUnit" asp-controller="Sales" asp-route-id="@unit.Id"
-                                               class="btn btn-sm btn-info">
-                                                <i class="fas fa-edit me-1"></i> 
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Unit Details Modal -->
-                <div class="modal fade" id="unitDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-home me-1"></i> Unit Details
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                foreach (var unit in Model)
+                {
+                    <div class="unit-card @(ViewBag.SelectedUnitId == unit.Id ? "active" : "")" data-id="@unit.Id">
+                        <div class="unit-info">
+                            <div class="unit-code">@(unit.UnitCode ?? "N/A")</div>
+                            <div class="unit-meta">
+                                <span>@unit.Type • @unit.UnitType</span>
+                                <span>@unit.Area.ToString("N0") sqm</span>
+                                <span>@unit.Bedrooms Bed / @unit.Bathrooms Bath</span>
                             </div>
-                            <div class="modal-body" id="unitDetailsContent">
-                                <div class="text-center py-5">
-                                    <i class="fas fa-spinner fa-spin fa-3x"></i>
-                                    <p>Loading data...</p>
-                                </div>
+                        </div>
+                        <div class="unit-right">
+                            <div class="unit-price">
+                                @if (unit.Currency == Currency.USD)
+                                {
+                                    <span>$</span>
+                                }
+                                else
+                                {
+                                    <span>EGP</span>
+                                }
+                                @unit.Price.ToString("N0")
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <div class="unit-status @(unit.IsAvailable ? "status-available" : "status-sold")">
+                                @(unit.IsAvailable ? "Available" : "Sold")
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             }
             else
             {
-                <div class="alert alert-info fade-in">
-                    <i class="fas fa-info-circle me-2"></i> You don't have any units yet.
+                <div class="no-units fade-in">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h5>You don't have any units yet.</h5>
                     <a asp-action="AddUnit" class="alert-link">Add your first unit</a>
                 </div>
             }
         </div>
-    </div>
+    </section>
+
+    <section class="details-section">
+        <div class="details-header">
+            <h2 class="section-title"><i class="fas fa-info-circle"></i> Unit Details</h2>
+            <button id="closeDetails" class="btn-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="details-content">
+            <div id="noUnitSelected" class="no-selection">
+                <i class="fas fa-home fa-3x"></i>
+                <h3>No Unit Selected</h3>
+                <p>Select a unit from the list to view details</p>
+            </div>
+            <div id="unitDetailsContent" style="display: none;"></div>
+        </div>
+    </section>
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/sales/my-units.css" asp-append-version="true">
 }
 
 @section Scripts {
+    <script>
+        var currentUserRole = '@userRole';
+    </script>
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/sales/my-units.js" asp-append-version="true"></script>
 }
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
