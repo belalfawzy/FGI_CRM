@@ -30,13 +30,13 @@ body {
     flex-direction: column;
     overflow-x: hidden;
     font-size: 1rem;
-    padding: 0; /* Remove padding to avoid interference with sticky navbar */
+    padding: 0; /* Already optimal, no change */
 }
 
-/* Improved Navbar Styles */
+/* Navbar Styles */
 .navbar {
     background: var(--bg-gradient);
-    padding: 0.8rem 1.5rem;
+    padding: 0.6rem 1rem; /* Reduced padding to minimize vertical space */
     box-shadow: var(--card-shadow);
     position: sticky;
     top: 0;
@@ -67,24 +67,23 @@ body {
 }
 
 .nav-item {
-    margin: 0 0.4rem;
+    margin: 0 0.3rem; /* Slightly reduced margin */
 }
 
 .nav-link {
     color: rgba(255, 255, 255, 0.95) !important;
     font-weight: 500;
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 0.8rem; /* Reduced padding */
     border-radius: 8px;
     display: flex;
     align-items: center;
     transition: var(--transition);
-    position: relative;
     font-size: 0.95rem;
 }
 
     .nav-link i {
         font-size: 1.2rem;
-        margin-right: 0.5rem;
+        margin-right: 0.4rem; /* Slightly reduced */
         transition: var(--transition);
     }
 
@@ -100,7 +99,7 @@ body {
         font-weight: 600;
     }
 
-/* Enhanced User Dropdown */
+/* User Dropdown */
 .user-menu-container {
     position: relative;
 }
@@ -108,7 +107,7 @@ body {
 .user-dropdown {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 50px;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem; /* Reduced padding */
     display: flex;
     align-items: center;
     transition: var(--transition);
@@ -157,7 +156,7 @@ body {
     border: none;
     border-radius: 12px;
     box-shadow: var(--card-shadow);
-    margin-top: 0.75rem;
+    margin-top: 0.5rem; /* Reduced margin */
     background: white;
     overflow: hidden;
     animation: slideDown 0.2s ease-out;
@@ -166,7 +165,7 @@ body {
 }
 
 .dropdown-item {
-    padding: 0.75rem 1.25rem;
+    padding: 0.6rem 1rem; /* Reduced padding */
     font-weight: 500;
     color: var(--dark);
     display: flex;
@@ -178,7 +177,7 @@ body {
     .dropdown-item i {
         color: var(--primary);
         width: 1.4rem;
-        margin-right: 0.7rem;
+        margin-right: 0.6rem;
         font-size: 1.1rem;
     }
 
@@ -188,14 +187,14 @@ body {
     }
 
 .dropdown-divider {
-    margin: 0.3rem 0;
+    margin: 0.2rem 0; /* Reduced margin */
     border-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Mobile Menu Improvements */
+/* Mobile Menu */
 .navbar-toggler {
     border: 1px solid rgba(255, 255, 255, 0.5);
-    padding: 0.5rem 0.7rem;
+    padding: 0.4rem 0.6rem; /* Reduced padding */
     border-radius: 8px;
     transition: var(--transition);
 }
@@ -236,41 +235,41 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 1200px) {
     .nav-link {
-        padding: 0.5rem 0.8rem;
+        padding: 0.4rem 0.7rem;
         font-size: 0.9rem;
     }
 
         .nav-link i {
             font-size: 1.1rem;
-            margin-right: 0.4rem;
+            margin-right: 0.3rem;
         }
 }
 
 @media (max-width: 992px) {
     .navbar-collapse {
         background: var(--bg-gradient);
-        padding: 1rem;
+        padding: 0.8rem; /* Reduced padding */
         border-radius: 12px;
-        margin-top: 0.75rem;
+        margin-top: 0.5rem;
         box-shadow: var(--card-shadow);
         animation: fadeIn 0.3s ease-out;
     }
 
     .nav-item {
-        margin: 0.3rem 0;
+        margin: 0.2rem 0;
     }
 
     .nav-link {
-        padding: 0.8rem 1.2rem;
+        padding: 0.7rem 1rem;
         font-size: 1rem;
         border-radius: 8px;
         justify-content: flex-start;
     }
 
     .user-dropdown {
-        margin-top: 0.5rem;
+        margin-top: 0.3rem;
         justify-content: flex-start;
-        padding: 0.8rem 1.2rem;
+        padding: 0.7rem 1rem;
         width: 100%;
     }
 
@@ -281,30 +280,30 @@ body {
 
 @media (max-width: 576px) {
     .navbar {
-        padding: 0.7rem 1rem;
+        padding: 0.5rem 0.8rem; /* Further reduced */
     }
 
     .brand-text {
-        font-size: 1.2rem;
-        padding: 0.2rem 0.6rem;
+        font-size: 1.1rem;
+        padding: 0.2rem 0.5rem;
     }
 
     .navbar-brand img {
-        height: 32px;
+        height: 30px;
     }
 }
 
 /* Main Content */
 .main-content {
-    flex: 1 0 auto; /* Allow main content to grow but not shrink below its content */
-    padding: 20px; /* Move padding here instead of body */
+    flex: 1 0 auto;
+    padding: 12px; /* Reduced from 20px to minimize white space */
     animation: fadeIn 0.4s ease-out;
 }
 
 /* Footer */
 .footer {
     background: white;
-    padding: 1.5rem 0;
+    padding: 1rem 0; /* Reduced from 1.5rem */
     text-align: center;
     color: var(--dark);
     font-size: 0.9rem;
@@ -317,10 +316,10 @@ body:not(.modal-open) .main-content {
 }
 
 body.modal-open {
-    overflow-y: scroll !important; /* Keep scrollbar visible */
-    padding-right: 0 !important; /* Prevent Bootstrap's padding adjustment */
+    overflow-y: scroll !important;
+    padding-right: 0 !important;
 }
 
 html {
-    overflow-y: scroll !important; /* Ensure scrollbar is always present */
+    overflow-y: scroll !important;
 }

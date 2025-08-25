@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Security.Claims;
+using System.Text;
 using static FGI.Controllers.LeadController;
 
 namespace FGI.Controllers
@@ -1034,7 +1035,7 @@ namespace FGI.Controllers
                         message = string.IsNullOrEmpty(duplicateWarning)
                             ? "Lead saved successfully!"
                             : $"Lead saved successfully! {duplicateWarning}",
-                        redirect = Url.Action("Details", new { id = lead.Id })
+                        redirect = Url.Action("MyUnits", new { id = lead.Id })
                     });
                 }
 
@@ -1105,6 +1106,184 @@ namespace FGI.Controllers
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(userId, out int id) ? id : null;
+        }
+        [HttpGet]
+        public IActionResult ExportLeadsToCsv()
+        {
+            // Fetch leads data (adjust according to your data access logic)
+            var leads = _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .Include(l => l.CreatedBy)
+                .Include(l => l.AssignedTo)
+                .ToList();
+
+            // Create CSV content
+            var builder = new StringBuilder();
+            // Add header
+            builder.AppendLine("Client Name,Client Phone,Project,Unit Code,Status,Created By,Assigned To,Last Updated");
+
+            // Add rows
+            foreach (var lead in leads.OrderByDescending(l => l.UpdatedAt))
+            {
+                var clientName = $"\"{lead.ClientName?.Replace("\"", "\"\"")}\"";
+                var clientPhone = lead.ClientPhone ?? "";
+                var projectName = $"\"{lead.Project?.Name?.Replace("\"", "\"\"") ?? ""}\"";
+                var unitCode = lead.Unit?.UnitCode ?? "";
+                var status = GetStatusDisplayName(lead.CurrentStatus); // Reuse your helper method
+                var createdBy = $"\"{lead.CreatedBy?.FullName?.Replace("\"", "\"\"") ?? ""}\"";
+                var assignedTo = $"\"{lead.AssignedTo?.FullName?.Replace("\"", "\"\"") ?? "Unassigned"}\"";
+                var lastUpdated = lead.UpdatedAt?.ToString("dd MMM yyyy HH:mm") ?? "";
+
+                builder.AppendLine($"{clientName},{clientPhone},{projectName},{unitCode},{status},{createdBy},{assignedTo},{lastUpdated}");
+            }
+
+            // Return CSV file
+            var bytes = Encoding.UTF8.GetBytes(builder.ToString());
+            return File(bytes, "text/csv", $"Leads_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        }
+        private string GetStatusDisplayName(LeadStatusType status)
+        {
+            return status switch
+            {
+                LeadStatusType.New => "New Lead",
+                LeadStatusType.NoAnswer => "No Answer",
+                LeadStatusType.FollowUp => "Follow Up",
+                LeadStatusType.Busy => "Busy",
+                LeadStatusType.Canceled => "Canceled",
+                LeadStatusType.DoneDeal => "Done Deal",
+                LeadStatusType.NotInterested => "Not Interested",
+                LeadStatusType.WrongNumber => "Wrong Number",
+                LeadStatusType.Closed => "Closed",
+                LeadStatusType.Potential => "Potential",
+                LeadStatusType.NoBudget => "No Budget",
+                _ => ""
+            };
+        }
+        [HttpGet]
+        public async Task<IActionResult> EditLead(int id)
+        {
+            var lead = await _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit) // تأكد من تضمين الـ Unit
+                .Include(l => l.AssignedTo)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (lead == null)
+            {
+                return NotFound();
+            }
+
+            // Ensure projects list is never null
+            var projects = await _projectService.GetAllProjectsAsync() ?? new List<Project>();
+            ViewBag.Projects = new SelectList(projects, "Id", "Name", lead.ProjectId);
+
+            return View(lead);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLead(int id, [Bind("Id,ClientName,ClientPhone,Comment,ProjectId,UnitId,CreatedById,CreatedAt,AssignedToId,CurrentStatus")] Lead lead)
+        {
+            if (id != lead.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Get the existing lead with all relationships
+                    var existingLead = await _context.Leads
+                        .Include(l => l.Unit)
+                        .FirstOrDefaultAsync(l => l.Id == id);
+
+                    if (existingLead == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Update only the editable fields
+                    existingLead.ClientName = lead.ClientName;
+                    existingLead.ClientPhone = lead.ClientPhone;
+                    existingLead.Comment = lead.Comment;
+                    existingLead.ProjectId = lead.ProjectId;
+                    existingLead.UnitId = lead.UnitId;
+                    existingLead.UpdatedAt = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+
+                    if (IsAjaxRequest())
+                    {
+                        return Json(new
+                        {
+                            success = true,
+                            message = "Lead updated successfully",
+                            redirect = Url.Action("Details", new { id = lead.Id })
+                        });
+                    }
+
+                    TempData["SuccessMessage"] = "Lead updated successfully";
+                    return RedirectToAction("Details", new { id = lead.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _leadService.LeadExists(lead.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating lead");
+
+                    if (IsAjaxRequest())
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Error updating lead: " + ex.Message,
+                            errors = ModelState.Values
+                                .SelectMany(v => v.Errors)
+                                .Select(e => e.ErrorMessage)
+                                .ToList()
+                        });
+                    }
+
+                    TempData["ErrorMessage"] = "Error updating lead: " + ex.Message;
+                }
+            }
+
+            // If we got this far, something failed; redisplay form
+            var projects = await _projectService.GetAllProjectsAsync() ?? new List<Project>();
+            ViewBag.Projects = new SelectList(projects, "Id", "Name", lead.ProjectId);
+
+            // Reload the unit for the view
+            lead.Unit = await _context.Units.FirstOrDefaultAsync(u => u.Id == lead.UnitId);
+
+            if (IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Validation failed",
+                    errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            return View(lead);
+        }
+        private bool IsAjaxRequest()
+        {
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }
     }
 }

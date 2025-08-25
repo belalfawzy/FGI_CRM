@@ -1,0 +1,389 @@
+﻿@using FGI.Enums
+@model Lead
+@{
+    ViewData["Title"] = "Edit Lead";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Lead</h1>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="d-none d-sm-inline-block btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Details
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-primary text-white">
+            <h6 class="m-0 font-weight-bold">Lead Information</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post" id="leadForm">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedById" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="AssignedToId" />
+                <input type="hidden" asp-for="CurrentStatus" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ClientName" class="control-label">Client Name *</label>
+                            <input asp-for="ClientName" class="form-control" placeholder="Enter client name" required />
+                            <span asp-validation-for="ClientName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ClientPhone" class="control-label">Phone Number *</label>
+                            <input asp-for="ClientPhone" class="form-control" placeholder="Enter phone number" required />
+                            <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ProjectId" class="control-label">Project (Optional)</label>
+                            <select asp-for="ProjectId" id="ProjectId" class="form-control select2"
+                                    asp-items="ViewBag.Projects">
+                                <option value="">-- Search All Projects --</option>
+                            </select>
+                            <small class="form-text text-muted">Leave empty to search in all projects</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="UnitId" class="control-label">Unit *</label>
+                            <select asp-for="UnitId" id="UnitId" class="form-control select2" required>
+                                <option value="">Search by Unit Code, Location or Description...</option>
+                                @if (Model.UnitId.HasValue && Model.Unit != null)
+                                {
+                                    <option value="@Model.UnitId" selected>@Model.Unit.UnitCode - @Model.Unit.Type (@Model.Unit.Price.ToString("C"))</option>
+                                }
+                            </select>
+                            <span asp-validation-for="UnitId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="Comment" class="control-label">Comment</label>
+                            <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Enter any additional comments"></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit Details Section -->
+                <div class="row mt-3" id="unitDetailsContainer" style="display: @(Model.Unit != null ? "block" : "none");">
+                    <div class="col-md-12">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Unit Details
+                                        </div>
+                                        <div class="row mt-2" id="unitDetailsContent">
+                                            @if (Model.Unit != null)
+                                            {
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Unit Code</dt>
+                                                        <dd class="col-sm-7">@(Model.Unit.UnitCode ?? "N/A")</dd>
+
+                                                        <dt class="col-sm-5">Unit Type</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Type</dd>
+
+                                                        <dt class="col-sm-5">Sale Type</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.UnitType</dd>
+                                                    </dl>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Location</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Location</dd>
+
+                                                        <dt class="col-sm-5">Price</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Price.ToString("C")</dd>
+
+                                                        <dt class="col-sm-5">Area</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Area sqm</dd>
+                                                    </dl>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Bedrooms</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Bedrooms</dd>
+                                                    </dl>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Bathrooms</dt>
+                                                        <dd class="col-sm-7">@Model.Unit.Bathrooms</dd>
+                                                    </dl>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(Model.Unit.Description))
+                                                {
+                                                    <div class="col-12 mt-2">
+                                                        <dt class="col-sm-2">Description:</dt>
+                                                        <dd class="col-sm-10">@Model.Unit.Description</dd>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-home fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4 text-center">
+                    <button type="submit" id="saveButton" class="btn btn-primary btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-save" id="saveIcon"></i>
+                            <span class="spinner-border spinner-border-sm" id="saveSpinner" style="display:none;"></span>
+                        </span>
+                        <span class="text" id="saveText">Save Changes</span>
+                    </button>
+                    <a asp-action="LeadDetails" asp-route-id="@Model.Id" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: calc(1.5em + 0.75rem + 2px);
+            padding: 0.375rem 0.75rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem + 2px);
+        }
+
+        .unit-detail-row {
+            margin-bottom: 8px;
+        }
+
+        .unit-detail-label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .select2-results__option--highlighted[aria-disabled=true] {
+            color: #6c757d !important;
+            background-color: #f8f9fa !important;
+        }
+
+        [aria-required="true"]:after {
+            content: " *";
+            color: red;
+        }
+
+        .select2-selection__clear {
+            margin-right: 20px;
+        }
+
+        .search-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .card.preview-card {
+            border-left: 4px solid #4e73df;
+        }
+
+        .preview-card .card-header {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #e3e6f0;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2
+            $('.select2').select2({
+                placeholder: "Select an option",
+                allowClear: true
+            });
+
+            // Unit search functionality
+            var unitSelect = $('#UnitId').select2({
+                placeholder: "Search by Unit Code, Location, or Description",
+                minimumInputLength: 2,
+                width: '100%',
+                ajax: {
+                    url: '@Url.Action("GetUnits", "Lead")',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) {
+                        return {
+                            projectId: $('#ProjectId').val() || 0,
+                            term: params.term,
+                            _: new Date().getTime()
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text,
+                                    disabled: item.disabled,
+                                    unit: item.unit
+                                };
+                            })
+                        };
+                    },
+                    error: function(xhr) {
+                        console.error('Search error:', xhr.responseText);
+                    },
+                    cache: true
+                },
+                templateResult: function(item) {
+                    if (item.loading) return item.text;
+                    var $result = $('<span>' + item.text + '</span>');
+                    if (item.disabled) {
+                        $result.append(' <span class="badge badge-danger">Not Available</span>');
+                        $result.addClass('text-muted');
+                    } else {
+                        $result.append(' <span class="badge badge-success">Available</span>');
+                    }
+                    return $result;
+                },
+                templateSelection: function(item) {
+                    if (item.id === '') return item.text;
+                    return item.text + (item.disabled ? ' (Not Available)' : '');
+                }
+            });
+
+            // Update unit search when project changes
+            $('#ProjectId').on('change', function() {
+                $('#UnitId').val(null).trigger('change');
+                $('#unitDetailsContainer').hide();
+            });
+
+            // Show unit details when selected
+            unitSelect.on('change', function() {
+                var unitId = $(this).val();
+                if (unitId) {
+                    $('#unitDetailsContent').html('<div class="col-12 text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+                    $('#unitDetailsContainer').show();
+
+                    $.get('@Url.Action("GetUnitDetails", "Lead")', { id: unitId })
+                        .done(function(data) {
+                            $('#unitDetailsContent').html(data);
+                        })
+                        .fail(function() {
+                            $('#unitDetailsContent').html('<div class="col-12 text-danger">Error loading details</div>');
+                        });
+                } else {
+                    $('#unitDetailsContainer').hide();
+                }
+            });
+
+            // Form submission handler
+            $('#leadForm').on('submit', function(e) {
+                e.preventDefault();
+
+                if (!$(this).valid()) return false;
+
+                var $btn = $('#saveButton');
+                $btn.prop('disabled', true);
+                $('#saveIcon').hide();
+                $('#saveSpinner').show();
+                $('#saveText').text('Saving...');
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '@Url.Action("Edit", "Lead")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(function() {
+                                window.location.href = response.redirect || '@Url.Action("LeadDetails", new { id = Model.Id })';
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                            if (response.errors) {
+                                response.errors.forEach(function(error) {
+                                    toastr.error(error);
+                                });
+                            }
+                            $btn.prop('disabled', false);
+                            $('#saveIcon').show();
+                            $('#saveSpinner').hide();
+                            $('#saveText').text('Save Changes');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Failed to save changes. Please try again.');
+                        $btn.prop('disabled', false);
+                        $('#saveIcon').show();
+                        $('#saveSpinner').hide();
+                        $('#saveText').text('Save Changes');
+                    }
+                });
+            });
+
+            // Load unit details if unit is already selected
+        @if (Model.UnitId.HasValue)
+        {
+            <text>
+                            $('#unitDetailsContainer').show();
+            </text>
+        }
+        });
+    </script>
+}

@@ -4,224 +4,228 @@
     ViewData["Title"] = "Leads Management";
 }
 
-<div class="container-fluid px-0">
-    <!-- Main Content Area with White Background -->
-    <div class="container-fluid px-4">
-        <div class="bg-gradient-primary text-primary py-3 mb-4 shadow" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
-            <div class="container-fluid">
-                <div class="d-sm-flex align-items-center justify-content-between">
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-user-tie mr-2"></i> Leads Management
-                    </h1>
-                    <a asp-action="Create" class="btn btn-light btn-circle btn-lg shadow-sm">
-                        <i class="fas fa-plus text-primary"></i>
-                    </a>
+<div class="container-fluid px-3">
+    <!-- Header -->
+    <div class="header bg-gradient-primary text-white py-3 mb-4 shadow-lg rounded-lg">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <h1 class="h4 mb-0">
+                    <i class="fa-solid fa-user-tie me-2"></i> Leads Management
+                </h1>
+                <a asp-action="Create" class="btn btn-light btn-circle btn-md shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section card shadow-lg mb-4 border-0 animate__animated animate__fadeIn">
+        <div class="filter-title card-header bg-gradient-primary text-white py-3 d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold">
+                <i class="fa-solid fa-filter me-2"></i> Search Filters
+            </h6>
+            <button id="resetFilters" class="btn btn-sm btn-outline-light">
+                <i class="fa-solid fa-arrow-rotate-right"></i> Reset
+            </button>
+        </div>
+        <div class="filter-grid card-body bg-light rounded-bottom py-3">
+            <div class="filter-group">
+                <label class="form-label small text-muted">Search</label>
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-primary"></i></span>
+                    <input id="searchInput" type="text" class="form-control filter-control border-start-0" placeholder="Name or phone">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Project</label>
+                <select id="projectFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Projects</option>
+                    @foreach (var project in Model.Projects)
+                    {
+                        <option value="@project.Id">@project.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Sales Rep</label>
+                <select id="salesRepFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Reps</option>
+                    @foreach (var user in Model.SalesUsers)
+                    {
+                        <option value="@user.Id">@user.FullName</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Status</label>
+                <select id="statusFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Statuses</option>
+                    @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
+                    {
+                        <option value="@GetStatusDisplayName(status)">@GetStatusDisplayName(status)</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Date</label>
+                <input id="dateFilter" type="date" class="form-control filter-control">
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="tabs mb-4 bg-white shadow-lg rounded-lg p-2 animate__animated animate__fadeIn">
+        <div class="tab active" data-status="">
+            All <span class="tab-badge badge bg-secondary">@Model.Leads.Count</span>
+        </div>
+        <div class="tab" data-status="New Lead">
+            New <span class="tab-badge badge bg-primary">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.New)</span>
+        </div>
+        <div class="tab" data-status="Follow Up">
+            Follow Up <span class="tab-badge badge bg-info">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.FollowUp)</span>
+        </div>
+        <div class="tab" data-status="Done Deal">
+            Done Deal <span class="tab-badge badge bg-success">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.DoneDeal)</span>
+        </div>
+        <div class="tab" data-status="Closed">
+            Closed <span class="tab-badge badge bg-danger">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.Closed)</span>
+        </div>
+        <div class="tab" data-status="Potential">
+            Potential <span class="tab-badge badge bg-teal">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.Potential)</span>
+        </div>
+        <div class="tab" data-status="Not Interested">
+            Not Interested <span class="tab-badge badge bg-purple">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.NotInterested)</span>
+        </div>
+        <div class="tab" data-status="No Answer">
+            No Answer <span class="tab-badge badge bg-warning">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.NoAnswer)</span>
+        </div>
+        <div class="tab" data-status="No Budget">
+            No Budget <span class="tab-badge badge bg-danger">@Model.Leads.Count(l => l.CurrentStatus == LeadStatusType.NoBudget)</span>
+        </div>
+    </div>
+
+    <!-- Leads Table -->
+    <div class="card shadow-lg border-0 animate__animated animate__fadeIn">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fa-solid fa-list me-2"></i> All Leads
+            </h6>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary rounded-pill me-3">@Model.Leads.Count records</span>
+                <!-- Show entries dropdown -->
+                <a href="@Url.Action("ExportLeadsToCsv", "Admin")" class="btn btn-outline-success btn-sm me-2" title="Download CSV">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="showEntriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Show <span id="currentEntries">10</span> entries
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="showEntriesDropdown">
+                        <li><a class="dropdown-item entries-option" href="#" data-value="10">10</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="20">20</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="30">30</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="50">50</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="-1">All</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-
-        <!-- Filters Card -->
-        <div class="card shadow-sm mb-4 border-0">
-            <div class="card-header bg-white py-3 border-bottom">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-filter mr-2"></i>Search Filters
-                </h6>
-            </div>
-            <div class="card-body bg-light rounded-bottom">
-                <form method="get" class="row g-3 align-items-end">
-                    <!-- Search Term -->
-                    <div class="col-md-3">
-                        <label class="form-label small text-muted">Search</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="searchTerm" placeholder="Name or phone" value="@Model.SearchTerm">
-                            <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-                        </div>
-                    </div>
-
-                    <!-- Project Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Project</label>
-                        <select class="form-select" name="projectId">
-                            <option value="">All Projects</option>
-                            @foreach (var project in Model.Projects)
-                            {
-                                <option value="@project.Id" selected="@(Model.SelectedProjectId == project.Id)">@project.Name</option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Sales Rep Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Sales Rep</label>
-                        <select class="form-select" name="assignedToId">
-                            <option value="">All Reps</option>
-                            @foreach (var user in Model.SalesUsers)
-                            {
-                                <option value="@user.Id" selected="@(Model.SelectedSalesUserId == user.Id)">@user.FullName</option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Status Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Status</label>
-                        <select class="form-select" name="status">
-                            <option value="">All Statuses</option>
-                            @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
-                            {
-                                <option value="@status" selected="@(Model.SelectedStatus?.ToString() == status.ToString())">
-                                    @GetStatusDisplayName(status)
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Date Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small text-muted">Date</label>
-                        <input type="date" class="form-control" name="filterDate" value="@Model.FilterDate?.ToString("yyyy-MM-dd")">
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="col-md-1 d-flex align-items-end">
-                        <div class="d-grid gap-2 w-100">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-filter"></i>
-                            </button>
-                            <a href="@Url.Action("Leads")" class="btn btn-outline-secondary">
-                                <i class="fas fa-sync-alt"></i>
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Leads Table -->
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-list mr-2"></i>All Leads
-                </h6>
-                <span class="badge bg-primary rounded-pill">@Model.Leads.Count records</span>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0" id="leadsTable">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Client</th>
-                                <th>Contact</th>
-                                <th>Project</th>
-                                <th>UnitCode</th>
-                                <th>Status</th>
-                                <th>Created by</th>
-                                <th>Assigned To</th>
-                                <th>Last Updated</th>
-                                <th class="text-end">Actions</th>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="leadsTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>Project</th>
+                            <th>UnitCode</th>
+                            <th>Status</th>
+                            <th>Created by</th>
+                            <th>Assigned To</th>
+                            <th>Last Updated</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lead in Model.Leads.OrderByDescending(l => l.UpdatedAt))
+                        {
+                            <tr data-status="@GetStatusDisplayName(lead.CurrentStatus)" data-project="@lead.Project?.Id" data-salesrep="@lead.AssignedTo?.Id" data-date="@lead.UpdatedAt?.ToString("yyyy-MM-dd")" data-search="@(lead.ClientName + " " + lead.ClientPhone).ToLower()">
+                                <td>
+                                    <strong>@lead.ClientName</strong>
+                                    <div class="small text-muted">Created: @lead.CreatedAt.ToString("dd MMM yyyy")</div>
+                                </td>
+                                <td>@lead.ClientPhone</td>
+                                <td>@lead.Project?.Name</td>
+                                <td>@lead.Unit?.UnitCode</td>
+                                <td>
+                                    <span class="status-badge badge @GetStatusBadgeClass(lead.CurrentStatus)">
+                                        @GetStatusDisplayName(lead.CurrentStatus)
+                                    </span>
+                                </td>
+                                <td>@lead.CreatedBy.FullName</td>
+                                <td>
+                                    @if (lead.AssignedTo != null)
+                                    {
+                                        <span>@lead.AssignedTo.FullName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Unassigned</span>
+                                    }
+                                </td>
+                                <td>@lead.UpdatedAt?.ToString("dd MMM yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="LeadDetails" asp-route-id="@lead.Id" class="btn btn-sm btn-outline-dark" title="View Details">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignModal-@lead.Id" title="Assign">
+                                            <i class="fa-solid fa-user-pen"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#statusModal-@lead.Id" title="Change Status">
+                                            <i class="fa-solid fa-flag"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success position-relative" data-bs-toggle="modal" data-bs-target="#followupModal-@lead.Id" title="Follow-ups">
+                                            <i class="fa-solid fa-comment-dots"></i>
+                                            @if (Model.LeadFeedbacks.ContainsKey(lead.Id) && Model.LeadFeedbacks[lead.Id].Count > 0)
+                                            {
+                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                    @Model.LeadFeedbacks[lead.Id].Count
+                                                </span>
+                                            }
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#historyModal-@lead.Id" title="History">
+                                            <i class="fa-solid fa-clock-rotate-left"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var lead in Model.Leads)
-                            {
-                                <tr>
-                                    <td>
-                                        <strong>@lead.ClientName</strong>
-                                        <div class="small text-muted">Created: @lead.CreatedAt.ToString("dd MMM yyyy")</div>
-                                    </td>
-                                    <td>@lead.ClientPhone</td>
-                                    <td>@lead.Project?.Name</td>
-                                    <td>@lead.Unit?.UnitCode</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(lead.CurrentStatus)">
-                                            @GetStatusDisplayName(lead.CurrentStatus)
-                                        </span>
-                                    </td>
-                                    <td>@lead.CreatedBy.FullName</td>
-                                    <td>
-                                        @if (lead.AssignedTo != null)
-                                        {
-                                            <span>@lead.AssignedTo.FullName</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">Unassigned</span>
-                                        }
-                                    </td>
-                                    <td>@lead.UpdatedAt.ToString()</td>
-                                    <td class="text-end">
-                                        <div class="btn-group" role="group">
-                                            <!-- Add this new Details button -->
-                                            <a asp-action="LeadDetails" asp-route-id="@lead.Id"
-                                               class="btn btn-sm btn-outline-dark" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <!-- Assign Button -->
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#assignModal-@lead.Id"
-                                                    title="Assign">
-                                                <i class="fas fa-user-edit"></i>
-                                            </button>
-
-                                            <!-- Status Button -->
-                                            <button type="button" class="btn btn-sm btn-outline-info"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#statusModal-@lead.Id"
-                                                    title="Change Status">
-                                                <i class="fas fa-flag"></i>
-                                            </button>
-
-                                            <!-- Follow-up Button -->
-                                            <button type="button" class="btn btn-sm btn-outline-success position-relative"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#followupModal-@lead.Id"
-                                                    title="Follow-ups">
-                                                <i class="fas fa-comment-dots"></i>
-                                                @if (Model.LeadFeedbacks.ContainsKey(lead.Id) && Model.LeadFeedbacks[lead.Id].Count > 0)
-                                                {
-                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
-                                                        @Model.LeadFeedbacks[lead.Id].Count
-                                                    </span>
-                                                }
-                                            </button>
-
-                                            <!-- History Button -->
-                                            <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#historyModal-@lead.Id"
-                                                    title="History">
-                                                <i class="fas fa-history"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modals for each lead -->
+<!-- Modals -->
 @foreach (var lead in Model.Leads)
 {
     <!-- Assign Modal -->
     <div class="modal fade" id="assignModal-@lead.Id" tabindex="-1" aria-labelledby="assignModalLabel-@lead.Id" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+            <div class="modal-content rounded-lg shadow-lg">
+                <div class="modal-header bg-gradient-primary text-white">
                     <h5 class="modal-title" id="assignModalLabel-@lead.Id">Assign Lead</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form asp-controller="Admin" asp-action="AssignLead" method="post">
                     <div class="modal-body">
                         <input type="hidden" name="leadId" value="@lead.Id" />
                         <div class="mb-3">
                             <label class="form-label">Assign to:</label>
-                            <select class="form-select" name="salesUserId" required>
+                            <select class="form-select select2-modal" name="salesUserId" required>
                                 <option value="">-- Select Sales Rep --</option>
                                 @foreach (var user in Model.SalesUsers)
                                 {
@@ -231,7 +235,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Assign</button>
                     </div>
                 </form>
@@ -242,17 +246,17 @@
     <!-- Status Modal -->
     <div class="modal fade" id="statusModal-@lead.Id" tabindex="-1" aria-labelledby="statusModalLabel-@lead.Id" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
+            <div class="modal-content rounded-lg shadow-lg">
+                <div class="modal-header bg-gradient-info text-white">
                     <h5 class="modal-title" id="statusModalLabel-@lead.Id">Change Lead Status</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form asp-controller="Admin" asp-action="UpdateLeadStatus" method="post">
                     <div class="modal-body">
                         <input type="hidden" name="leadId" value="@lead.Id" />
                         <div class="mb-3">
                             <label class="form-label">New Status:</label>
-                            <select class="form-select" name="status" required>
+                            <select class="form-select select2-modal" name="status" required>
                                 @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
                                 {
                                     <option value="@status" selected="@(status == lead.CurrentStatus)">@GetStatusDisplayName(status)</option>
@@ -261,7 +265,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-info">Update Status</button>
                     </div>
                 </form>
@@ -272,30 +276,29 @@
     <!-- Follow-up Modal -->
     <div class="modal fade" id="followupModal-@lead.Id" tabindex="-1" aria-labelledby="followupModalLabel-@lead.Id" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
+            <div class="modal-content rounded-lg shadow-lg">
+                <div class="modal-header bg-gradient-success text-white">
                     <h5 class="modal-title" id="followupModalLabel-@lead.Id">Follow-ups for @lead.ClientName</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <!-- Follow-ups List -->
                             <div class="timeline">
                                 @if (Model.LeadFeedbacks.ContainsKey(lead.Id) && Model.LeadFeedbacks[lead.Id].Any())
                                 {
                                     foreach (var feedback in Model.LeadFeedbacks[lead.Id].OrderByDescending(f => f.CreatedAt))
                                     {
-                                        <div class="timeline-item mb-3">
+                                        <div class="timeline-item mb-3 animate__animated animate__fadeInUp">
                                             <div class="timeline-icon bg-@GetStatusColor(feedback.Status)">
-                                                <i class="fas @GetStatusIcon(feedback.Status) text-white"></i>
+                                                <i class="fa-solid @GetStatusIcon(feedback.Status) text-white"></i>
                                             </div>
-                                            <div class="timeline-content border rounded p-3">
+                                            <div class="timeline-content border rounded p-3 bg-light shadow-sm">
                                                 <div class="d-flex justify-content-between">
                                                     <h6 class="mb-1">@feedback.Sales?.FullName</h6>
                                                     <small class="text-muted">@feedback.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</small>
                                                 </div>
-                                                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-@GetStatusColor(feedback.Status)">@feedback.Status</span></p>
+                                                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-@GetStatusColor(feedback.Status)">@GetStatusDisplayName(feedback.Status)</span></p>
                                                 <p class="mb-0">@feedback.Comment</p>
                                             </div>
                                         </div>
@@ -304,15 +307,14 @@
                                 else
                                 {
                                     <div class="text-center py-4">
-                                        <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
+                                        <i class="fa-solid fa-comment-slash fa-2x text-muted mb-3"></i>
                                         <p class="text-muted">No follow-ups found</p>
                                     </div>
                                 }
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <!-- Add New Follow-up Form -->
-                            <div class="card border-success">
+                            <div class="card border-success shadow-sm">
                                 <div class="card-header bg-success text-white">
                                     <h6 class="mb-0">Add New Follow-up</h6>
                                 </div>
@@ -321,7 +323,7 @@
                                         <input type="hidden" name="leadId" value="@lead.Id" />
                                         <div class="mb-3">
                                             <label class="form-label">Status:</label>
-                                            <select class="form-select" name="status">
+                                            <select class="form-select select2-modal" name="status">
                                                 @foreach (LeadStatusType status in Enum.GetValues(typeof(LeadStatusType)))
                                                 {
                                                     <option value="@status">@GetStatusDisplayName(status)</option>
@@ -333,7 +335,7 @@
                                             <textarea class="form-control" name="followUpNotes" rows="5" required></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-success w-100">
-                                            <i class="fas fa-save me-2"></i>Save Follow-up
+                                            <i class="fa-solid fa-floppy-disk me-2"></i> Save Follow-up
                                         </button>
                                     </form>
                                 </div>
@@ -342,7 +344,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -351,10 +353,10 @@
     <!-- History Modal -->
     <div class="modal fade" id="historyModal-@lead.Id" tabindex="-1" aria-labelledby="historyModalLabel-@lead.Id" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-secondary text-white">
+            <div class="modal-content rounded-lg shadow-lg">
+                <div class="modal-header bg-gradient-secondary text-white">
                     <h5 class="modal-title" id="historyModalLabel-@lead.Id">Lead History</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     @if (Model.AssignmentHistories.ContainsKey(lead.Id) && Model.AssignmentHistories[lead.Id].Any())
@@ -389,7 +391,7 @@
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -401,16 +403,21 @@
     {
         return status switch
         {
-            LeadStatusType.New => "bg-blue",
-            LeadStatusType.NoAnswer => "bg-gray",
-            LeadStatusType.FollowUp => "bg-yellow",
-            LeadStatusType.Busy => "bg-orange",
-            LeadStatusType.Canceled => "bg-red",
-            LeadStatusType.DoneDeal => "bg-green",
-            LeadStatusType.NotInterested => "bg-purple",
-            LeadStatusType.WrongNumber => "bg-dark",
-            LeadStatusType.Closed => "bg-secondary",
-            _ => "bg-light text-dark"
+            LeadStatusType.New => "badge-new",
+            LeadStatusType.NoAnswer => "badge-noanswer",
+            LeadStatusType.FollowUp => "badge-followup",
+            LeadStatusType.Busy => "badge-busy",
+            LeadStatusType.Canceled => "badge-cancel",
+            LeadStatusType.DoneDeal => "badge-donedeal",
+            LeadStatusType.NotInterested => "badge-notinterested",
+            LeadStatusType.WrongNumber => "badge-wrongnumber",
+            LeadStatusType.Closed => "badge-closed",
+            LeadStatusType.Potential => "badge-potential",
+            LeadStatusType.NoBudget => "badge-notinterested",
+            _ => status switch
+            {
+                _ => ""
+            }
         };
     }
 
@@ -427,7 +434,12 @@
             LeadStatusType.NotInterested => "Not Interested",
             LeadStatusType.WrongNumber => "Wrong Number",
             LeadStatusType.Closed => "Closed",
-            _ => status.ToString()
+            LeadStatusType.Potential => "Potential",
+            LeadStatusType.NoBudget => "No Budget",
+            _ => status switch
+            {
+                _ => ""
+            }
         };
     }
 
@@ -437,14 +449,19 @@
         {
             LeadStatusType.New => "primary",
             LeadStatusType.NoAnswer => "warning",
-            LeadStatusType.FollowUp => "secondary",
+            LeadStatusType.FollowUp => "info",
             LeadStatusType.Busy => "orange",
             LeadStatusType.Canceled => "danger",
             LeadStatusType.DoneDeal => "success",
             LeadStatusType.NotInterested => "purple",
             LeadStatusType.WrongNumber => "dark",
             LeadStatusType.Closed => "secondary",
-            _ => "light"
+            LeadStatusType.Potential => "teal",
+            LeadStatusType.NoBudget => "danger",
+            _ => status switch
+            {
+                _ => ""
+            }
         };
     }
 
@@ -455,204 +472,503 @@
             LeadStatusType.New => "fa-user-plus",
             LeadStatusType.NoAnswer => "fa-phone-slash",
             LeadStatusType.FollowUp => "fa-clock",
-            LeadStatusType.Busy => "fa-phone-alt",
-            LeadStatusType.Canceled => "fa-times-circle",
+            LeadStatusType.Busy => "fa-phone-volume",
+            LeadStatusType.Canceled => "fa-xmark-circle",
             LeadStatusType.DoneDeal => "fa-check-double",
             LeadStatusType.NotInterested => "fa-thumbs-down",
-            LeadStatusType.WrongNumber => "fa-exclamation-circle",
+            LeadStatusType.WrongNumber => "fa-circle-exclamation",
             LeadStatusType.Closed => "fa-lock",
-            _ => "fa-info-circle"
+            LeadStatusType.Potential => "fa-star",
+            LeadStatusType.NoBudget => "fa-danger",
+            _ => status switch
+            {
+                _ => ""
+            }
         };
     }
 }
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
-        .page-header {
-            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-            margin-left: -1.5rem;
-            margin-right: -1.5rem;
+        :root {
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --teal: #20c997;
+            --purple: #6f42c1;
+            --orange: #fd7e14;
+            --dark: #343a40;
+            --bg-gradient: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
-        .bg-blue {
-            background-color: #4e73df;
+        .container-fluid {
+            padding-left: 12px;
+            padding-right: 12px;
         }
 
-        .bg-gray {
-            background-color: #858796;
+        .header {
+            background: var(--bg-gradient);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
         }
 
-        .bg-yellow {
-            background-color: #f6c23e;
-            color: #000;
+        .filter-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 16px;
+            box-shadow: var(--card-shadow);
         }
 
-        .bg-orange {
-            background-color: #fd7e14;
+        .filter-title {
+            padding: 10px 15px;
+            margin-bottom: 0;
+            border-bottom: none;
+            background: var(--bg-gradient);
+            border-radius: 10px 10px 0 0;
         }
 
-        .bg-red {
-            background-color: #e74a3b;
+        .filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .bg-green {
-            background-color: #1cc88a;
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-control {
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: #fff;
+        }
+
+            .filter-control:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+                outline: none;
+            }
+
+        .search-box .input-group-text {
+            border-radius: 8px 0 0 8px;
+            border: 1px solid #ced4da;
+            background: #fff;
+        }
+
+        .search-box .form-control {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            height: 38px;
+            padding: 5px;
+            font-size: 0.95rem;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 28px;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 38px;
+            }
+
+        .select2-container--default .select2-results__option--highlighted {
+            background-color: var(--primary);
+        }
+
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+        }
+
+            .btn-outline-light:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: #fff;
+            }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            background: #fff;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+            .tab:hover {
+                background: var(--bg-gradient);
+                color: #fff;
+            }
+
+            .tab.active {
+                background: var(--primary);
+                color: #fff;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+        .tab-badge {
+            margin-left: 8px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tab.active .tab-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .bg-teal {
+            background-color: var(--teal);
         }
 
         .bg-purple {
-            background-color: #6f42c1;
+            background-color: var(--purple);
         }
 
-        .bg-dark {
-            background-color: #5a5c69;
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
         }
 
         #leadsTable th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            font-size: 0.75rem;
             letter-spacing: 0.5px;
-            padding: 1rem;
             border-bottom: 2px solid #e3e6f0;
         }
 
         #leadsTable td {
-            padding: 0.75rem 1rem;
+            padding: 10px 15px;
             vertical-align: middle;
             border-top: 1px solid #f8f9fc;
         }
 
         #leadsTable tr:hover {
-            background-color: #f8f9fc;
+            background: linear-gradient(90deg, #f1f3f9, #e9ecef);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-noanswer {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-followup {
+            background: #e1f5fe;
+            color: #0288d1;
+        }
+
+        .badge-busy {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .badge-cancel {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .badge-donedeal {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .badge-notinterested {
+            background: #f3e5f5;
+            color: #6f42c1;
+        }
+
+        .badge-wrongnumber {
+            background: #fbe9e7;
+            color: #dd2c00;
+        }
+
+        .badge-closed {
+            background: #eceff1;
+            color: #455a64;
+        }
+
+        .badge-potential {
+            background: #e6fffa;
+            color: #20c997;
         }
 
         .btn-group .btn {
-            position: relative;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 8px;
         }
 
-        .badge {
-            font-weight: 500;
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
+        .modal-content {
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .modal-header {
-            padding: 1rem 1.5rem;
+        .modal-header, .modal-footer {
+            padding: 12px 15px;
         }
 
-        .modal-footer {
-            padding: 0.75rem 1.5rem;
+        .btn-close-white {
+            filter: invert(1);
         }
 
         .timeline {
+            padding-left: 40px;
             position: relative;
-            padding-left: 50px;
         }
 
         .timeline-item {
-            position: relative;
             padding-bottom: 15px;
+            position: relative;
         }
 
         .timeline-icon {
             position: absolute;
-            left: -40px;
-            top: 0;
-            width: 30px;
-            height: 30px;
+            left: -32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1;
         }
 
         .timeline-content {
-            position: relative;
             padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
             border: 1px solid #e9ecef;
+            transition: var(--transition);
         }
 
-        .bg-primary {
-            background-color: #4e73df !important;
+            .timeline-content:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+        .dt-buttons {
+            margin-bottom: 15px;
+            padding-left: 15px;
         }
 
-        .bg-secondary {
-            background-color: #858796 !important;
+        .dt-button {
+            background: var(--primary) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            font-size: 0.95rem !important;
+            border: none !important;
         }
 
-        .bg-success {
-            background-color: #1cc88a !important;
+            .dt-button:hover {
+                background: var(--dark) !important;
+            }
+
+        @@media (max-width: 768px) {
+            .container-fluid
+
+        {
+            padding-left: 8px;
+            padding-right: 8px;
         }
 
-        .bg-info {
-            background-color: #36b9cc !important;
+        .filter-grid {
+            flex-direction: column;
         }
 
-        .bg-warning {
-            background-color: #f6c23e !important;
+        .filter-group {
+            min-width: 100%;
         }
 
-        .bg-danger {
-            background-color: #e74a3b !important;
+        .tabs {
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
-        .bg-purple {
-            background-color: #6f42c1 !important;
+        .tab {
+            flex: 1 1 45%;
+            min-width: 100px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
         }
 
-        .bg-dark {
-            background-color: #5a5c69 !important;
+        #leadsTable th, #leadsTable td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
         }
 
-        .bg-orange {
-            background-color: #fd7e14 !important;
+        }
+
+        @@media (max-width: 576px) {
+            .container-fluid
+
+        {
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .filter-section {
+            padding: 12px;
+        }
+
+        .filter-control {
+            font-size: 0.9rem;
+            padding: 8px 10px;
+        }
+
+        .tab {
+            flex: 1 1 100%;
+            padding: 6px 10px;
+            font-size: 0.85rem
+        }
+
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .table, .filter-section, .tabs, .card {
+            animation: fadeIn 0.5s ease-out;
         }
     </style>
 }
 
 @section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
-    <script src="~/lib/toastr.js/toastr.min.js"></script>
-
     <script>
-        $(document).ready(function() {
-            $('#leadsTable').DataTable({
-                responsive: true,
-                order: [[6, 'desc']],
-                dom: '<"top"f>rt<"bottom"lip><"clear">',
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search leads...",
-                },
-                columnDefs: [
-                    { orderable: false, targets: [7] }
-                ]
+        $(document).ready(function () {
+            let $rows = $("#leadsTable tbody tr");
+            let showEntries = 10; // default value
+
+            function applyFilters() {
+                let search = $("#searchInput").val().toLowerCase();
+                let project = $("#projectFilter").val();
+                let salesRep = $("#salesRepFilter").val();
+                let status = $("#statusFilter").val();
+                let date = $("#dateFilter").val();
+                let activeTab = $(".tabs .tab.active").data("status");
+
+                let visibleCount = 0;
+
+                $rows.each(function () {
+                    let $row = $(this);
+                    let match = true;
+
+                    if (search && !$row.data("search").includes(search)) match = false;
+                    if (project && $row.data("project") != project) match = false;
+                    if (salesRep && $row.data("salesrep") != salesRep) match = false;
+                    if (status && $row.data("status") != status) match = false;
+                    if (date && $row.data("date") != date) match = false;
+                    if (activeTab && $row.data("status") != activeTab && activeTab != "") match = false;
+
+                    if (match && (showEntries === -1 || visibleCount < showEntries)) {
+                        $row.show();
+                        visibleCount++;
+                    } else {
+                        $row.hide();
+                    }
+                });
+            }
+
+            // Filters change
+            $(".filter-control").on("input change", applyFilters);
+
+            // Tabs click
+            $(".tabs .tab").click(function () {
+                $(".tabs .tab").removeClass("active");
+                $(this).addClass("active");
+                applyFilters();
             });
 
-            // Initialize tooltips
-            $('[title]').tooltip();
+            // Show entries dropdown
+            $(".entries-option").click(function (e) {
+                e.preventDefault();
+                showEntries = parseInt($(this).data("value"));
+                $("#currentEntries").text(showEntries === -1 ? "All" : showEntries);
+                applyFilters();
+            });
 
-            // Show success/error messages from TempData
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <text>
-                    toastr.success('@Html.Raw(TempData["SuccessMessage"])');
-            </text>
-        }
+            // Reset filters
+            $("#resetFilters").click(function () {
+                $("#searchInput").val("");
+                $("#projectFilter").val("").trigger("change");
+                $("#salesRepFilter").val("").trigger("change");
+                $("#statusFilter").val("").trigger("change");
+                $("#dateFilter").val("");
+                $(".tabs .tab").removeClass("active");
+                $(".tabs .tab[data-status='']").addClass("active");
+                showEntries = 10;
+                $("#currentEntries").text("10");
+                applyFilters();
+            });
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <text>
-                    toastr.error('@Html.Raw(TempData["ErrorMessage"])');
-            </text>
-        }
+            // Initial filter
+            applyFilters();
         });
-    </script>
     </script>
 }

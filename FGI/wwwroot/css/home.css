@@ -19,6 +19,14 @@
         color: #444;
         min-height: 100vh;
         font-family: 'Poppins', sans-serif;
+        padding: 0; /* Align with layout.css to avoid stacking */
+    }
+
+    .home-page .container {
+        max-width: 100%; /* Stretch to full width */
+        padding-left: 8px; /* Reduced from Bootstrap default 15px */
+        padding-right: 8px;
+        animation: fadeIn 0.5s ease-out;
     }
 
     .home-page .greeting-card {
@@ -26,8 +34,8 @@
         color: white;
         border-radius: 1rem;
         box-shadow: var(--card-shadow);
-        padding: 2rem;
-        margin-bottom: 2rem;
+        padding: 1.2rem; /* Reduced from 2rem */
+        margin-bottom: 1.2rem; /* Reduced from 2rem */
         position: relative;
         overflow: hidden;
     }
@@ -75,19 +83,19 @@
         }
 
         .home-page .dashboard-card .card-body {
-            padding: 1.5rem;
+            padding: 1rem; /* Reduced from 1.5rem */
             text-align: center;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 180px;
+            min-height: 140px; /* Reduced from 180px */
         }
 
         .home-page .dashboard-card i {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
+            font-size: clamp(1.8rem, 5vw, 2rem); /* Responsive font size */
+            margin-bottom: 0.8rem; /* Reduced from 1rem */
             color: var(--primary);
             transition: var(--transition);
         }
@@ -99,28 +107,29 @@
         .home-page .dashboard-card .card-title {
             font-weight: 700;
             color: var(--dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem; /* Reduced from 0.5rem */
+            font-size: clamp(1rem, 3vw, 1.1rem);
         }
 
         .home-page .dashboard-card .card-text {
             color: var(--dark);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 2.5vw, 0.85rem);
             opacity: 0.8;
         }
 
     .home-page .notification-badge {
         position: absolute;
-        top: -8px;
-        right: -8px;
+        top: -6px; /* Adjusted for tighter fit */
+        right: -6px;
         background-color: var(--danger);
         color: white;
         border-radius: 50%;
-        width: 26px;
-        height: 26px;
+        width: 22px; /* Reduced from 26px */
+        height: 22px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.75rem;
+        font-size: 0.7rem; /* Reduced from 0.75rem */
         font-weight: bold;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         animation: pulse 1.5s infinite;
@@ -170,18 +179,62 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .home-page .greeting-card {
-        padding: 1.5rem;
+        padding: 1rem; /* Further reduced */
+        margin-bottom: 1rem;
     }
 
     .home-page .dashboard-card .card-body {
-        min-height: 150px;
-        padding: 1.25rem;
+        min-height: 120px; /* Reduced from 150px */
+        padding: 0.8rem;
     }
 
     .home-page .dashboard-card i {
-        font-size: 1.8rem;
+        font-size: clamp(1.5rem, 4.5vw, 1.7rem);
+    }
+
+    .home-page .container {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+}
+
+@media (max-width: 576px) {
+    .home-page .greeting-card {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .home-page .dashboard-card .card-body {
+        min-height: 100px;
+        padding: 0.6rem;
+    }
+
+    .home-page .dashboard-card i {
+        font-size: clamp(1.3rem, 4vw, 1.5rem);
+        margin-bottom: 0.6rem;
+    }
+
+    .home-page .dashboard-card .card-title {
+        font-size: clamp(0.9rem, 2.8vw, 1rem);
+    }
+
+    .home-page .dashboard-card .card-text {
+        font-size: clamp(0.75rem, 2.3vw, 0.8rem);
+    }
+
+    .home-page .notification-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+        top: -5px;
+        right: -5px;
+    }
+
+    .home-page .container {
+        padding-left: 4px;
+        padding-right: 4px;
     }
 }
 
@@ -196,10 +249,6 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.home-page .container {
-    animation: fadeIn 0.5s ease-out;
 }
 
 /* Focus styles for accessibility */
@@ -221,9 +270,9 @@
         transform: translateX(-50%);
         background-color: #333;
         color: white;
-        padding: 5px 10px;
+        padding: 4px 8px; /* Reduced padding */
         border-radius: 4px;
-        font-size: 0.8rem;
+        font-size: 0.75rem; /* Reduced from 0.8rem */
         white-space: nowrap;
         opacity: 0;
         visibility: hidden;

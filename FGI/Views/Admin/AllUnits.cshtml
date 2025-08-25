@@ -3,147 +3,123 @@
     ViewData["Title"] = "All Units";
 }
 
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
-        <a asp-action="AddUnit" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Unit
-        </a>
-    </div>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> @TempData["SuccessMessage"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> @TempData["ErrorMessage"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-light">
-            <h6 class="m-0 font-weight-bold text-primary">Filter Units</h6>
-        </div>
-        <div class="card-body">
-            <form id="filterForm" method="get" asp-action="AllUnits">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Unit Type</label>
-                            <select name="type" class="form-control">
-                                <option value="">All Types</option>
-                                <option value="Apartment">Apartment</option>
-                                <option value="Villa">Villa</option>
-                                <option value="Chalet">Chalet</option>
-                                <option value="Duplex">Duplex</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Project</label>
-                            <select name="projectId" class="form-control" asp-items="ViewBag.Projects">
-                                <option value="">All Projects</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Min Price</label>
-                            <input type="number" name="minPrice" class="form-control" placeholder="Minimum">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Max Price</label>
-                            <input type="number" name="maxPrice" class="form-control" placeholder="Maximum">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Bedrooms</label>
-                            <select name="bedrooms" class="form-control">
-                                <option value="">Any</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4+</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12 text-right">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter"></i> Apply Filters
-                        </button>
-                        <a href="@Url.Action("AllUnits")" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Clear
-                        </a>
-                        <button type="button" class="btn btn-outline-info" id="toggleAdvanced">
-                            <i class="fas fa-sliders-h"></i> Advanced
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Advanced Filters -->
-                <div id="advancedFilters" class="row mt-3" style="display:none;">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select name="isAvailable" class="form-control">
-                                <option value="">All</option>
-                                <option value="true">Available</option>
-                                <option value="false">Sold</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Min Area (sqm)</label>
-                            <input type="number" name="minArea" class="form-control" placeholder="Minimum">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Bathrooms</label>
-                            <select name="bathrooms" class="form-control">
-                                <option value="">Any</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3+</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </form>
+<div class="container-fluid px-3">
+    <!-- Header -->
+    <div class="header bg-gradient-primary text-white py-3 mb-4 shadow-lg rounded-lg">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <h1 class="h4 mb-0">
+                    <i class="fa-solid fa-building me-2"></i> Units Management
+                </h1>
+                <a asp-action="AddUnit" class="btn btn-light btn-circle btn-md shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
+            </div>
         </div>
     </div>
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">Units Management</h6>
-                <div>
-                    <a href="#" class="text-white" id="exportBtn">
-                        <i class="fas fa-download fa-sm"></i> Export
-                    </a>
+
+    <!-- Filter Section -->
+    <div class="filter-section card shadow-lg mb-4 border-0 animate__animated animate__fadeIn">
+        <div class="filter-title card-header bg-gradient-primary text-white py-3 d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold">
+                <i class="fa-solid fa-filter me-2"></i> Search Filters
+            </h6>
+            <button id="resetFilters" class="btn btn-sm btn-outline-light">
+                <i class="fa-solid fa-arrow-rotate-right"></i> Reset
+            </button>
+        </div>
+        <div class="filter-grid card-body bg-light rounded-bottom py-3">
+            <div class="filter-group">
+                <label class="form-label small text-muted">Search</label>
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-primary"></i></span>
+                    <input id="searchInput" type="text" class="form-control filter-control border-start-0" placeholder="Unit code or location">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Project</label>
+                <select id="projectFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Projects</option>
+                    @foreach (var project in ViewBag.Projects)
+                    {
+                        <option value="@project.Value">@project.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Unit Type</label>
+                <select id="typeFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Types</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Penthouse">Penthouse</option>
+                    <option value="Villa">Villa</option>
+                    <option value="StandAloneVilla">Stand Alone Villa</option>
+                    <option value="TownHouse">Town House</option>
+                    <option value="TwinHouse">Twin House</option>
+                    <option value="Studio">Studio</option>
+                    <option value="ParkVilla">Park Villa</option>
+                    <option value="Chalet">Chalet</option>
+                    <option value="Duplex">Duplex</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Bedrooms</label>
+                <select id="bedroomFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Bedrooms</option>
+                    <option value="1">1 Bedroom</option>
+                    <option value="2">2 Bedrooms</option>
+                    <option value="3">3 Bedrooms</option>
+                    <option value="4">4+ Bedrooms</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Status</label>
+                <select id="statusFilter" class="form-select filter-control select2-filter">
+                    <option value="">All Statuses</option>
+                    <option value="true">Available</option>
+                    <option value="false">Sold</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small text-muted">Price Range</label>
+                <div class="d-flex align-items-center">
+                    <input type="number" id="minPrice" class="form-control filter-control me-1" placeholder="Min" min="0">
+                    <span class="mx-1">-</span>
+                    <input type="number" id="maxPrice" class="form-control filter-control ms-1" placeholder="Max" min="0">
                 </div>
             </div>
         </div>
-        <div class="card-body">
+    </div>
+
+    <!-- Units Table -->
+    <div class="card shadow-lg border-0 animate__animated animate__fadeIn">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fa-solid fa-list me-2"></i> All Units
+            </h6>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary rounded-pill me-3">@Model.Count records</span>
+                <a href="#" class="btn btn-outline-success btn-sm me-2" id="exportBtn" title="Download CSV">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="showEntriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Show <span id="currentEntries">10</span> entries
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="showEntriesDropdown">
+                        <li><a class="dropdown-item entries-option" href="#" data-value="10">10</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="20">20</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="30">30</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="50">50</a></li>
+                        <li><a class="dropdown-item entries-option" href="#" data-value="-1">All</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="unitsTable" width="100%" cellspacing="0">
-                    <thead class="thead-light">
+                <table class="table table-hover mb-0" id="unitsTable">
+                    <thead class="bg-light">
                         <tr>
                             <th>Unit Code</th>
                             <th>Type</th>
@@ -153,48 +129,59 @@
                             <th>Price</th>
                             <th>Project</th>
                             <th>Status</th>
-                            <th class="text-center">Actions</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var unit in Model)
                         {
-                            <tr>
-                                <td>@unit.UnitCode</td>
+                            <tr data-search="@(unit.UnitCode + " " + unit.Location).ToLower()"
+                                data-project="@unit.Project?.Id"
+                                data-type="@unit.Type"
+                                data-bedrooms="@unit.Bedrooms"
+                                data-price="@unit.Price"
+                                data-status="@unit.IsAvailable.ToString().ToLower()">
+                                <td>
+                                    <strong>@unit.UnitCode</strong>
+                                    <div class="small text-muted">Created: @unit.CreatedAt.ToString("dd MMM yyyy")</div>
+                                </td>
                                 <td>@unit.Type</td>
                                 <td>@unit.Location</td>
                                 <td>@unit.Area</td>
                                 <td>@unit.Bedrooms / @unit.Bathrooms</td>
-                                <td>@unit.Price</td>
+                                <td>
+                                    @(unit.Currency == Currency.USD ? "$" : "EGP") @unit.Price.ToString("N0")
+                                </td>
                                 <td>@unit.Project?.Name</td>
                                 <td>
-                                    <span class="badge @(unit.IsAvailable ? "badge-success" : "badge-danger") p-2">
-                                        @(unit.IsAvailable ? "Available" : "Not Available")
+                                    <span class="status-badge badge @(unit.IsAvailable ? "badge-available" : "badge-sold")">
+                                        @(unit.IsAvailable ? "Available" : "Sold")
                                     </span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-end">
                                     <div class="btn-group" role="group">
-                                        <!-- Details Button - Shows unit details in modal -->
-                                        <button class="btn btn-sm btn-info view-details"
+                                        <!-- Details Button -->
+                                        <button class="btn btn-sm btn-outline-dark view-details"
                                                 data-id="@unit.Id"
                                                 title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
 
-                                        <!-- Toggle Status Button - Switches between Available/Not Available -->
-                                        <button class="btn btn-sm @(unit.IsAvailable ? "btn-warning" : "btn-success") toggle-status"
+                                        <!-- Toggle Status Button -->
+                                        <button class="btn btn-sm @(unit.IsAvailable ? "btn-outline-warning" : "btn-outline-success") toggle-status"
                                                 data-id="@unit.Id"
                                                 title="@(unit.IsAvailable ? "Mark as Sold" : "Mark as Available")">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
-                                        <!-- Edit Button - Redirects to edit unit page -->
+
+                                        <!-- Edit Button -->
                                         <a asp-action="EditUnit" asp-controller="Admin" asp-route-id="@unit.Id"
-                                           class="btn btn-sm btn-info" title="Edit">
+                                           class="btn btn-sm btn-outline-info" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
-                                        <!-- Delete Button - Removes the unit -->
-                                        <button class="btn btn-sm btn-danger delete-unit"
+                                        <!-- Delete Button -->
+                                        <button class="btn btn-sm btn-outline-danger delete-unit"
                                                 data-id="@unit.Id"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
@@ -213,7 +200,7 @@
 <!-- Unit Details Modal -->
 <div class="modal fade" id="unitDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+        <div class="modal-content rounded-lg shadow-lg">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">
                     <i class="fas fa-home"></i> Unit Details
@@ -229,51 +216,278 @@
     </div>
 </div>
 
-@section Scripts {
-    <!-- Required libraries for DataTables and Buttons -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/datatables.min.css" />
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.5/b-2.2.2/b-html5-2.2.2/datatables.min.js"></script>
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        :root {
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --teal: #20c997;
+            --purple: #6f42c1;
+            --orange: #fd7e14;
+            --dark: #343a40;
+            --bg-gradient: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable with proper configuration
-            var table = $('#unitsTable').DataTable({
-                responsive: true,
-                dom: '<"top"Bf>rt<"bottom"lip><"clear">',
-                buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ],
-                columnDefs: [
-                    { orderable: false, targets: 6 } // Disable sorting on actions column
-                ]
-            });
+        .container-fluid {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
 
-            // Toggle advanced filters
-            $('#toggleAdvanced').click(function() {
-                $('#advancedFilters').toggle();
-                $(this).find('i').toggleClass('fa-sliders-h fa-times');
-            });
+        .header {
+            background: var(--bg-gradient);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
 
-            // Preserve filter values
-            const urlParams = new URLSearchParams(window.location.search);
+        .filter-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 16px;
+            box-shadow: var(--card-shadow);
+        }
 
-            // Set basic filters
-            $('[name="type"]').val(urlParams.get('type') || '');
-            $('[name="projectId"]').val(urlParams.get('projectId') || '');
-            $('[name="minPrice"]').val(urlParams.get('minPrice') || '');
-            $('[name="maxPrice"]').val(urlParams.get('maxPrice') || '');
-            $('[name="bedrooms"]').val(urlParams.get('bedrooms') || '');
+        .filter-title {
+            padding: 10px 15px;
+            margin-bottom: 0;
+            border-bottom: none;
+            background: var(--bg-gradient);
+            border-radius: 10px 10px 0 0;
+        }
 
-            // Set advanced filters if any exist
-            if (urlParams.get('isAvailable') || urlParams.get('minArea') || urlParams.get('bathrooms')) {
-                $('#advancedFilters').show();
-                $('[name="isAvailable"]').val(urlParams.get('isAvailable') || '');
-                $('[name="minArea"]').val(urlParams.get('minArea') || '');
-                $('[name="bathrooms"]').val(urlParams.get('bathrooms') || '');
-                $('#toggleAdvanced i').removeClass('fa-sliders-h').addClass('fa-times');
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-control {
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: #fff;
+        }
+
+            .filter-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
             }
 
-            // Handle details button click - using event delegation
+        .search-box .input-group-text {
+            border-radius: 8px 0 0 8px;
+            border: 1px solid #ced4da;
+            background: #fff;
+        }
+
+        .search-box .form-control {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        #unitsTable th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        #unitsTable td {
+            padding: 10px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #f8f9fc;
+        }
+
+        #unitsTable tr:hover {
+            background: linear-gradient(90deg, #f1f3f9, #e9ecef);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-available {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .badge-sold {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-group .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .price-inputs {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .price-inputs input {
+                flex: 1;
+                min-width: 0;
+            }
+
+        @@media (max-width: 768px) {
+            .container-fluid {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .price-inputs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+                .price-inputs span {
+                    display: none;
+                }
+        }
+
+        @@media (max-width: 576px) {
+            .container-fluid {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .filter-section {
+                padding: 12px;
+            }
+
+            .filter-control {
+                font-size: 0.9rem;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let $rows = $("#unitsTable tbody tr");
+            let showEntries = 10; // default value
+
+            function applyFilters() {
+                let search = $("#searchInput").val().toLowerCase();
+                let project = $("#projectFilter").val();
+                let type = $("#typeFilter").val();
+                let status = $("#statusFilter").val();
+                let bedrooms = $("#bedroomFilter").val();
+                let minPrice = $("#minPrice").val() ? parseFloat($("#minPrice").val()) : null;
+                let maxPrice = $("#maxPrice").val() ? parseFloat($("#maxPrice").val()) : null;
+
+                let visibleCount = 0;
+
+                $rows.each(function () {
+                    let $row = $(this);
+                    let match = true;
+
+                    if (search && !$row.data("search").includes(search)) match = false;
+                    if (project && $row.data("project") != project) match = false;
+                    if (type && $row.data("type") != type) match = false;
+                    if (status && $row.data("status") != status.toLowerCase()) match = false;
+
+                    // Filter by bedrooms
+                    if (bedrooms) {
+                        if (bedrooms === "4") {
+                            if ($row.data("bedrooms") < 4) match = false;
+                        } else {
+                            if ($row.data("bedrooms") != parseInt(bedrooms)) match = false;
+                        }
+                    }
+
+                    // Filter by price range
+                    if (minPrice !== null && $row.data("price") < minPrice) match = false;
+                    if (maxPrice !== null && $row.data("price") > maxPrice) match = false;
+
+                    if (match && (showEntries === -1 || visibleCount < showEntries)) {
+                        $row.show();
+                        visibleCount++;
+                    } else {
+                        $row.hide();
+                    }
+                });
+            }
+
+            // Filters change
+            $(".filter-control").on("input change", applyFilters);
+            $("#minPrice, #maxPrice").on("input", applyFilters);
+
+            // Show entries dropdown
+            $(".entries-option").click(function (e) {
+                e.preventDefault();
+                showEntries = parseInt($(this).data("value"));
+                $("#currentEntries").text(showEntries === -1 ? "All" : showEntries);
+                applyFilters();
+            });
+
+            // Reset filters
+            $("#resetFilters").click(function () {
+                $("#searchInput").val("");
+                $("#projectFilter").val("").trigger("change");
+                $("#typeFilter").val("").trigger("change");
+                $("#statusFilter").val("").trigger("change");
+                $("#bedroomFilter").val("").trigger("change");
+                $("#minPrice").val("");
+                $("#maxPrice").val("");
+                showEntries = 10;
+                $("#currentEntries").text("10");
+                applyFilters();
+            });
+
+            // Handle details button click
             $(document).on('click', '.view-details', function() {
                 var unitId = $(this).data('id');
                 $('#unitDetailsContent').html(`
@@ -293,15 +507,13 @@
                         console.error("Error loading details:", status, error);
                         $('#unitDetailsContent').html(`
                             <div class="alert alert-danger">
-                                Error loading details. Please try again.<br>
-                                Status: ${xhr.status}<br>
-                                Error: ${xhr.responseText}
+                                Error loading details. Please try again.
                             </div>
                         `);
                     });
             });
 
-            // Handle delete button click - using event delegation
+            // Handle delete button click
             $(document).on('click', '.delete-unit', function(e) {
                 e.preventDefault();
                 var unitId = $(this).data('id');
@@ -316,7 +528,6 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                // Refresh the page to see changes
                                 window.location.reload();
                             } else {
                                 alert('Error: ' + response.message);
@@ -329,7 +540,7 @@
                 }
             });
 
-            // Handle toggle status button click - using event delegation
+            // Handle toggle status button click
             $(document).on('click', '.toggle-status', function(e) {
                 e.preventDefault();
                 var button = $(this);
@@ -345,14 +556,17 @@
                     success: function(response) {
                         if (response.success) {
                             // Update button appearance
-                            button.toggleClass('btn-warning btn-success');
+                            button.toggleClass('btn-outline-warning btn-outline-success');
                             button.attr('title', response.isAvailable ? "Mark as Sold" : "Mark as Available");
 
                             // Update status badge
                             var row = button.closest('tr');
                             var badge = row.find('.badge');
-                            badge.toggleClass('badge-success badge-danger');
-                            badge.text(response.isAvailable ? "Available" : "Not Available");
+                            badge.toggleClass('badge-available badge-sold');
+                            badge.text(response.isAvailable ? "Available" : "Sold");
+
+                            // Update data attribute
+                            row.attr('data-status', response.isAvailable.toString().toLowerCase());
                         } else {
                             alert('Error: ' + response.message);
                         }
@@ -369,60 +583,9 @@
                 // Trigger DataTable export
                 $('.buttons-excel').trigger('click');
             });
+
+            // Initial filter
+            applyFilters();
         });
     </script>
-}
-
-@section Styles {
-    <style>
-        .badge {
-            font-size: 0.85em;
-            min-width: 80px;
-            display: inline-block;
-            text-align: center;
-            padding: 0.35em 0.65em;
-        }
-
-        .badge-success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .badge-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: nowrap;
-            justify-content: center;
-        }
-
-            .btn-group .btn {
-                margin: 0 2px;
-                padding: 0.25rem 0.5rem;
-                font-size: 0.875rem;
-                line-height: 1.5;
-            }
-
-        .table th {
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-
-        .table td {
-            vertical-align: middle;
-        }
-
-        /* Fix for DataTables buttons */
-        .dt-buttons {
-            margin-bottom: 15px;
-        }
-
-        /* Modal styling */
-        #unitDetailsModal .modal-body {
-            padding: 20px;
-        }
-    </style>
 }

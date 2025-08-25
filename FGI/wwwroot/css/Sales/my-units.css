@@ -17,24 +17,31 @@ body {
     background-color: var(--light);
     color: var(--dark);
     font-size: 1rem;
-    padding: 20px;
+    padding: 0; /* Removed padding to align with layout */
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .app-container {
-    max-width: 1600px;
-    margin: 0 auto;
+    max-width: 100%; /* Changed from 1600px to fill available width */
+    margin: 0; /* Removed auto margin to reduce side white space */
     display: grid;
     grid-template-columns: 1fr 1.2fr;
-    gap: 24px;
-    height: calc(100vh - 40px);
+    gap: 16px; /* Reduced from 20px */
+    height: auto; /* Removed calc to prevent unused vertical space */
 }
 
 @media (max-width: 1200px) {
     .app-container {
         grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-        height: auto;
+        grid-template-rows: auto auto;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        gap: 8px;
     }
 }
 
@@ -43,18 +50,18 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
-    margin-bottom: 20px;
+    padding: 8px 12px; /* Reduced from 12px 0 */
+    margin-bottom: 12px; /* Reduced from 16px */
     grid-column: 1 / -1;
 }
 
 .page-title {
-    font-size: 28px;
+    font-size: clamp(18px, 4.5vw, 22px); /* Slightly smaller */
     font-weight: 700;
     color: var(--primary);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
     .page-title i {
@@ -65,12 +72,12 @@ body {
     background: linear-gradient(135deg, var(--primary), var(--info));
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 6px 14px; /* Reduced padding */
     border-radius: 8px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
     transition: var(--transition);
     box-shadow: var(--card-shadow);
@@ -93,18 +100,18 @@ body {
 }
 
 .section-header {
-    padding: 20px;
+    padding: 12px; /* Reduced from 16px */
     border-bottom: 1px solid var(--border);
     background: var(--light);
 }
 
 .section-title {
-    font-size: 18px;
+    font-size: clamp(15px, 3.8vw, 17px);
     font-weight: 600;
     color: var(--primary);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .units-container {
@@ -114,7 +121,7 @@ body {
 }
 
 .unit-card {
-    padding: 16px 20px;
+    padding: 8px 12px; /* Reduced from 12px 16px */
     border-bottom: 1px solid var(--border);
     cursor: pointer;
     transition: var(--transition);
@@ -135,32 +142,32 @@ body {
 .unit-info {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px; /* Reduced from 6px */
 }
 
 .unit-code {
     font-weight: 600;
-    font-size: 16px;
+    font-size: clamp(13px, 3.2vw, 14px);
     color: var(--primary);
 }
 
 .unit-meta {
     display: flex;
-    gap: 12px;
+    gap: 8px; /* Reduced from 10px */
     color: var(--secondary);
-    font-size: 14px;
+    font-size: clamp(11px, 2.8vw, 12px);
 }
 
 .unit-price {
     font-weight: 700;
     color: var(--primary);
-    font-size: 16px;
+    font-size: clamp(13px, 3.2vw, 14px);
 }
 
 .unit-status {
-    padding: 4px 10px;
+    padding: 3px 6px; /* Reduced from 4px 8px */
     border-radius: 20px;
-    font-size: 12px;
+    font-size: clamp(10px, 2.5vw, 11px);
     font-weight: 600;
 }
 
@@ -186,7 +193,7 @@ body {
 }
 
 .details-header {
-    padding: 20px;
+    padding: 12px; /* Reduced from 16px */
     border-bottom: 1px solid var(--border);
     background: var(--light);
     display: flex;
@@ -195,7 +202,7 @@ body {
 }
 
 .details-content {
-    padding: 20px;
+    padding: 12px; /* Reduced from 16px */
     overflow-y: auto;
     flex: 1;
 }
@@ -211,14 +218,14 @@ body {
 }
 
     .no-selection i {
-        font-size: 64px;
-        margin-bottom: 16px;
+        font-size: clamp(40px, 8vw, 48px); /* Slightly smaller */
+        margin-bottom: 10px;
         color: #d1d5e7;
     }
 
     .no-selection h3 {
-        font-size: 20px;
-        margin-bottom: 8px;
+        font-size: clamp(15px, 3.8vw, 17px);
+        margin-bottom: 6px;
         color: var(--dark);
     }
 
@@ -227,20 +234,20 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 12px; /* Reduced from 16px */
     text-align: center;
     color: var(--secondary);
 }
 
     .no-units i {
-        font-size: 48px;
-        margin-bottom: 16px;
+        font-size: clamp(32px, 7vw, 40px);
+        margin-bottom: 10px;
         color: #d1d5e7;
     }
 
     .no-units h5 {
-        font-size: 18px;
-        margin-bottom: 8px;
+        font-size: clamp(15px, 3.8vw, 17px);
+        margin-bottom: 6px;
         color: var(--dark);
     }
 
@@ -251,7 +258,7 @@ body {
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 5px; /* Further reduced from 6px */
 }
 
 ::-webkit-scrollbar-track {
@@ -290,33 +297,71 @@ body {
     .app-container {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto;
-        gap: 16px;
+        gap: 10px;
     }
 
     .header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 16px;
+        gap: 10px;
     }
 
     .details-section {
-        margin-top: 20px;
+        margin-top: 12px; /* Reduced from 16px */
     }
 }
 
 @media (max-width: 768px) {
+    .app-container {
+        gap: 6px;
+    }
+
     .unit-meta {
         flex-wrap: wrap;
+        gap: 6px;
     }
 
     .unit-card {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 6px;
+        padding: 6px 10px;
     }
 
     .unit-right {
         align-self: flex-end;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 576px) {
+    .header {
+        padding: 6px 10px;
+        margin-bottom: 10px;
+    }
+
+    .page-title {
+        font-size: clamp(16px, 4vw, 18px);
+    }
+
+    .add-btn {
+        padding: 5px 10px;
+        font-size: clamp(11px, 2.8vw, 12px);
+    }
+
+    .unit-card {
+        padding: 6px 8px;
+    }
+
+    .details-header {
+        padding: 10px;
+    }
+
+    .details-content {
+        padding: 10px;
     }
 }
 
@@ -334,7 +379,7 @@ body {
 }
 
 .modal-title {
-    font-size: 1.25rem;
+    font-size: clamp(15px, 3.8vw, 17px);
 }
 
 .btn-close {
