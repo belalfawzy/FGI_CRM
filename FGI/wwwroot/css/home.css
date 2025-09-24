@@ -1,5 +1,5 @@
-﻿/* أنماط الصفحة الرئيسية مع النطاق */
-.home-page {
+﻿/* أنماط الصفحة الرئيسية - مطابق للكود الأصلي */
+:root {
     --primary: #4e73df;
     --primary-dark: #3a56c4;
     --secondary: #6f42c1;
@@ -14,127 +14,143 @@
     --transition: all 0.3s ease-in-out;
 }
 
-    .home-page body {
-        background-color: #f8f9fc;
-        color: #444;
-        min-height: 100vh;
-        font-family: 'Poppins', sans-serif;
-        padding: 0; /* Align with layout.css to avoid stacking */
-    }
+/* إعادة تعيين font-family للأيقونات */
+.fas, .far, .fab, .fal, .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+}
 
-    .home-page .container {
-        max-width: 100%; /* Stretch to full width */
-        padding-left: 8px; /* Reduced from Bootstrap default 15px */
-        padding-right: 8px;
-        animation: fadeIn 0.5s ease-out;
-    }
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+}
 
-    .home-page .greeting-card {
-        background: var(--bg-gradient);
-        color: white;
-        border-radius: 1rem;
-        box-shadow: var(--card-shadow);
-        padding: 1.2rem; /* Reduced from 2rem */
-        margin-bottom: 1.2rem; /* Reduced from 2rem */
-        position: relative;
-        overflow: hidden;
-    }
+body {
+    background-color: #f8f9fc;
+    color: #444;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
 
-        .home-page .greeting-card::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(25deg);
-            z-index: 0;
-        }
+.greeting-card {
+    background: var(--bg-gradient);
+    color: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
 
-    .home-page .greeting-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .home-page .dashboard-card {
-        transition: var(--transition);
-        border: none;
-        border-radius: 1rem;
-        box-shadow: var(--card-shadow);
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-        background: white;
-    }
-
-        .home-page .dashboard-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-        }
-
-        .home-page .dashboard-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
-        }
-
-        .home-page .dashboard-card .card-body {
-            padding: 1rem; /* Reduced from 1.5rem */
-            text-align: center;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 140px; /* Reduced from 180px */
-        }
-
-        .home-page .dashboard-card i {
-            font-size: clamp(1.8rem, 5vw, 2rem); /* Responsive font size */
-            margin-bottom: 0.8rem; /* Reduced from 1rem */
-            color: var(--primary);
-            transition: var(--transition);
-        }
-
-        .home-page .dashboard-card:hover i {
-            transform: scale(1.1);
-        }
-
-        .home-page .dashboard-card .card-title {
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.4rem; /* Reduced from 0.5rem */
-            font-size: clamp(1rem, 3vw, 1.1rem);
-        }
-
-        .home-page .dashboard-card .card-text {
-            color: var(--dark);
-            font-size: clamp(0.8rem, 2.5vw, 0.85rem);
-            opacity: 0.8;
-        }
-
-    .home-page .notification-badge {
+    .greeting-card::before {
+        content: "";
         position: absolute;
-        top: -6px; /* Adjusted for tighter fit */
-        right: -6px;
-        background-color: var(--danger);
-        color: white;
-        border-radius: 50%;
-        width: 22px; /* Reduced from 26px */
-        height: 22px;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(25deg);
+        z-index: 0;
+    }
+
+.greeting-content {
+    position: relative;
+    z-index: 1;
+}
+
+.dashboard-card {
+    transition: var(--transition);
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    height: 100%;
+    position: relative; /* مهم جداً عشان الاشعار */
+    overflow: hidden;
+    background: white;
+}
+
+    .dashboard-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+    }
+
+    .dashboard-card .card-body {
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-size: 0.7rem; /* Reduced from 0.75rem */
-        font-weight: bold;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        animation: pulse 1.5s infinite;
-        z-index: 10;
+        min-height: 180px;
     }
+
+    .dashboard-card i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        transition: var(--transition);
+        /* تأكد من أن الأيقونات تظهر */
+        font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+        font-weight: 900 !important;
+        font-style: normal !important;
+        display: inline-block !important;
+    }
+
+    .dashboard-card:hover i {
+        transform: scale(1.1);
+    }
+
+    .dashboard-card .card-title {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-card .card-text {
+        color: var(--dark);
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+.notification-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    animation: pulse 1.5s infinite;
+    z-index: 20; /* يخليها فوق كل حاجة */
+}
 
 @keyframes pulse {
     0% {
@@ -146,95 +162,46 @@
         transform: scale(1.05);
         box-shadow: 0 0 0 8px rgba(231, 74, 59, 0);
     }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(231, 74, 59, 0);
-    }
 }
 
 /* Role-specific card colors */
-.home-page .card-admin::before {
+.card-admin::before {
     background: var(--primary);
 }
 
-.home-page .card-marketing::before {
+.card-marketing::before {
     background: var(--info);
 }
 
-.home-page .card-sales::before {
+.card-sales::before {
     background: var(--success);
 }
 
-.home-page .card-admin:hover i {
+.card-admin:hover i {
     color: var(--primary-dark);
 }
 
-.home-page .card-marketing:hover i {
+.card-marketing:hover i {
     color: var(--info);
 }
 
-.home-page .card-sales:hover i {
+.card-sales:hover i {
     color: var(--success);
 }
 
 /* Responsive adjustments */
-@media (max-width: 992px) {
-    .home-page .greeting-card {
-        padding: 1rem; /* Further reduced */
-        margin-bottom: 1rem;
+@media (max-width: 768px) {
+    .greeting-card {
+        padding: 1.5rem;
     }
 
-    .home-page .dashboard-card .card-body {
-        min-height: 120px; /* Reduced from 150px */
-        padding: 0.8rem;
+    .dashboard-card .card-body {
+        min-height: 150px;
+        padding: 1.25rem;
     }
 
-    .home-page .dashboard-card i {
-        font-size: clamp(1.5rem, 4.5vw, 1.7rem);
-    }
-
-    .home-page .container {
-        padding-left: 6px;
-        padding-right: 6px;
-    }
-}
-
-@media (max-width: 576px) {
-    .home-page .greeting-card {
-        padding: 0.8rem;
-        margin-bottom: 0.8rem;
-    }
-
-    .home-page .dashboard-card .card-body {
-        min-height: 100px;
-        padding: 0.6rem;
-    }
-
-    .home-page .dashboard-card i {
-        font-size: clamp(1.3rem, 4vw, 1.5rem);
-        margin-bottom: 0.6rem;
-    }
-
-    .home-page .dashboard-card .card-title {
-        font-size: clamp(0.9rem, 2.8vw, 1rem);
-    }
-
-    .home-page .dashboard-card .card-text {
-        font-size: clamp(0.75rem, 2.3vw, 0.8rem);
-    }
-
-    .home-page .notification-badge {
-        width: 20px;
-        height: 20px;
-        font-size: 0.65rem;
-        top: -5px;
-        right: -5px;
-    }
-
-    .home-page .container {
-        padding-left: 4px;
-        padding-right: 4px;
+    .dashboard-card i {
+        font-size: 2rem;
     }
 }
 
@@ -251,36 +218,12 @@
     }
 }
 
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
 /* Focus styles for accessibility */
-.home-page .dashboard-card:focus {
+.dashboard-card:focus {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
-
-/* Tooltip styling */
-.home-page .dashboard-card {
-    position: relative;
-}
-
-    .home-page .dashboard-card .card-body::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #333;
-        color: white;
-        padding: 4px 8px; /* Reduced padding */
-        border-radius: 4px;
-        font-size: 0.75rem; /* Reduced from 0.8rem */
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s, visibility 0.3s;
-        z-index: 100;
-    }
-
-    .home-page .dashboard-card:hover .card-body::after {
-        opacity: 1;
-        visibility: visible;
-    }

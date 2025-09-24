@@ -341,70 +341,10 @@
 
 @section Styles {
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .timeline {
-            position: relative;
-            padding-left: 50px;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: 20px;
-        }
-
-        .timeline-icon {
-            position: absolute;
-            left: -40px;
-            top: 0;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .timeline-content {
-            padding: 10px 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 10px;
-        }
-
-        .bg-primary {
-            background-color: #4e73df !important;
-        }
-
-        .bg-success {
-            background-color: #1cc88a !important;
-        }
-
-        .bg-info {
-            background-color: #36b9cc !important;
-        }
-
-        .bg-warning {
-            background-color: #f6c23e !important;
-        }
-
-        .bg-danger {
-            background-color: #e74a3b !important;
-        }
-
-        .bg-secondary {
-            background-color: #858796 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/Marketing/lead-details.css" asp-append-version="true">
 }
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                placeholder: "Select Sales Rep",
-                width: '100%'
-            });
-        });
-    </script>
+    <script src="~/js/Marketing/lead-details.js" asp-append-version="true"></script>
 }

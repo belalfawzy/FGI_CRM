@@ -56,7 +56,6 @@ namespace FGI
         options.SlidingExpiration = true;
     });
 
-            builder.Services.AddAuthorization();
             builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
@@ -69,11 +68,11 @@ namespace FGI
 
             app.UseRouting();
 
+            app.UseSession();
+
             app.UseAuthentication();
 
             app.UseAuthorization();
-
-            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

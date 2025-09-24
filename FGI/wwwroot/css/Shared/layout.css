@@ -14,8 +14,43 @@
 }
 
 * {
-    font-family: 'Inter', sans-serif;
     box-sizing: border-box;
+}
+
+/* Ensure proper font families for different elements */
+body, p, h1, h2, h3, h4, h5, h6, div, span, a, button, input, textarea, select, label {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Ensure Font Awesome icons use their proper fonts */
+.fas, .far, .fab, .fal, .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+}
+
+/* Ensure Bootstrap Icons use their proper fonts */
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+}
+
+/* Ensure Boxicons use their proper fonts */
+.bx {
+    font-family: "boxicons" !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+    display: inline-block !important;
 }
 
 html {
