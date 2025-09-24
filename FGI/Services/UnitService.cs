@@ -1,5 +1,6 @@
 ﻿using FGI.Interfaces;
 using FGI.Models;
+using FGI.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -146,5 +147,100 @@ namespace FGI.Services
                 .ToListAsync();
         }
 
+        public async Task<object> GetUnitsForSelectAsync(int projectId, string term)
+        {
+            IEnumerable<Unit> units;
+
+            if (projectId > 0)
+            {
+                units = await GetUnitsByProjectIdAsync(projectId);
+            }
+            else
+            {
+                units = await GetAvailableUnitsAsync();
+            }
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                term = term.Trim();
+                units = units.Where(u =>
+                    (!string.IsNullOrWhiteSpace(u.UnitCode) && u.UnitCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(u.Location) && u.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
+                ).ToList();
+            }
+
+            var results = units.OrderBy(u => u.UnitCode).Select(u => new
+            {
+                id = u.Id,
+                text = $"{(string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode)} - {(string.IsNullOrWhiteSpace(u.Location) ? "NA" : u.Location)}",
+                disabled = !u.IsAvailable,
+                projectId = u.ProjectId,
+                unit = new
+                {
+                    UnitCode = string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode,
+                    UnitType = u.Type,
+                    UnitSaleType = u.UnitType,
+                    Price = u.Price,
+                    Area = u.Area
+                }
+            }).ToList();
+
+            return results;
+        }
+
+        public async Task<List<Unit>> GetFilteredUnitsAsync(UnitType? type, int? projectId, decimal? minPrice, decimal? maxPrice, int? bedrooms, bool? isAvailable, decimal? minArea, int? bathrooms, UnitSaleType? saleType, string searchTerm)
+        {
+            var query = _context.Units
+                .Include(u => u.Project)
+                .Include(u => u.Owner)
+                .AsQueryable();
+
+            if (isAvailable.HasValue)
+                query = query.Where(u => u.IsAvailable == isAvailable.Value);
+
+            if (type.HasValue)
+                query = query.Where(u => u.Type == type.Value);
+
+            if (projectId.HasValue)
+                query = query.Where(u => u.ProjectId == projectId.Value);
+
+            if (minPrice.HasValue)
+                query = query.Where(u => u.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(u => u.Price <= maxPrice.Value);
+
+            if (bedrooms.HasValue)
+                query = bedrooms.Value == 4 ?
+                    query.Where(u => u.Bedrooms >= 4) :
+                    query.Where(u => u.Bedrooms == bedrooms.Value);
+
+            if (minArea.HasValue)
+                query = query.Where(u => u.Area >= minArea.Value);
+
+            if (bathrooms.HasValue)
+                query = bathrooms.Value == 3 ?
+                    query.Where(u => u.Bathrooms >= 3) :
+                    query.Where(u => u.Bathrooms == bathrooms.Value);
+
+            if (saleType.HasValue)
+                query = query.Where(u => u.UnitType == saleType.Value);
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var normalizedSearchTerm = searchTerm.Trim().ToLower();
+                query = query.Where(u =>
+                    (u.UnitCode != null && u.UnitCode.ToLower().Contains(normalizedSearchTerm)) ||
+                    (u.Owner != null && u.Owner.Phone != null && u.Owner.Phone.Contains(normalizedSearchTerm))
+                );
+            }
+
+            return await query
+                .OrderByDescending(u => u.CreatedAt)
+                .ThenBy(u => u.Project.Name)
+                .ThenBy(u => u.UnitCode)
+                .ToListAsync();
+        }
     }
 }

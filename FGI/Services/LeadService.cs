@@ -5,6 +5,7 @@ using FGI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text;
 
 namespace FGI.Services
 {
@@ -220,6 +221,242 @@ namespace FGI.Services
                            l.CurrentStatus != LeadStatusType.Canceled)
                 .OrderByDescending(l => l.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task DistributeLeadsAsync(string distributionMethod, int changedById)
+        {
+            var unassignedLeads = await _context.Leads
+                .Where(l => l.AssignedToId == null)
+                .OrderBy(l => l.CreatedAt)
+                .ToListAsync();
+
+            var salesUsers = await _context.Users
+                .Where(u => u.Role == UserRole.Sales.ToString())
+                .ToListAsync();
+
+            if (!unassignedLeads.Any() || !salesUsers.Any())
+                return;
+
+            int leadsPerSales = unassignedLeads.Count / salesUsers.Count;
+            int remainingLeads = unassignedLeads.Count % salesUsers.Count;
+
+            int leadIndex = 0;
+            foreach (var salesUser in salesUsers)
+            {
+                int leadsToAssign = leadsPerSales;
+
+                if (remainingLeads > 0)
+                {
+                    leadsToAssign++;
+                    remainingLeads--;
+                }
+
+                for (int i = 0; i < leadsToAssign && leadIndex < unassignedLeads.Count; i++)
+                {
+                    var lead = unassignedLeads[leadIndex];
+                    lead.AssignedToId = salesUser.Id;
+
+                    var history = new LeadAssignmentHistory
+                    {
+                        LeadId = lead.Id,
+                        FromSalesId = null,
+                        ToSalesId = salesUser.Id,
+                        ChangedById = changedById,
+                        ChangedAt = DateTime.Now
+                    };
+
+                    _context.LeadAssignmentHistories.Add(history);
+                    leadIndex++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<byte[]> ExportLeadsToCsvAsync()
+        {
+            var leads = await _context.Leads
+                .Include(l => l.Project)
+                .Include(l => l.Unit)
+                .Include(l => l.CreatedBy)
+                .Include(l => l.AssignedTo)
+                .ToListAsync();
+
+            var builder = new StringBuilder();
+            builder.AppendLine("Client Name,Client Phone,Project,Unit Code,Status,Created By,Assigned To,Last Updated");
+
+            foreach (var lead in leads.OrderByDescending(l => l.UpdatedAt))
+            {
+                var clientName = $"\"{lead.ClientName?.Replace("\"", "\"\"")}\"";
+                var clientPhone = lead.ClientPhone ?? "";
+                var projectName = $"\"{lead.Project?.Name?.Replace("\"", "\"\"") ?? ""}\"";
+                var unitCode = lead.Unit?.UnitCode ?? "";
+                var status = GetStatusDisplayName(lead.CurrentStatus);
+                var createdBy = $"\"{lead.CreatedBy?.FullName?.Replace("\"", "\"\"") ?? ""}\"";
+                var assignedTo = $"\"{lead.AssignedTo?.FullName?.Replace("\"", "\"\"") ?? "Unassigned"}\"";
+                var lastUpdated = lead.UpdatedAt?.ToString("dd MMM yyyy HH:mm") ?? "";
+
+                builder.AppendLine($"{clientName},{clientPhone},{projectName},{unitCode},{status},{createdBy},{assignedTo},{lastUpdated}");
+            }
+
+            return Encoding.UTF8.GetBytes(builder.ToString());
+        }
+
+        public async Task<object> SearchClientAsync(string term)
+        {
+            var normalizedPhone = NormalizePhoneNumber(term);
+
+            if (!string.IsNullOrEmpty(normalizedPhone))
+            {
+                var allLeads = await _context.Leads.ToListAsync();
+
+                var matchingLead = allLeads.FirstOrDefault(l =>
+                    !string.IsNullOrEmpty(l.ClientPhone) &&
+                    NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+
+                if (matchingLead != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = matchingLead.Id,
+                        name = matchingLead.ClientName,
+                        phone = matchingLead.ClientPhone,
+                        searchType = "phone"
+                    };
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var leadByName = await _context.Leads
+                    .Where(l => l.ClientName.Contains(term))
+                    .FirstOrDefaultAsync();
+
+                if (leadByName != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = leadByName.Id,
+                        name = leadByName.ClientName,
+                        phone = leadByName.ClientPhone,
+                        searchType = "name"
+                    };
+                }
+            }
+
+            return new { found = false };
+        }
+
+        public async Task<object> SearchOwnerAsync(string term)
+        {
+            var normalizedPhone = NormalizePhoneNumber(term);
+
+            if (!string.IsNullOrEmpty(normalizedPhone))
+            {
+                var owners = await _context.Owners.ToListAsync();
+
+                var matchingOwner = owners.FirstOrDefault(o =>
+                    !string.IsNullOrEmpty(o.Phone) &&
+                    NormalizePhoneNumber(o.Phone) == normalizedPhone);
+
+                if (matchingOwner != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = matchingOwner.Id,
+                        name = matchingOwner.Name,
+                        phone = matchingOwner.Phone,
+                        email = matchingOwner.Email,
+                        searchType = "phone"
+                    };
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                var ownerByName = await _context.Owners
+                    .Where(o => o.Name.Contains(term))
+                    .FirstOrDefaultAsync();
+
+                if (ownerByName != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = ownerByName.Id,
+                        name = ownerByName.Name,
+                        phone = ownerByName.Phone,
+                        email = ownerByName.Email,
+                        searchType = "name"
+                    };
+                }
+            }
+
+            return new { found = false };
+        }
+
+        public async Task<object> AddOwnerAsync(string name, string phone, string email)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return new { success = false, message = "Owner name is required" };
+            }
+
+            var owner = new Owner
+            {
+                Name = name,
+                Phone = phone,
+                Email = email,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Owners.Add(owner);
+            await _context.SaveChangesAsync();
+
+            return new
+            {
+                success = true,
+                ownerId = owner.Id,
+                message = "Owner added successfully"
+            };
+        }
+
+        private string NormalizePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return string.Empty;
+
+            var normalized = new string(phoneNumber.Where(char.IsDigit).ToArray());
+
+            if (normalized.StartsWith("20"))
+                normalized = normalized.Substring(2);
+
+            if (normalized.StartsWith("0"))
+                normalized = normalized.Substring(1);
+
+            return normalized;
+        }
+
+        private string GetStatusDisplayName(LeadStatusType status)
+        {
+            return status switch
+            {
+                LeadStatusType.New => "New Lead",
+                LeadStatusType.NoAnswer => "No Answer",
+                LeadStatusType.FollowUp => "Follow Up",
+                LeadStatusType.Busy => "Busy",
+                LeadStatusType.Canceled => "Canceled",
+                LeadStatusType.DoneDeal => "Done Deal",
+                LeadStatusType.NotInterested => "Not Interested",
+                LeadStatusType.WrongNumber => "Wrong Number",
+                LeadStatusType.Closed => "Closed",
+                LeadStatusType.Potential => "Potential",
+                LeadStatusType.NoBudget => "No Budget",
+                _ => ""
+            };
         }
     }
 }

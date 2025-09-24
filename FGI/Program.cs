@@ -23,6 +23,7 @@ namespace FGI
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IUnitService, UnitService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IHelperService, HelperService>();
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);

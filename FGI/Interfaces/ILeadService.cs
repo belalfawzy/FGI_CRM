@@ -18,6 +18,10 @@ namespace FGI.Interfaces
         Task<List<Lead>> GetLeadsBySalesPersonAsync(int salesPersonId);
         Task<List<Lead>> GetActiveLeadsBySalesPersonAsync(int salesPersonId);
         Task<bool> LeadExists(int id);
-
+        Task DistributeLeadsAsync(string distributionMethod, int changedById);
+        Task<byte[]> ExportLeadsToCsvAsync();
+        Task<object> SearchClientAsync(string term);
+        Task<object> SearchOwnerAsync(string term);
+        Task<object> AddOwnerAsync(string name, string phone, string email);
     }
 }

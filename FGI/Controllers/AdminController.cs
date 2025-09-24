@@ -22,9 +22,9 @@ namespace FGI.Controllers
         private readonly IUserService _userService;
         private readonly ILeadService _leadService;
         private readonly ILeadFeedbackService _feedbackService;
+        private readonly IHelperService _helperService;
         private readonly AppDbContext _context;
         private readonly ILogger<LeadController> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AdminController(
             IProjectService projectService,
@@ -34,7 +34,7 @@ namespace FGI.Controllers
             AppDbContext context,
             ILogger<LeadController> logger,
             ILeadFeedbackService feedbackService,
-            IHttpContextAccessor httpContextAccessor)
+            IHelperService helperService)
         {
             _projectService = projectService;
             _unitService = unitService;
@@ -43,7 +43,7 @@ namespace FGI.Controllers
             _context = context;
             _logger = logger;
             _feedbackService = feedbackService;
-            _httpContextAccessor = httpContextAccessor;
+            _helperService = helperService;
         }
 
         [HttpGet("Admin/GetUnits")]
@@ -51,43 +51,7 @@ namespace FGI.Controllers
         {
             try
             {
-                IEnumerable<Unit> units;
-
-                if (projectId > 0)
-                {
-                    units = await _unitService.GetUnitsByProjectIdAsync(projectId);
-                }
-                else
-                {
-                    units = await _unitService.GetAvailableUnitsAsync();
-                }
-
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    term = term.Trim();
-                    units = units.Where(u =>
-                        (!string.IsNullOrWhiteSpace(u.UnitCode) && u.UnitCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(u.Location) && u.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
-                    ).ToList();
-                }
-
-                var results = units.OrderBy(u => u.UnitCode).Select(u => new
-                {
-                    id = u.Id,
-                    text = $"{(string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode)} - {(string.IsNullOrWhiteSpace(u.Location) ? "NA" : u.Location)}",
-                    disabled = !u.IsAvailable,
-                    projectId = u.ProjectId, // Include project ID in the response
-                    unit = new
-                    {
-                        UnitCode = string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode,
-                        UnitType = u.Type,
-                        UnitSaleType = u.UnitType,
-                        Price = u.Price,
-                        Area = u.Area
-                    }
-                }).ToList();
-
+                var results = await _unitService.GetUnitsForSelectAsync(projectId, term);
                 return Json(results);
             }
             catch (Exception ex)
@@ -317,62 +281,13 @@ namespace FGI.Controllers
         {
             try
             {
-                var unassignedLeads = await _context.Leads
-                    .Where(l => l.AssignedToId == null)
-                    .OrderBy(l => l.CreatedAt)
-                    .ToListAsync();
-
-                var salesUsers = await _userService.GetUsersByRoleAsync(UserRole.Sales);
                 var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                await _leadService.DistributeLeadsAsync(distributionMethod, currentUserId);
 
-                if (!unassignedLeads.Any())
-                {
-                    TempData["ErrorMessage"] = "No unassigned leads to distribute";
-                    return RedirectToAction("Tasks");
-                }
+                var unassignedCount = await _context.Leads.CountAsync(l => l.AssignedToId == null);
+                var salesCount = await _context.Users.CountAsync(u => u.Role == UserRole.Sales.ToString());
 
-                if (!salesUsers.Any())
-                {
-                    TempData["ErrorMessage"] = "No sales reps available";
-                    return RedirectToAction("Tasks");
-                }
-
-                int leadsPerSales = unassignedLeads.Count / salesUsers.Count;
-                int remainingLeads = unassignedLeads.Count % salesUsers.Count;
-
-                int leadIndex = 0;
-                foreach (var salesUser in salesUsers)
-                {
-                    int leadsToAssign = leadsPerSales;
-
-                    if (remainingLeads > 0)
-                    {
-                        leadsToAssign++;
-                        remainingLeads--;
-                    }
-
-                    for (int i = 0; i < leadsToAssign && leadIndex < unassignedLeads.Count; i++)
-                    {
-                        var lead = unassignedLeads[leadIndex];
-                        lead.AssignedToId = salesUser.Id;
-
-                        var history = new LeadAssignmentHistory
-                        {
-                            LeadId = lead.Id,
-                            FromSalesId = null,
-                            ToSalesId = salesUser.Id,
-                            ChangedById = currentUserId,
-                            ChangedAt = DateTime.Now
-                        };
-
-                        _context.LeadAssignmentHistories.Add(history);
-                        leadIndex++;
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Successfully distributed {unassignedLeads.Count} leads among {salesUsers.Count} sales reps";
+                TempData["SuccessMessage"] = $"Successfully distributed leads among {salesCount} sales reps";
                 return RedirectToAction("Tasks");
             }
             catch (Exception ex)
@@ -562,51 +477,8 @@ namespace FGI.Controllers
         {
             try
             {
-                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(term);
-
-                if (!string.IsNullOrEmpty(normalizedPhone))
-                {
-                    // Get all leads and normalize their phone numbers for comparison
-                    var allLeads = await _context.Leads.ToListAsync();
-
-                    var matchingLead = allLeads.FirstOrDefault(l =>
-                        !string.IsNullOrEmpty(l.ClientPhone) &&
-                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
-
-                    if (matchingLead != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = matchingLead.Id,
-                            name = matchingLead.ClientName,
-                            phone = matchingLead.ClientPhone,
-                            searchType = "phone"
-                        });
-                    }
-                }
-
-                // Also check by name if no phone match found
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    var leadByName = await _context.Leads
-                        .Where(l => l.ClientName.Contains(term))
-                        .FirstOrDefaultAsync();
-
-                    if (leadByName != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = leadByName.Id,
-                            name = leadByName.ClientName,
-                            phone = leadByName.ClientPhone,
-                            searchType = "name"
-                        });
-                    }
-                }
-
-                return Json(new { found = false });
+                var result = await _leadService.SearchClientAsync(term);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -624,48 +496,8 @@ namespace FGI.Controllers
         {
             try
             {
-                var cleanedPhone = new string(term.Where(char.IsDigit).ToArray());
-
-                if (!string.IsNullOrEmpty(cleanedPhone))
-                {
-                    var ownerByPhone = await _context.Owners
-                        .FirstOrDefaultAsync(o => o.Phone != null && o.Phone.Contains(cleanedPhone));
-
-                    if (ownerByPhone != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = ownerByPhone.Id,
-                            name = ownerByPhone.Name,
-                            phone = ownerByPhone.Phone,
-                            email = ownerByPhone.Email,
-                            searchType = "phone"
-                        });
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    var ownerByName = await _context.Owners
-                        .Where(o => o.Name.Contains(term))
-                        .FirstOrDefaultAsync();
-
-                    if (ownerByName != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = ownerByName.Id,
-                            name = ownerByName.Name,
-                            phone = ownerByName.Phone,
-                            email = ownerByName.Email,
-                            searchType = "name"
-                        });
-                    }
-                }
-
-                return Json(new { found = false });
+                var result = await _leadService.SearchOwnerAsync(term);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -685,28 +517,8 @@ namespace FGI.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    return Json(new { success = false, message = "Owner name is required" });
-                }
-
-                var owner = new Owner
-                {
-                    Name = name,
-                    Phone = phone,
-                    Email = email,
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Owners.Add(owner);
-                await _context.SaveChangesAsync();
-
-                return Json(new
-                {
-                    success = true,
-                    ownerId = owner.Id,
-                    message = "Owner added successfully"
-                });
+                var result = await _leadService.AddOwnerAsync(name, phone, email);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -803,39 +615,10 @@ namespace FGI.Controllers
         {
             try
             {
-                var query = _context.Units
-                    .Include(u => u.Project)
-                    .Include(u => u.CreatedBy)
-                    .AsQueryable();
-
-                if (type.HasValue)
-                    query = query.Where(u => u.Type == type.Value);
-
-                if (projectId.HasValue)
-                    query = query.Where(u => u.ProjectId == projectId.Value);
-
-                if (minPrice.HasValue)
-                    query = query.Where(u => u.Price >= minPrice.Value);
-
-                if (maxPrice.HasValue)
-                    query = query.Where(u => u.Price <= maxPrice.Value);
-
-                if (bedrooms.HasValue)
-                    query = bedrooms.Value == 4 ?
-                        query.Where(u => u.Bedrooms >= 4) :
-                        query.Where(u => u.Bedrooms == bedrooms.Value);
-
-                if (isAvailable.HasValue)
-                    query = query.Where(u => u.IsAvailable == isAvailable.Value);
+                var units = await _unitService.GetFilteredUnitsAsync(type, projectId, minPrice, maxPrice, bedrooms, isAvailable, null, null, null, null);
 
                 var projects = await _projectService.GetAllProjectsAsync();
                 ViewBag.Projects = new SelectList(projects, "Id", "Name");
-
-                var units = await query
-                    .OrderBy(u => u.Project.Name)
-                    .ThenBy(u => u.UnitCode)
-                    .ToListAsync();
-                units = units.OrderByDescending(u => u.CreatedAt).ToList();
 
                 return View(units);
             }
@@ -960,7 +743,7 @@ namespace FGI.Controllers
             try
             {
                 // Normalize phone number for checking
-                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(lead.ClientPhone);
+                var normalizedPhone = _helperService.NormalizePhoneNumber(lead.ClientPhone);
 
                 // Basic phone validation
                 if (string.IsNullOrWhiteSpace(normalizedPhone) || normalizedPhone.Length < 8)
@@ -1010,7 +793,7 @@ namespace FGI.Controllers
                 {
                     var existingLeads = await _context.Leads.ToListAsync();
                     var duplicateLead = existingLeads.FirstOrDefault(l =>
-                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+                        _helperService.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
 
                     if (duplicateLead != null)
                     {
@@ -1104,61 +887,22 @@ namespace FGI.Controllers
 
         private int? GetCurrentUserId()
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userId, out int id) ? id : null;
+            return _helperService.GetCurrentUserId();
         }
         [HttpGet]
-        public IActionResult ExportLeadsToCsv()
+        public async Task<IActionResult> ExportLeadsToCsv()
         {
-            // Fetch leads data (adjust according to your data access logic)
-            var leads = _context.Leads
-                .Include(l => l.Project)
-                .Include(l => l.Unit)
-                .Include(l => l.CreatedBy)
-                .Include(l => l.AssignedTo)
-                .ToList();
-
-            // Create CSV content
-            var builder = new StringBuilder();
-            // Add header
-            builder.AppendLine("Client Name,Client Phone,Project,Unit Code,Status,Created By,Assigned To,Last Updated");
-
-            // Add rows
-            foreach (var lead in leads.OrderByDescending(l => l.UpdatedAt))
+            try
             {
-                var clientName = $"\"{lead.ClientName?.Replace("\"", "\"\"")}\"";
-                var clientPhone = lead.ClientPhone ?? "";
-                var projectName = $"\"{lead.Project?.Name?.Replace("\"", "\"\"") ?? ""}\"";
-                var unitCode = lead.Unit?.UnitCode ?? "";
-                var status = GetStatusDisplayName(lead.CurrentStatus); // Reuse your helper method
-                var createdBy = $"\"{lead.CreatedBy?.FullName?.Replace("\"", "\"\"") ?? ""}\"";
-                var assignedTo = $"\"{lead.AssignedTo?.FullName?.Replace("\"", "\"\"") ?? "Unassigned"}\"";
-                var lastUpdated = lead.UpdatedAt?.ToString("dd MMM yyyy HH:mm") ?? "";
-
-                builder.AppendLine($"{clientName},{clientPhone},{projectName},{unitCode},{status},{createdBy},{assignedTo},{lastUpdated}");
+                var csvBytes = await _leadService.ExportLeadsToCsvAsync();
+                return File(csvBytes, "text/csv", $"Leads_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
             }
-
-            // Return CSV file
-            var bytes = Encoding.UTF8.GetBytes(builder.ToString());
-            return File(bytes, "text/csv", $"Leads_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-        }
-        private string GetStatusDisplayName(LeadStatusType status)
-        {
-            return status switch
+            catch (Exception ex)
             {
-                LeadStatusType.New => "New Lead",
-                LeadStatusType.NoAnswer => "No Answer",
-                LeadStatusType.FollowUp => "Follow Up",
-                LeadStatusType.Busy => "Busy",
-                LeadStatusType.Canceled => "Canceled",
-                LeadStatusType.DoneDeal => "Done Deal",
-                LeadStatusType.NotInterested => "Not Interested",
-                LeadStatusType.WrongNumber => "Wrong Number",
-                LeadStatusType.Closed => "Closed",
-                LeadStatusType.Potential => "Potential",
-                LeadStatusType.NoBudget => "No Budget",
-                _ => ""
-            };
+                _logger.LogError(ex, "Error exporting leads to CSV");
+                TempData["ErrorMessage"] = "Error exporting leads to CSV";
+                return RedirectToAction("Leads");
+            }
         }
         [HttpGet]
         public async Task<IActionResult> EditLead(int id)

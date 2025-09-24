@@ -18,8 +18,8 @@ namespace FGI.Controllers
         private readonly ILeadFeedbackService _feedbackService;
         private readonly IUnitService _unitService;
         private readonly IProjectService _projectService;
+        private readonly IHelperService _helperService;
         private readonly ILogger<SalesController> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppDbContext _context;
 
         public SalesController(
@@ -28,7 +28,7 @@ namespace FGI.Controllers
             IUnitService unitService,
             IProjectService projectService,
             ILogger<SalesController> logger,
-            IHttpContextAccessor httpContextAccessor,
+            IHelperService helperService,
             AppDbContext context)
         {
             _leadService = leadService;
@@ -36,7 +36,7 @@ namespace FGI.Controllers
             _unitService = unitService;
             _projectService = projectService;
             _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
+            _helperService = helperService;
             _context = context;
         }
 
@@ -386,64 +386,10 @@ namespace FGI.Controllers
         {
             try
             {
-                // Get base query for available units only
-                var query = _context.Units
-            .Include(u => u.Project)
-            .Include(u => u.Owner) // Include Owner for phone number search
-            .Where(u => u.IsAvailable)
-            .AsQueryable();
+                var units = await _unitService.GetFilteredUnitsAsync(type, projectId, minPrice, maxPrice, bedrooms, true, minArea, bathrooms, saleType, searchTerm);
 
-                // Apply search term filter if provided
-                if (!string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    var normalizedSearchTerm = searchTerm.Trim().ToLower();
-                    query = query.Where(u =>
-                        (u.UnitCode != null && u.UnitCode.ToLower().Contains(normalizedSearchTerm)) ||
-                        (u.Owner != null && u.Owner.Phone != null && u.Owner.Phone.Contains(normalizedSearchTerm))
-                    );
-                }
-
-                // Apply filters
-                if (type.HasValue)
-                    query = query.Where(u => u.Type == type.Value);
-
-                if (projectId.HasValue)
-                    query = query.Where(u => u.ProjectId == projectId.Value);
-
-                if (minPrice.HasValue)
-                    query = query.Where(u => u.Price >= minPrice.Value);
-
-                if (maxPrice.HasValue)
-                    query = query.Where(u => u.Price <= maxPrice.Value);
-
-                if (bedrooms.HasValue)
-                    query = bedrooms.Value == 4 ?
-                        query.Where(u => u.Bedrooms >= 4) :
-                        query.Where(u => u.Bedrooms == bedrooms.Value);
-
-                if (minArea.HasValue)
-                    query = query.Where(u => u.Area >= minArea.Value);
-
-                if (bathrooms.HasValue)
-                    query = bathrooms.Value == 3 ?
-                        query.Where(u => u.Bathrooms >= 3) :
-                        query.Where(u => u.Bathrooms == bathrooms.Value);
-
-                if (saleType.HasValue)
-                    query = query.Where(u => u.UnitType == saleType.Value);
-
-                // Get projects for dropdown
                 var projects = await _projectService.GetAllProjectsAsync();
                 ViewBag.Projects = new SelectList(projects, "Id", "Name");
-
-                // Execute query with sorting by CreatedAt descending (newest first)
-                var units = await query
-            .OrderByDescending(u => u.CreatedAt)
-            .ThenBy(u => u.Project.Name)
-            .ThenBy(u => u.UnitCode)
-            .ToListAsync();
-
-                units = units.OrderByDescending(u => u.CreatedAt).ToList();
 
                 return View(units);
             }
@@ -467,56 +413,15 @@ namespace FGI.Controllers
 
         private int? GetCurrentUserId()
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userId, out int id) ? id : null;
+            return _helperService.GetCurrentUserId();
         }
         [HttpGet]
         public async Task<IActionResult> SearchOwner(string term)
         {
             try
             {
-                var cleanedPhone = new string(term.Where(char.IsDigit).ToArray());
-
-                if (!string.IsNullOrEmpty(cleanedPhone))
-                {
-                    var ownerByPhone = await _context.Owners
-                        .FirstOrDefaultAsync(o => o.Phone != null && o.Phone.Contains(cleanedPhone));
-
-                    if (ownerByPhone != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = ownerByPhone.Id,
-                            name = ownerByPhone.Name,
-                            phone = ownerByPhone.Phone,
-                            email = ownerByPhone.Email,
-                            searchType = "phone"
-                        });
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    var ownerByName = await _context.Owners
-                        .Where(o => o.Name.Contains(term))
-                        .FirstOrDefaultAsync();
-
-                    if (ownerByName != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = ownerByName.Id,
-                            name = ownerByName.Name,
-                            phone = ownerByName.Phone,
-                            email = ownerByName.Email,
-                            searchType = "name"
-                        });
-                    }
-                }
-
-                return Json(new { found = false });
+                var result = await _leadService.SearchOwnerAsync(term);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -536,28 +441,8 @@ namespace FGI.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    return Json(new { success = false, message = "Owner name is required" });
-                }
-
-                var owner = new Owner
-                {
-                    Name = name,
-                    Phone = phone,
-                    Email = email,
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Owners.Add(owner);
-                await _context.SaveChangesAsync();
-
-                return Json(new
-                {
-                    success = true,
-                    ownerId = owner.Id,
-                    message = "Owner added successfully"
-                });
+                var result = await _leadService.AddOwnerAsync(name, phone, email);
+                return Json(result);
             }
             catch (Exception ex)
             {

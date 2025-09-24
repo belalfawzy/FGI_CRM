@@ -20,9 +20,9 @@ namespace FGI.Controllers
         private readonly IUnitService _unitService;
         private readonly IUserService _userService;
         private readonly ILeadFeedbackService _feedbackService;
+        private readonly IHelperService _helperService;
         private readonly AppDbContext _context;
         private readonly ILogger<LeadController> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LeadController(
             ILeadService leadService,
@@ -32,7 +32,7 @@ namespace FGI.Controllers
             ILeadFeedbackService feedbackService,
             AppDbContext context,
             ILogger<LeadController> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHelperService helperService)
         {
             _leadService = leadService;
             _projectService = projectService;
@@ -41,7 +41,7 @@ namespace FGI.Controllers
             _feedbackService = feedbackService;
             _context = context;
             _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
+            _helperService = helperService;
         }
 
         /* for choose unitCode */
@@ -50,43 +50,7 @@ namespace FGI.Controllers
         {
             try
             {
-                IEnumerable<Unit> units;
-
-                if (projectId > 0)
-                {
-                    units = await _unitService.GetUnitsByProjectIdAsync(projectId);
-                }
-                else
-                {
-                    units = await _unitService.GetAvailableUnitsAsync();
-                }
-
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    term = term.Trim();
-                    units = units.Where(u =>
-                        (!string.IsNullOrWhiteSpace(u.UnitCode) && u.UnitCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(u.Location) && u.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
-                    ).ToList();
-                }
-
-                var results = units.OrderBy(u => u.UnitCode).Select(u => new
-                {
-                    id = u.Id,
-                    text = $"{(string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode)} - {(string.IsNullOrWhiteSpace(u.Location) ? "NA" : u.Location)}",
-                    disabled = !u.IsAvailable,
-                    projectId = u.ProjectId, // Include project ID in the response
-                    unit = new
-                    {
-                        UnitCode = string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode,
-                        UnitType = u.Type,
-                        UnitSaleType = u.UnitType,
-                        Price = u.Price,
-                        Area = u.Area
-                    }
-                }).ToList();
-
+                var results = await _unitService.GetUnitsForSelectAsync(projectId, term);
                 return Json(results);
             }
             catch (Exception ex)
@@ -162,7 +126,7 @@ namespace FGI.Controllers
             try
             {
                 // Normalize phone number for checking
-                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(lead.ClientPhone);
+                var normalizedPhone = _helperService.NormalizePhoneNumber(lead.ClientPhone);
 
                 // Basic phone validation
                 if (string.IsNullOrWhiteSpace(normalizedPhone) || normalizedPhone.Length < 8)
@@ -212,7 +176,7 @@ namespace FGI.Controllers
                 {
                     var existingLeads = await _context.Leads.ToListAsync();
                     var duplicateLead = existingLeads.FirstOrDefault(l =>
-                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+                        _helperService.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
 
                     if (duplicateLead != null)
                     {
@@ -532,8 +496,7 @@ namespace FGI.Controllers
         }
         private int? GetCurrentUserId()
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userId, out int id) ? id : null;
+            return _helperService.GetCurrentUserId();
         }
         [HttpGet]
         public async Task<IActionResult> Details(int id)
@@ -580,7 +543,7 @@ namespace FGI.Controllers
         }
         private bool IsAjaxRequest()
         {
-            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            return _helperService.IsAjaxRequest();
         }
 
         [HttpGet]
@@ -588,51 +551,8 @@ namespace FGI.Controllers
         {
             try
             {
-                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(term);
-
-                if (!string.IsNullOrEmpty(normalizedPhone))
-                {
-                    // Get all leads and normalize their phone numbers for comparison
-                    var allLeads = await _context.Leads.ToListAsync();
-
-                    var matchingLead = allLeads.FirstOrDefault(l =>
-                        !string.IsNullOrEmpty(l.ClientPhone) &&
-                        PhoneNumberHelper.NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
-
-                    if (matchingLead != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = matchingLead.Id,
-                            name = matchingLead.ClientName,
-                            phone = matchingLead.ClientPhone,
-                            searchType = "phone"
-                        });
-                    }
-                }
-
-                // Also check by name if no phone match found
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    var leadByName = await _context.Leads
-                        .Where(l => l.ClientName.Contains(term))
-                        .FirstOrDefaultAsync();
-
-                    if (leadByName != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = leadByName.Id,
-                            name = leadByName.ClientName,
-                            phone = leadByName.ClientPhone,
-                            searchType = "name"
-                        });
-                    }
-                }
-
-                return Json(new { found = false });
+                var result = await _leadService.SearchClientAsync(term);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -650,53 +570,8 @@ namespace FGI.Controllers
         {
             try
             {
-                var normalizedPhone = PhoneNumberHelper.NormalizePhoneNumber(term);
-
-                if (!string.IsNullOrEmpty(normalizedPhone))
-                {
-                    // Get all owners and normalize their phone numbers for comparison
-                    var owners = await _context.Owners.ToListAsync();
-
-                    var matchingOwner = owners.FirstOrDefault(o =>
-                        !string.IsNullOrEmpty(o.Phone) &&
-                        PhoneNumberHelper.NormalizePhoneNumber(o.Phone) == normalizedPhone);
-
-                    if (matchingOwner != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = matchingOwner.Id,
-                            name = matchingOwner.Name,
-                            phone = matchingOwner.Phone,
-                            email = matchingOwner.Email,
-                            searchType = "phone"
-                        });
-                    }
-                }
-
-                // Also check by name if no phone match found
-                if (!string.IsNullOrWhiteSpace(term))
-                {
-                    var ownerByName = await _context.Owners
-                        .Where(o => o.Name.Contains(term))
-                        .FirstOrDefaultAsync();
-
-                    if (ownerByName != null)
-                    {
-                        return Json(new
-                        {
-                            found = true,
-                            id = ownerByName.Id,
-                            name = ownerByName.Name,
-                            phone = ownerByName.Phone,
-                            email = ownerByName.Email,
-                            searchType = "name"
-                        });
-                    }
-                }
-
-                return Json(new { found = false });
+                var result = await _leadService.SearchOwnerAsync(term);
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -709,27 +584,6 @@ namespace FGI.Controllers
             }
         }
 
-        public static class PhoneNumberHelper
-        {
-            public static string NormalizePhoneNumber(string phoneNumber)
-            {
-                if (string.IsNullOrWhiteSpace(phoneNumber))
-                    return string.Empty;
-
-                // Remove all non-digit characters
-                var normalized = new string(phoneNumber.Where(char.IsDigit).ToArray());
-
-                // Remove leading zeros and country codes (assuming Egyptian numbers)
-                // For Egypt: numbers typically start with 1 after removing +20 or 0
-                if (normalized.StartsWith("20")) // Egypt country code without +
-                    normalized = normalized.Substring(2);
-
-                if (normalized.StartsWith("0"))
-                    normalized = normalized.Substring(1);
-
-                return normalized;
-            }
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -737,28 +591,8 @@ namespace FGI.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    return Json(new { success = false, message = "Owner name is required" });
-                }
-
-                var owner = new Owner
-                {
-                    Name = name,
-                    Phone = phone,
-                    Email = email,
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Owners.Add(owner);
-                await _context.SaveChangesAsync();
-
-                return Json(new
-                {
-                    success = true,
-                    ownerId = owner.Id,
-                    message = "Owner added successfully"
-                });
+                var result = await _leadService.AddOwnerAsync(name, phone, email);
+                return Json(result);
             }
             catch (Exception ex)
             {
