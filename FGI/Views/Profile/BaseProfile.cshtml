@@ -1,0 +1,176 @@
+@model FGI.ViewModels.BaseProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+@section Head {
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4e73df',
+                        'primary-dark': '#3a56c4',
+                        secondary: '#6f42c1',
+                        success: '#1cc88a',
+                        info: '#36b9cc',
+                        warning: '#f6c23e',
+                        danger: '#e74a3b',
+                        light: '#f8f9fc',
+                        dark: '#5a5c69'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensure Font Awesome icons display properly with TailwindCSS */
+        .fas, .far, .fab, .fal, .fad {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            display: inline-block !important;
+        }
+        
+        /* Fix navbar components */
+        .navbar-nav {
+            display: flex !important;
+            flex-direction: row !important;
+        }
+        
+        .nav-item {
+            display: block !important;
+        }
+        
+        .nav-link {
+            display: block !important;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        /* Ensure icons in TailwindCSS sections work */
+        .tailwind-section i {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            display: inline-block !important;
+        }
+    </style>
+}
+
+<div class="min-h-screen bg-gray-50 py-8 tailwind-section">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-secondary to-purple-600 rounded-2xl shadow-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-xl">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">My Profile</h1>
+                        <p class="text-purple-100 mt-1">Your personal account information</p>
+                    </div>
+                </div>
+                <a asp-controller="Settings" asp-action="Index" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Profile Info Card -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-secondary px-6 py-4">
+                    <h2 class="text-xl font-semibold text-white flex items-center">
+                        <i class="fas fa-user mr-3"></i>
+                        Profile Information
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">@Model.FullName</h3>
+                        <p class="text-gray-600 mb-3">@Model.Email</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                            @Model.Role
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-calendar-plus text-secondary mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Account Created</p>
+                                <p class="text-sm text-gray-600">@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-clock text-secondary mr-3"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Last Login</p>
+                                <p class="text-sm text-gray-600">@(Model.LastLoginAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information Card -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-info px-6 py-4">
+                    <h2 class="text-xl font-semibold text-white flex items-center">
+                        <i class="fas fa-info-circle mr-3"></i>
+                        Account Information
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-envelope text-primary mr-4 text-lg"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Email Address</p>
+                                <p class="text-sm text-gray-600">@Model.Email</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-user-tag text-primary mr-4 text-lg"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">User Role</p>
+                                <p class="text-sm text-gray-600">@Model.Role</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-id-badge text-primary mr-4 text-lg"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">User ID</p>
+                                <p class="text-sm text-gray-600">#@Model.UserId</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-calendar-check text-primary mr-4 text-lg"></i>
+                            <div>
+                                <p class="font-medium text-gray-900">Member Since</p>
+                                <p class="text-sm text-gray-600">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <div class="text-center">
+                            <div class="flex items-center justify-center mb-4">
+                                <i class="fas fa-info-circle text-blue-500 text-2xl mr-3"></i>
+                                <p class="text-gray-600 font-medium">This is a basic profile view. Contact your administrator for role-specific features.</p>
+                            </div>
+                            <a href="@Url.Action("Index", "Home")" class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-all duration-200">
+                                <i class="fas fa-home mr-2"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -23,6 +23,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/shared/layout.css" asp-append-version="true">
     @RenderSection("Styles", required: false)
+    @RenderSection("Head", required: false)
 </head>
 <body>
     <header>
@@ -154,8 +155,8 @@
                                     <i class='bx bx-chevron-down ms-2' style="font-size: 1rem;"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class='bx bx-user'></i> Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class='bx bx-cog'></i> Settings</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class='bx bx-user'></i> My Profile</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index"><i class='bx bx-cog'></i> Settings</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
