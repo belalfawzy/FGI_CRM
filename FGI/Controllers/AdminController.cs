@@ -70,6 +70,30 @@ namespace FGI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProject(Project project)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    TempData["ErrorMessage"] = "Project name is required";
+                    return RedirectToAction("Projects");
+                }
+
+                await _projectService.AddProjectAsync(project);
+                TempData["SuccessMessage"] = "Project created successfully!";
+                return RedirectToAction("Projects");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating project");
+                TempData["ErrorMessage"] = $"Error creating project: {ex.Message}";
+                return RedirectToAction("Projects");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProjectWithUnit(Project project, List<Unit> units)
         {
             try
@@ -141,13 +165,24 @@ namespace FGI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUnit(Unit unit)
         {
-            if (!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    TempData["ErrorMessage"] = "Invalid unit data. Please check all required fields.";
+                    return RedirectToAction("Projects");
+                }
+
+                await _unitService.AddUnitAsync(unit);
+                TempData["SuccessMessage"] = "Unit created successfully!";
                 return RedirectToAction("Projects");
             }
-
-            await _unitService.AddUnitAsync(unit);
-            return RedirectToAction("Projects");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating unit");
+                TempData["ErrorMessage"] = $"Error creating unit: {ex.Message}";
+                return RedirectToAction("Projects");
+            }
         }
 
         [HttpGet]
@@ -434,6 +469,10 @@ namespace FGI.Controllers
         [HttpGet]
         public async Task<IActionResult> AddUnit()
         {
+            // Clear any existing TempData messages to prevent them from showing on this page
+            TempData.Remove("SuccessMessage");
+            TempData.Remove("ErrorMessage");
+            
             await LoadProjects();
             return View(new Unit());
         }
@@ -461,7 +500,7 @@ namespace FGI.Controllers
                 await _unitService.AddUnitAsync(unit);
 
                 TempData["SuccessMessage"] = "Unit added successfully";
-                return RedirectToAction(nameof(AllUnits));
+                return RedirectToAction(nameof(AddUnit));
             }
             catch (Exception ex)
             {
@@ -611,11 +650,15 @@ namespace FGI.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null,
             int? bedrooms = null,
-            bool? isAvailable = null)
+            bool? isAvailable = null,
+            decimal? minArea = null,
+            int? bathrooms = null,
+            UnitSaleType? saleType = null,
+            string searchTerm = null)
         {
             try
             {
-                var units = await _unitService.GetFilteredUnitsAsync(type, projectId, minPrice, maxPrice, bedrooms, isAvailable, null, null, null, null);
+                var units = await _unitService.GetFilteredUnitsAsync(type, projectId, minPrice, maxPrice, bedrooms, isAvailable, minArea, bathrooms, saleType, searchTerm);
 
                 var projects = await _projectService.GetAllProjectsAsync();
                 ViewBag.Projects = new SelectList(projects, "Id", "Name");
@@ -641,8 +684,7 @@ namespace FGI.Controllers
                     return NotFound();
                 }
 
-                unit.Project = await _projectService.GetProjectByIdAsync(unit.ProjectId ?? 0);
-                unit.CreatedBy = await _userService.GetByIdAsync(unit.CreatedById ?? 0);
+                // Unit already includes Owner, Project, and CreatedBy from the service
 
                 return PartialView("_UnitDetailsPartial", unit);
             }
@@ -818,7 +860,7 @@ namespace FGI.Controllers
                         message = string.IsNullOrEmpty(duplicateWarning)
                             ? "Lead saved successfully!"
                             : $"Lead saved successfully! {duplicateWarning}",
-                        redirect = Url.Action("MyUnits", new { id = lead.Id })
+                        redirect = Url.Action("AllUnits", new { id = lead.Id })
                     });
                 }
 
@@ -883,6 +925,9 @@ namespace FGI.Controllers
                 Value = p.Id.ToString(),
                 Text = p.Name
             }).ToList();
+
+            var owners = await _context.Owners.ToListAsync();
+            ViewBag.Owners = new SelectList(owners, "Id", "Name");
         }
 
         private int? GetCurrentUserId()
@@ -904,6 +949,24 @@ namespace FGI.Controllers
                 return RedirectToAction("Leads");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportUnitsToCsv()
+        {
+            try
+            {
+                var units = await _unitService.GetAllUnitsAsync();
+                var csvBytes = await _unitService.ExportUnitsToCsvAsync(units);
+                return File(csvBytes, "text/csv", $"Units_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting units to CSV");
+                TempData["ErrorMessage"] = "Error exporting units to CSV";
+                return RedirectToAction("AllUnits");
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> EditLead(int id)
         {

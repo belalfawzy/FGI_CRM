@@ -503,8 +503,8 @@
                             // Display found owner
                             $('#foundOwnerDetails').html(`
                                 <p><strong>Name:</strong> ${response.name}</p>
-                                <p><strong>Phone:</strong> ${response.phone || 'N/A'}</p>
-                                <p><strong>Email:</strong> ${response.email || 'N/A'}</p>
+                                <p><strong>Phone:</strong> ${response.phone || 'Not provided'}</p>
+                                <p><strong>Email:</strong> ${response.email || 'Not provided'}</p>
                             `);
                             $('#useSelectedOwner')
                                 .data('owner-id', response.id)

@@ -11,46 +11,22 @@
             <h5 class="mb-0">Add New Project</h5>
         </div>
         <div class="card-body">
-            <form asp-action="CreateProjectWithUnit" method="post" id="projectForm">
+            <form asp-action="CreateProject" method="post" id="projectForm">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Project Name</label>
                             <input type="text" name="Name" class="form-control form-control-lg" required>
                         </div>
                     </div>
-                </div>
-
-                <div class="unit-section mt-4">
-                    <h5 class="mb-3 text-primary">Project Units</h5>
-                    <div class="row unit-row align-items-end mb-3">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <label class="form-label">Unit Code</label>
-                                <input type="text" name="Units[0].UnitCode" class="form-control unit-code" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Availability</label>
-                                <select name="Units[0].IsAvailable" class="form-select">
-                                    <option value="true">Available</option>
-                                    <option value="false">Not Available</option>
-                                </select>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-save me-2"></i>Create Project
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div id="additionalUnitsContainer"></div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <button type="button" id="addUnit" class="btn btn-outline-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Add Another Unit
-                    </button>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i>Create Project
-                    </button>
                 </div>
             </form>
         </div>
@@ -124,62 +100,4 @@
             padding: 0.375rem 0.75rem;
         }
     </style>
-}
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            let unitCount = 1;
-
-            // Add new unit row
-            $('#addUnit').click(function() {
-                const newRow = `
-                    <div class="row unit-row align-items-end mb-3">
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <input type="text" name="Units[${unitCount}].UnitCode"
-                                       class="form-control unit-code" placeholder="Unit Code" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-outline-danger remove-unit">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                $('#additionalUnitsContainer').append(newRow);
-                unitCount++;
-            });
-
-            // Remove unit row
-            $(document).on('click', '.remove-unit', function() {
-                $(this).closest('.unit-row').remove();
-                unitCount--;
-            });
-
-            // Form validation
-            $('#projectForm').submit(function(e) {
-                const unitCodes = $('.unit-code').map(function() {
-                    return $(this).val().trim();
-                }).get();
-
-                const uniqueCodes = [...new Set(unitCodes)];
-
-                if(unitCodes.length !== uniqueCodes.length) {
-                    alert('Unit codes must be unique!');
-                    return false;
-                }
-
-                if(unitCodes.some(code => code === '')) {
-                    alert('Please fill all unit codes');
-                    return false;
-                }
-
-                return true;
-            });
-        });
-    </script>
 }

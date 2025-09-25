@@ -50,6 +50,26 @@ $(document).ready(function () {
         applyFilters();
     });
 
+    // Export button functionality
+    $('#exportLeadsBtn').click(function(e) {
+        e.preventDefault();
+        
+        // Show spinner and disable button
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Exporting...');
+        $btn.prop('disabled', true);
+        
+        // Redirect to export action
+        window.location.href = $btn.attr('href');
+        
+        // Re-enable button after 3 seconds (in case of error)
+        setTimeout(function() {
+            $btn.html(originalText);
+            $btn.prop('disabled', false);
+        }, 3000);
+    });
+
     // Reset filters
     $("#resetFilters").click(function () {
         $("#searchInput").val("");

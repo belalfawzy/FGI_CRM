@@ -4,6 +4,7 @@ using FGI.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Text;
 
 namespace FGI.Services
 {
@@ -72,7 +73,13 @@ namespace FGI.Services
 
             _context.Units.Add(unit);
             await _context.SaveChangesAsync();
-            return unit;
+            
+            // Reload the unit with Owner information
+            return await _context.Units
+                .Include(u => u.Owner)
+                .Include(u => u.Project)
+                .Include(u => u.CreatedBy)
+                .FirstOrDefaultAsync(u => u.Id == unit.Id);
         }
 
         public async Task UpdateAvailabilityAsync(int unitId, bool isAvailable)
@@ -96,7 +103,11 @@ namespace FGI.Services
         }
         public async Task<Unit> GetUnitByIdAsync(int unitId)
         {
-            return await _context.Units.FindAsync(unitId);
+            return await _context.Units
+                .Include(u => u.Owner)
+                .Include(u => u.Project)
+                .Include(u => u.CreatedBy)
+                .FirstOrDefaultAsync(u => u.Id == unitId);
         }
         public async Task<List<Unit>> GetUnitsByCreatorAsync(int creatorId)
         {
@@ -241,6 +252,47 @@ namespace FGI.Services
                 .ThenBy(u => u.Project.Name)
                 .ThenBy(u => u.UnitCode)
                 .ToListAsync();
+        }
+
+        public async Task<List<Unit>> GetAllUnitsAsync()
+        {
+            return await _context.Units
+                .Include(u => u.Project)
+                .Include(u => u.Owner)
+                .Include(u => u.CreatedBy)
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<byte[]> ExportUnitsToCsvAsync(List<Unit> units)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Unit Code,Project,Location,Type,Sale Type,Price,Currency,Area,Bedrooms,Bathrooms,Owner,Owner Phone,Owner Email,Is Available,Description,Created By,Created At");
+
+            foreach (var unit in units.OrderByDescending(u => u.CreatedAt))
+            {
+                var unitCode = $"\"{unit.UnitCode?.Replace("\"", "\"\"") ?? ""}\"";
+                var projectName = $"\"{unit.Project?.Name?.Replace("\"", "\"\"") ?? ""}\"";
+                var location = $"\"{unit.Location?.Replace("\"", "\"\"") ?? ""}\"";
+                var type = unit.Type.ToString();
+                var saleType = unit.UnitType.ToString();
+                var price = unit.Price.ToString("N0");
+                var currency = unit.Currency.ToString();
+                var area = unit.Area.ToString();
+                var bedrooms = unit.Bedrooms.ToString();
+                var bathrooms = unit.Bathrooms.ToString();
+                var ownerName = $"\"{unit.Owner?.Name?.Replace("\"", "\"\"") ?? ""}\"";
+                var ownerPhone = $"\"{unit.Owner?.Phone?.Replace("\"", "\"\"") ?? ""}\"";
+                var ownerEmail = $"\"{unit.Owner?.Email?.Replace("\"", "\"\"") ?? ""}\"";
+                var isAvailable = unit.IsAvailable ? "Yes" : "No";
+                var description = $"\"{unit.Description?.Replace("\"", "\"\"") ?? ""}\"";
+                var createdBy = $"\"{unit.CreatedBy?.FullName?.Replace("\"", "\"\"") ?? ""}\"";
+                var createdAt = unit.CreatedAt.ToString("dd MMM yyyy HH:mm");
+
+                builder.AppendLine($"{unitCode},{projectName},{location},{type},{saleType},{price},{currency},{area},{bedrooms},{bathrooms},{ownerName},{ownerPhone},{ownerEmail},{isAvailable},{description},{createdBy},{createdAt}");
+            }
+
+            return Encoding.UTF8.GetBytes(builder.ToString());
         }
     }
 }

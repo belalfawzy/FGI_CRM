@@ -114,7 +114,7 @@
             <div class="d-flex align-items-center">
                 <span class="badge bg-primary rounded-pill me-3">@Model.Leads.Count records</span>
                 <!-- Show entries dropdown -->
-                <a href="@Url.Action("ExportLeadsToCsv", "Admin")" class="btn btn-outline-success btn-sm me-2" title="Download CSV">
+                <a href="@Url.Action("ExportLeadsToCsv", "Admin")" class="btn btn-outline-success btn-sm me-2" id="exportLeadsBtn" title="Download CSV">
                     <i class="fa-solid fa-file-csv"></i> Export CSV
                 </a>
                 <div class="dropdown">
