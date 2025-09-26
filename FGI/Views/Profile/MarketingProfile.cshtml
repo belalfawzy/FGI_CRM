@@ -4,253 +4,362 @@
 }
 
 @section Head {
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4e73df',
-                        'primary-dark': '#3a56c4',
-                        secondary: '#6f42c1',
-                        success: '#1cc88a',
-                        info: '#36b9cc',
-                        warning: '#f6c23e',
-                        danger: '#e74a3b',
-                        light: '#f8f9fc',
-                        dark: '#5a5c69'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Ensure Font Awesome icons display properly with TailwindCSS */
-        .fas, .far, .fab, .fal, .fad {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-        
-        /* Fix navbar components */
-        .navbar-nav {
-            display: flex !important;
-            flex-direction: row !important;
-        }
-        
-        .nav-item {
-            display: block !important;
-        }
-        
-        .nav-link {
-            display: block !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        /* Ensure icons in TailwindCSS sections work */
-        .tailwind-section i {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
 }
 
-<div class="min-h-screen bg-gray-50 py-8 tailwind-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-2xl shadow-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-3">
-                        <i class="fas fa-user-tie text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">Marketing Profile</h1>
-                        <p class="text-blue-100 mt-1">Your marketing performance dashboard</p>
+<div class="profile-container">
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="profile-header fade-in-up">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-header-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div>
+                            <h1 class="profile-header-title">Marketing Profile</h1>
+                            <p class="profile-header-subtitle">Marketing Dashboard & Lead Management</p>
+                            <div class="profile-status">@Model.AccountStatus</div>
+                        </div>
                     </div>
                 </div>
-                <a asp-controller="Settings" asp-action="Index" class="text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>New Lead
+                    </button>
+                </div>
             </div>
+            <!-- Floating Elements -->
+            <div class="floating-element" style="top: 20px; right: 20px; width: 60px; height: 60px; background: #007bff;"></div>
+            <div class="floating-element" style="bottom: 20px; left: 20px; width: 40px; height: 40px; background: #6f42c1;"></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Profile Info Card -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-primary px-6 py-4">
-                        <h2 class="text-xl font-semibold text-white flex items-center">
-                            <i class="fas fa-user mr-3"></i>
-                            Profile Information
-                        </h2>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon primary">
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-user text-white text-2xl"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">@Model.FullName</h3>
-                            <p class="text-gray-600 mb-3">@Model.Email</p>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                @Model.Role
-                            </span>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                                <div>
-                                    <p class="font-medium text-gray-900">Status</p>
-                                    <p class="text-sm text-green-600">@Model.AccountStatus</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="metric-value">@Model.LeadsCreated</div>
+                    <div class="metric-label">Leads Created</div>
                 </div>
             </div>
-
-            <!-- KPIs Card -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-info px-6 py-4">
-                        <h2 class="text-xl font-semibold text-white flex items-center">
-                            <i class="fas fa-chart-line mr-3"></i>
-                            Marketing KPIs & Performance
-                        </h2>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon success">
+                        <i class="fas fa-home"></i>
                     </div>
-                    <div class="p-6">
-                        <!-- Primary KPIs Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-blue-100 text-sm font-medium">Leads Created</p>
-                                        <p class="text-3xl font-bold">@Model.LeadsCreated</p>
-                                    </div>
-                                        <i class="fas fa-user-plus text-2xl"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-success to-green-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-green-100 text-sm font-medium">Units Added</p>
-                                        <p class="text-3xl font-bold">@Model.UnitsAdded</p>
-                                    </div>
-                                        <i class="fas fa-home text-2xl"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-warning to-yellow-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-yellow-100 text-sm font-medium">Feedbacks Given</p>
-                                        <p class="text-3xl font-bold">@Model.FeedbacksGiven</p>
-                                    </div>
-                                        <i class="fas fa-comments text-2xl"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-info to-cyan-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-cyan-100 text-sm font-medium">Conversion Rate</p>
-                                        <p class="text-3xl font-bold">@Model.LeadToUnitConversionRate.ToString("F1")%</p>
-                                    </div>
-                                        <i class="fas fa-percentage text-2xl"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Performance Metrics -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Active Leads</span>
-                                    <span class="text-2xl font-bold text-primary">@Model.ActiveLeads</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Completed Leads</span>
-                                    <span class="text-2xl font-bold text-success">@Model.CompletedLeads</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Total Leads</span>
-                                    <span class="text-2xl font-bold text-info">@Model.LeadsCreated</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="metric-value">@Model.UnitsAdded</div>
+                    <div class="metric-label">Units Added</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon warning">
+                        <i class="fas fa-comments"></i>
                     </div>
+                    <div class="metric-value">@Model.FeedbacksGiven</div>
+                    <div class="metric-label">Feedbacks Given</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon info">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-value">@Model.LeadToUnitConversionRate.ToString("P1")</div>
+                    <div class="metric-label">Conversion Rate</div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="mt-8">
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gray-800 px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-history mr-3"></i>
-                        Recent Activity - Last 5 Leads Created
-                    </h2>
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Lead Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-primary">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Lead Management</h3>
+                                <p class="card-header-subtitle">Manage your marketing leads</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">@Model.ActiveLeads</h4>
+                                    <small class="text-muted">Active Leads</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.CompletedLeads</h4>
+                                    <small class="text-muted">Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add New Lead
+                            </button>
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>View All Leads
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-6">
-                    @if (Model.RecentLeads.Any())
-                    {
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
+            </div>
+
+            <!-- Performance Analytics -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-success">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Performance Analytics</h3>
+                                <p class="card-header-subtitle">Track your marketing performance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.LeadToUnitConversionRate.ToString("P1")</h4>
+                                    <small class="text-muted">Conversion Rate</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">@Model.UnitsAdded</h4>
+                                    <small class="text-muted">Units Added</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success">
+                                <i class="fas fa-chart-line me-2"></i>View Analytics
+                            </button>
+                            <button class="btn btn-outline-success">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unit Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-warning">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Unit Management</h3>
+                                <p class="card-header-subtitle">Manage available units</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">@Model.UnitsAdded</h4>
+                                    <small class="text-muted">Units Added</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">@Model.FeedbacksGiven</h4>
+                                    <small class="text-muted">Feedbacks Given</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning">
+                                <i class="fas fa-plus me-2"></i>Add New Unit
+                            </button>
+                            <button class="btn btn-outline-warning">
+                                <i class="fas fa-list me-2"></i>View All Units
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-info">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Feedback Management</h3>
+                                <p class="card-header-subtitle">Manage lead feedback</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">@Model.FeedbacksGiven</h4>
+                                    <small class="text-muted">Feedbacks Given</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.LeadsCreated</h4>
+                                    <small class="text-muted">Total Leads</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info">
+                                <i class="fas fa-comments me-2"></i>View Feedbacks
+                            </button>
+                            <button class="btn btn-outline-info">
+                                <i class="fas fa-plus me-2"></i>Add Feedback
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Leads -->
+            <div class="col-12 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Recent Leads</h3>
+                                <p class="card-header-subtitle">Your latest lead activities</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Ago</th>
+                                        <th>Lead Name</th>
+                                        <th>Contact</th>
+                                        <th>Project</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach (var lead in Model.RecentLeads)
+                                <tbody>
+                                    @if (Model.RecentLeads.Any())
                                     {
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="font-medium text-gray-900">@lead.ClientName</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">@lead.ClientPhone</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">@lead.ProjectName</td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
-                                                    @lead.Status
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">@lead.CreatedAt.ToString("MMM dd, yyyy")</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-500">@lead.TimeAgo</td>
+                                        @foreach (var lead in Model.RecentLeads.Take(5))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@lead.ClientName</strong>
+                                                </td>
+                                                <td>
+                                                    <i class="fas fa-phone text-success me-1"></i>
+                                                    @lead.ClientPhone
+                                                </td>
+                                                <td>@lead.ProjectName</td>
+                                                <td><span class="status-badge marketing">@lead.Status</span></td>
+                                                <td>@lead.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">View</button>
+                                                    <button class="btn btn-sm btn-outline-success">Edit</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No recent leads</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Overview -->
+            <div class="col-12 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-primary">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-chart-pie"></i>
                             </div>
-                            <p class="text-gray-500 text-lg">No recent activity found</p>
+                            <div>
+                                <h3 class="card-header-title">Performance Overview</h3>
+                                <p class="card-header-subtitle">Your marketing performance metrics</p>
+                            </div>
                         </div>
-                    }
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">@Model.LeadsCreated</h4>
+                                    <small class="text-muted">Leads Created</small>
+                                    <div class="progress mt-2" style="height: 4px;">
+                                        <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.UnitsAdded</h4>
+                                    <small class="text-muted">Units Added</small>
+                                    <div class="progress mt-2" style="height: 4px;">
+                                        <div class="progress-bar bg-success" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">@Model.FeedbacksGiven</h4>
+                                    <small class="text-muted">Feedbacks Given</small>
+                                    <div class="progress mt-2" style="height: 4px;">
+                                        <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">@Model.LeadToUnitConversionRate.ToString("P1")</h4>
+                                    <small class="text-muted">Conversion Rate</small>
+                                    <div class="progress mt-2" style="height: 4px;">
+                                        <div class="progress-bar bg-info" style="width: @(Model.LeadToUnitConversionRate * 100)%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-

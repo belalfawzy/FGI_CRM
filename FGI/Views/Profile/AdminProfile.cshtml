@@ -4,391 +4,296 @@
 }
 
 @section Head {
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4e73df',
-                        'primary-dark': '#3a56c4',
-                        secondary: '#6f42c1',
-                        success: '#1cc88a',
-                        info: '#36b9cc',
-                        warning: '#f6c23e',
-                        danger: '#e74a3b',
-                        light: '#f8f9fc',
-                        dark: '#5a5c69'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Ensure Font Awesome icons display properly with TailwindCSS */
-        .fas, .far, .fab, .fal, .fad {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-        
-        /* Fix navbar components */
-        .navbar-nav {
-            display: flex !important;
-            flex-direction: row !important;
-        }
-        
-        .nav-item {
-            display: block !important;
-        }
-        
-        .nav-link {
-            display: block !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        /* Ensure icons in TailwindCSS sections work */
-        .tailwind-section i {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
 }
 
-<div class="min-h-screen bg-gray-50 py-8 tailwind-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-danger to-red-600 rounded-2xl shadow-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-3">
-                        <i class="fas fa-user-shield text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">Admin Profile</h1>
-                        <p class="text-red-100 mt-1">System administration dashboard</p>
+<div class="profile-container">
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="profile-header fade-in-up">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-header-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <h1 class="profile-header-title">Admin Profile</h1>
+                            <p class="profile-header-subtitle">System Administrator Dashboard</p>
+                            <div class="profile-status">@Model.AccountStatus</div>
+                        </div>
                     </div>
                 </div>
-                <a asp-controller="Settings" asp-action="Index" class="text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-primary btn-lg">
+                        <i class="fas fa-cog me-2"></i>Settings
+                    </button>
+                </div>
             </div>
+            <!-- Floating Elements -->
+            <div class="floating-element" style="top: 20px; right: 20px; width: 60px; height: 60px; background: #007bff;"></div>
+            <div class="floating-element" style="bottom: 20px; left: 20px; width: 40px; height: 40px; background: #6f42c1;"></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Profile Info Card -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-danger px-6 py-4">
-                        <h2 class="text-xl font-semibold text-white flex items-center">
-                            <i class="fas fa-user mr-3"></i>
-                            Profile Information
-                        </h2>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon primary">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <div class="w-20 h-20 bg-danger rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-user-shield text-white text-2xl"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">@Model.FullName</h3>
-                            <p class="text-gray-600 mb-3">@Model.Email</p>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                @Model.Role
-                            </span>
-                        </div>
-                        
-                        <div class="space-y-4">
-                           
-                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                <i class="fas fa-clock text-danger mr-3"></i>
-                                <div>
-                                    <p class="font-medium text-gray-900">Last Login</p>
-                                    <p class="text-sm text-gray-600">@(Model.LastLoginAt?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</p>
-                                </div>
-                            </div>
-                           
-                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                                <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                                <div>
-                                    <p class="font-medium text-gray-900">Status</p>
-                                    <p class="text-sm text-green-600">@Model.AccountStatus</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="metric-value">@Model.TotalUsers</div>
+                    <div class="metric-label">Total Users</div>
                 </div>
             </div>
-
-            <!-- System KPIs Card -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-info px-6 py-4">
-                        <h2 class="text-xl font-semibold text-white flex items-center">
-                            <i class="fas fa-chart-line mr-3"></i>
-                            System Overview & KPIs
-                        </h2>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon success">
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="p-6">
-                        <!-- Primary System KPIs Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-blue-100 text-sm font-medium">Total Users</p>
-                                        <p class="text-3xl font-bold">@Model.TotalUsers</p>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-users text-2xl"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-success to-green-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-green-100 text-sm font-medium">Total Projects</p>
-                                        <p class="text-3xl font-bold">@Model.TotalProjects</p>
-                                    </div>
-                                        <i class="fas fa-building text-2xl"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-warning to-yellow-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-yellow-100 text-sm font-medium">Total Units</p>
-                                        <p class="text-3xl font-bold">@Model.TotalUnits</p>
-                                    </div>
-                                        <i class="fas fa-home text-2xl"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gradient-to-r from-info to-cyan-600 rounded-xl p-6 text-white">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-cyan-100 text-sm font-medium">Total Leads</p>
-                                        <p class="text-3xl font-bold">@Model.TotalLeads</p>
-                                    </div>
-                                        <i class="fas fa-user-tie text-2xl"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- System Health Metrics -->
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Available Units</span>
-                                    <span class="text-2xl font-bold text-success">@Model.AvailableUnits</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Sold Units</span>
-                                    <span class="text-2xl font-bold text-warning">@Model.SoldUnits</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Utilization</span>
-                                    <span class="text-2xl font-bold text-info"> @Model.SystemUtilizationRate.ToString("F1")%</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-gray-600">Unassigned Leads</span>
-                                    <span class="text-2xl font-bold text-danger">@Model.UnassignedLeads</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="metric-value">@Model.TotalLeads</div>
+                    <div class="metric-label">Total Leads</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon warning">
+                        <i class="fas fa-building"></i>
                     </div>
+                    <div class="metric-value">@Model.TotalProjects</div>
+                    <div class="metric-label">Total Projects</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="metric-card fade-in-up">
+                    <div class="metric-icon info">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="metric-value">@Model.TotalUnits</div>
+                    <div class="metric-label">Total Units</div>
                 </div>
             </div>
         </div>
 
-        <!-- Role Breakdown -->
-        <div class="mt-8">
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gray-800 px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-users-cog mr-3"></i>
-                        User Role Breakdown
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-blue-100 text-sm font-medium">Marketing Users</p>
-                                    <p class="text-3xl font-bold">@Model.MarketingUsers</p>
-                                </div>
-                                    <i class="fas fa-bullhorn text-2xl"></i>
+        <!-- Main Content -->
+        <div class="row">
+            <!-- User Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-primary">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">User Management</h3>
+                                <p class="card-header-subtitle">Manage system users and permissions</p>
                             </div>
                         </div>
-                        
-                        <div class="bg-gradient-to-r from-success to-green-600 rounded-xl p-6 text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-green-100 text-sm font-medium">Sales Users</p>
-                                    <p class="text-3xl font-bold">@Model.SalesUsers</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">@Model.MarketingUsers</h4>
+                                    <small class="text-muted">Marketing Users</small>
                                 </div>
-                                    <i class="fas fa-handshake text-2xl"></i>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.SalesUsers</h4>
+                                    <small class="text-muted">Sales Users</small>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div class="bg-gradient-to-r from-danger to-red-600 rounded-xl p-6 text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-red-100 text-sm font-medium">Admin Users</p>
-                                    <p class="text-3xl font-bold">@Model.AdminUsers</p>
-                                </div>
-                                    <i class="fas fa-user-shield text-2xl"></i>
-                            </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add New User
+                            </button>
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>View All Users
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Recent Activity Tabs -->
-        <div class="mt-8">
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gray-800 px-6 py-4">
-                    <div class="flex space-x-1">
-                        <button class="px-4 py-2 text-white rounded-lg font-medium flex items-center space-x-2" onclick="showTab('users')">
-                            <i class="fas fa-users"></i>
-                            <span>Recent Users</span>
-                        </button>
-                        <button class="px-4 py-2 text-gray-300 hover:bg-opacity-10 rounded-lg font-medium flex items-center space-x-2" onclick="showTab('assignments')">
-                            <i class="fas fa-exchange-alt"></i>
-                            <span>Recent Assignments</span>
-                        </button>
+            <!-- Lead Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-success">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Lead Management</h3>
+                                <p class="card-header-subtitle">Track and manage leads</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.UnassignedLeads</h4>
+                                    <small class="text-muted">Unassigned Leads</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">@Model.PendingAssignments</h4>
+                                    <small class="text-muted">Pending Assignments</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Add New Lead
+                            </button>
+                            <button class="btn btn-outline-success">
+                                <i class="fas fa-chart-bar me-2"></i>View Reports
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="p-6">
-                    <!-- Recent Users Tab -->
-                    <div id="users-tab" class="tab-content">
-                        @if (Model.RecentUsers.Any())
-                        {
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Ago</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach (var user in Model.RecentUsers)
+            </div>
+
+            <!-- Project Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-warning">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Project Management</h3>
+                                <p class="card-header-subtitle">Manage real estate projects</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">@Model.TotalProjects</h4>
+                                    <small class="text-muted">Total Projects</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">@Model.SystemUtilizationRate.ToString("P1")</h4>
+                                    <small class="text-muted">System Utilization</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning">
+                                <i class="fas fa-plus me-2"></i>Add New Project
+                            </button>
+                            <button class="btn btn-outline-warning">
+                                <i class="fas fa-eye me-2"></i>View All Projects
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unit Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-info">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Unit Management</h3>
+                                <p class="card-header-subtitle">Manage available units</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">@Model.AvailableUnits</h4>
+                                    <small class="text-muted">Available Units</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">@Model.SoldUnits</h4>
+                                    <small class="text-muted">Sold Units</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-info">
+                                <i class="fas fa-plus me-2"></i>Add New Unit
+                            </button>
+                            <button class="btn btn-outline-info">
+                                <i class="fas fa-list me-2"></i>View All Units
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-12 mb-4">
+                <div class="profile-card">
+                    <div class="card-header-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-header-title">Recent Activity</h3>
+                                <p class="card-header-subtitle">Latest system activities</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.RecentUsers.Any())
+                                    {
+                                        @foreach (var user in Model.RecentUsers.Take(3))
                                         {
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="font-medium text-gray-900">@user.FullName</div>
+                                            <tr>
+                                                <td>
+                                                    <i class="fas fa-user-plus text-success me-2"></i>
+                                                    New User Created
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@user.Email</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium @(user.Role == "Admin" ? "bg-red-100 text-red-800" : user.Role == "Sales" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800")">
-                                                        @user.Role
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-500">@user.TimeAgo</td>
+                                                <td>@user.FullName</td>
+                                                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                                <td><span class="status-badge sales">Completed</span></td>
                                             </tr>
                                         }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-12">
-                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-users text-gray-400 text-2xl"></i>
-                                </div>
-                                <p class="text-gray-500 text-lg">No recent users found</p>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Recent Assignments Tab -->
-                    <div id="assignments-tab" class="tab-content hidden">
-                        @if (Model.RecentAssignments.Any())
-                        {
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    }
+                                    else
+                                    {
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Changed By</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Ago</th>
+                                            <td colspan="4" class="text-center text-muted">No recent activity</td>
                                         </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach (var assignment in Model.RecentAssignments)
-                                        {
-                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="font-medium text-gray-900">@assignment.ClientName</div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@assignment.FromSales</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@assignment.ToSales</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@assignment.ChangedBy</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">@assignment.AssignedAt.ToString("MMM dd, yyyy")</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-gray-500">@assignment.TimeAgo</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-12">
-                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-exchange-alt text-gray-400 text-2xl"></i>
-                                </div>
-                                <p class="text-gray-500 text-lg">No recent assignments found</p>
-                            </div>
-                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    function showTab(tabName) {
-        // Hide all tabs
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.add('hidden');
-        });
-
-        // Show selected tab
-        document.getElementById(tabName + '-tab').classList.remove('hidden');
-
-        // Update button styles - التصحيح هنا
-        document.querySelectorAll('[onclick^="showTab"]').forEach(btn => {
-            btn.classList.remove('bg-white', 'bg-opacity-20');
-        });
-
-    }
-
-    // تهيئة التبويب الافتراضي
-    document.addEventListener('DOMContentLoaded', function() {
-        // تعيين الزر الأول كنشط افتراضياً
-        const firstButton = document.querySelector('[onclick^="showTab"]');
-        firstButton.classList.remove('text-gray-300', 'hover:bg-opacity-10');
-    });
-</script>
-
-

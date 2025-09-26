@@ -5,213 +5,456 @@
 }
 
 @section Head {
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4e73df',
-                        'primary-dark': '#3a56c4',
-                        secondary: '#6f42c1',
-                        success: '#1cc88a',
-                        info: '#36b9cc',
-                        warning: '#f6c23e',
-                        danger: '#e74a3b',
-                        light: '#f8f9fc',
-                        dark: '#5a5c69'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Ensure Font Awesome icons display properly with TailwindCSS */
-        .fas, .far, .fab, .fal, .fad {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-        
-        /* Fix navbar components */
-        .navbar-nav {
-            display: flex !important;
-            flex-direction: row !important;
-        }
-        
-        .nav-item {
-            display: block !important;
-        }
-        
-        .nav-link {
-            display: block !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        /* Ensure icons in TailwindCSS sections work */
-        .tailwind-section i {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            display: inline-block !important;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
 }
 
-<div class="min-h-screen bg-gray-50 py-8 tailwind-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-2xl shadow-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-3">
-                        <i class="fas fa-cog text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">Account Settings</h1>
-                        <p class="text-blue-100 mt-1">Manage your account information and security</p>
+<div class="profile-container">
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="profile-header fade-in-up">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-header-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <h1 class="profile-header-title">Account Settings</h1>
+                            <p class="profile-header-subtitle">Manage your account information and security</p>
+                            <div class="profile-status">Account Active</div>
+                        </div>
                     </div>
                 </div>
-                <a asp-controller="Profile" asp-action="Index" class="text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2">
-                    <i class="fas fa-user"></i>
-                    <span>Back to Profile</span>
-                </a>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
             </div>
+            <!-- Floating Elements -->
+            <div class="floating-element" style="top: 20px; right: 20px; width: 60px; height: 60px; background: #007bff;"></div>
+            <div class="floating-element" style="bottom: 20px; left: 20px; width: 40px; height: 40px; background: #6f42c1;"></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Profile Information Card -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-primary px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-user mr-3"></i>
-                        Profile Information
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <form id="profileForm">
-                        <div class="mb-6">
-                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" id="fullName" value="@Model.FullName" required>
-                            <p class="mt-2 text-sm text-gray-500">Your display name in the system</p>
-                        </div>
-                        <button type="button" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2" id="updateProfileBtn">
-                            <i class="fas fa-save"></i>
-                            <span>Update Profile</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Email Settings Card -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-success px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-envelope mr-3"></i>
-                        Email Settings
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <form id="emailForm">
-                        <div class="mb-6">
-                            <label for="currentEmail" class="block text-sm font-medium text-gray-700 mb-2">Current Email</label>
-                            <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500" id="currentEmail" value="@Model.Email" readonly>
-                            <p class="mt-2 text-sm text-gray-500">Your current email address</p>
-                        </div>
-                        <div class="mb-6">
-                            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                            <div class="flex">
-                                <input type="text" class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-success focus:border-transparent transition-all duration-200" id="username" value="@Model.Username" required>
-                                <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600 font-medium">@Model.Domain</span>
-                            </div>
-                            <p class="mt-2 text-sm text-gray-500">You can only change the part before @@ The domain (@@role.fgi) is fixed.</p>
-                        </div>
-                        <button type="button" class="w-full bg-success hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2" id="updateEmailBtn">
-                            <i class="fas fa-envelope"></i>
-                            <span>Update Email</span>
-                        </button>
-                    </form>
+        <!-- Settings Tabs -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="profile-card">
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                                    <i class="fas fa-user me-2"></i>Profile Information
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                                    <i class="fas fa-shield-alt me-2"></i>Security
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+                                    <i class="fas fa-bell me-2"></i>Notifications
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">
+                                    <i class="fas fa-sliders-h me-2"></i>Preferences
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-            <!-- Password Settings Card -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-warning px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-lock mr-3"></i>
-                        Password Settings
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <form id="passwordForm">
-                        <div class="mb-6">
-                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                            <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warning focus:border-transparent transition-all duration-200" id="currentPassword" required>
-                            <p class="mt-2 text-sm text-gray-500">Enter your current password to confirm changes</p>
-                        </div>
-                        <div class="mb-6">
-                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                            <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warning focus:border-transparent transition-all duration-200" id="newPassword" required minlength="6">
-                            <p class="mt-2 text-sm text-gray-500">Password must be at least 6 characters long</p>
-                        </div>
-                        <div class="mb-6">
-                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-                            <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-warning focus:border-transparent transition-all duration-200" id="confirmPassword" required minlength="6">
-                            <p class="mt-2 text-sm text-gray-500">Re-enter your new password</p>
-                        </div>
-                        <button type="button" class="w-full bg-warning hover:bg-yellow-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2" id="updatePasswordBtn">
-                            <i class="fas fa-lock"></i>
-                            <span>Update Password</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Account Information Card -->
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-info px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <i class="fas fa-info-circle mr-3"></i>
-                        Account Information
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                            <i class="fas fa-envelope text-primary mr-4 text-lg"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">Email Address</p>
-                                <p class="text-sm text-gray-600">@Model.Email</p>
+        <!-- Tab Content -->
+        <div class="tab-content" id="settingsTabsContent">
+            <!-- Profile Information Tab -->
+            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-primary">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Personal Information</h3>
+                                        <p class="card-header-subtitle">Update your personal details</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                            <i class="fas fa-user-tag text-primary mr-4 text-lg"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">User Role</p>
-                                <p class="text-sm text-gray-600">@Model.Role</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                            <i class="fas fa-id-badge text-primary mr-4 text-lg"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">User ID</p>
-                                <p class="text-sm text-gray-600">#@Model.UserId</p>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fullName" class="form-label fw-bold">Full Name</label>
+                                            <input type="text" class="form-control" id="fullName" value="@Model.FullName">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label fw-bold">Email Address</label>
+                                            <input type="email" class="form-control" id="email" value="@Model.Email">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="username" class="form-label fw-bold">Username</label>
+                                            <input type="text" class="form-control" id="username" value="@Model.Username" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="role" class="form-label fw-bold">Role</label>
+                                            <input type="text" class="form-control" id="role" value="@Model.Role" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="userId" class="form-label fw-bold">User ID</label>
+                                            <input type="text" class="form-control" id="userId" value="@Model.UserId" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="createdAt" class="form-label fw-bold">Member Since</label>
+                                            <input type="text" class="form-control" id="createdAt" value="@Model.CreatedAt.ToString("MMMM dd, yyyy")" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Save Changes
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary">
+                                            <i class="fas fa-undo me-2"></i>Reset
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-8 pt-6 border-t border-gray-200">
-                        <div class="text-center">
-                            <div class="flex items-center justify-center mb-4">
-                                <i class="fas fa-shield-alt text-green-500 text-2xl mr-3"></i>
-                                <p class="text-gray-600 font-medium">Your account is secure and protected</p>
+
+                    <div class="col-lg-4 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-success">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Profile Picture</h3>
+                                        <p class="card-header-subtitle">Update your avatar</p>
+                                    </div>
+                                </div>
                             </div>
-                            <a href="@Url.Action("Index", "Profile")" class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-all duration-200">
-                                <i class="fas fa-user mr-2"></i>
-                                View Profile
-                            </a>
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success">
+                                        <i class="fas fa-upload me-2"></i>Upload New Photo
+                                    </button>
+                                    <button class="btn btn-outline-danger">
+                                        <i class="fas fa-trash me-2"></i>Remove Photo
+                                    </button>
+                                </div>
+                                <small class="text-muted mt-2 d-block">JPG, PNG or GIF. Max size 2MB.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="tab-pane fade" id="security" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-warning">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Change Password</h3>
+                                        <p class="card-header-subtitle">Update your account password</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="currentPassword" class="form-label fw-bold">Current Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="currentPassword">
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="newPassword" class="form-label fw-bold">New Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="newPassword">
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label fw-bold">Confirm New Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="confirmPassword">
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-key me-2"></i>Update Password
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary">
+                                            <i class="fas fa-undo me-2"></i>Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-info">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Two-Factor Authentication</h3>
+                                        <p class="card-header-subtitle">Add extra security</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <i class="fas fa-mobile-alt fa-3x text-info"></i>
+                                </div>
+                                <p class="text-center">Enable two-factor authentication for enhanced security</p>
+                                <div class="d-grid">
+                                    <button class="btn btn-info">
+                                        <i class="fas fa-plus me-2"></i>Enable 2FA
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-success">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Notification Preferences</h3>
+                                        <p class="card-header-subtitle">Choose what notifications you want to receive</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                    <label class="form-check-label fw-bold" for="emailNotifications">
+                                        Email Notifications
+                                    </label>
+                                    <p class="text-muted small">Receive notifications via email</p>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                    <label class="form-check-label fw-bold" for="smsNotifications">
+                                        SMS Notifications
+                                    </label>
+                                    <p class="text-muted small">Receive notifications via SMS</p>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+                                    <label class="form-check-label fw-bold" for="pushNotifications">
+                                        Push Notifications
+                                    </label>
+                                    <p class="text-muted small">Receive push notifications in browser</p>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="leadNotifications" checked>
+                                    <label class="form-check-label fw-bold" for="leadNotifications">
+                                        Lead Notifications
+                                    </label>
+                                    <p class="text-muted small">Get notified about new leads</p>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="taskNotifications" checked>
+                                    <label class="form-check-label fw-bold" for="taskNotifications">
+                                        Task Notifications
+                                    </label>
+                                    <p class="text-muted small">Get notified about task updates</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Save Preferences
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        <i class="fas fa-undo me-2"></i>Reset to Default
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-secondary">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-cog"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Notification Settings</h3>
+                                        <p class="card-header-subtitle">Advanced options</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="notificationFrequency" class="form-label fw-bold">Frequency</label>
+                                    <select class="form-select" id="notificationFrequency">
+                                        <option value="immediate">Immediate</option>
+                                        <option value="hourly">Hourly</option>
+                                        <option value="daily" selected>Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="quietHours" class="form-label fw-bold">Quiet Hours</label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <input type="time" class="form-control" id="quietStart" value="22:00">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="time" class="form-control" id="quietEnd" value="08:00">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-cog me-2"></i>Apply Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div class="tab-pane fade" id="preferences" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-primary">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-sliders-h"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">General Preferences</h3>
+                                        <p class="card-header-subtitle">Customize your experience</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="language" class="form-label fw-bold">Language</label>
+                                        <select class="form-select" id="language">
+                                            <option value="en" selected>English</option>
+                                            <option value="ar">العربية</option>
+                                            <option value="fr">Français</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="timezone" class="form-label fw-bold">Timezone</label>
+                                        <select class="form-select" id="timezone">
+                                            <option value="UTC+2" selected>Cairo (UTC+2)</option>
+                                            <option value="UTC+0">London (UTC+0)</option>
+                                            <option value="UTC-5">New York (UTC-5)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="dateFormat" class="form-label fw-bold">Date Format</label>
+                                        <select class="form-select" id="dateFormat">
+                                            <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="currency" class="form-label fw-bold">Currency</label>
+                                        <select class="form-select" id="currency">
+                                            <option value="EGP" selected>Egyptian Pound (EGP)</option>
+                                            <option value="USD">US Dollar (USD)</option>
+                                            <option value="EUR">Euro (EUR)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Save Preferences
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        <i class="fas fa-undo me-2"></i>Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mb-4">
+                        <div class="profile-card">
+                            <div class="card-header-warning">
+                                <div class="d-flex align-items-center">
+                                    <div class="card-header-icon">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-header-title">Theme Settings</h3>
+                                        <p class="card-header-subtitle">Customize appearance</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Color Theme</label>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary active">Light</button>
+                                        <button class="btn btn-outline-dark">Dark</button>
+                                        <button class="btn btn-outline-info">Auto</button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Accent Color</label>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm">Blue</button>
+                                        <button class="btn btn-success btn-sm">Green</button>
+                                        <button class="btn btn-warning btn-sm">Orange</button>
+                                        <button class="btn btn-danger btn-sm">Red</button>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-warning">
+                                        <i class="fas fa-palette me-2"></i>Apply Theme
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -220,154 +463,47 @@
     </div>
 </div>
 
-<!-- Success/Error Messages -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-success text-white">
-            <i class="fas fa-check-circle me-2"></i>
-            <strong class="me-auto">Success</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="successMessage">
-            <!-- Success message will be inserted here -->
-        </div>
-    </div>
-    
-    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-danger text-white">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <strong class="me-auto">Error</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="errorMessage">
-            <!-- Error message will be inserted here -->
-        </div>
-    </div>
-</div>
+<script>
+// Password toggle functionality
+document.getElementById('toggleCurrentPassword').addEventListener('click', function() {
+    const passwordField = document.getElementById('currentPassword');
+    const icon = this.querySelector('i');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
 
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Update Profile
-            $('#updateProfileBtn').click(function() {
-                const fullName = $('#fullName').val().trim();
-                
-                if (!fullName) {
-                    showError('Full name is required');
-                    return;
-                }
+document.getElementById('toggleNewPassword').addEventListener('click', function() {
+    const passwordField = document.getElementById('newPassword');
+    const icon = this.querySelector('i');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
 
-                $.ajax({
-                    url: '@Url.Action("UpdateProfile", "Settings")',
-                    type: 'POST',
-                    data: {
-                        fullName: fullName,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showSuccess(response.message);
-                        } else {
-                            showError(response.message);
-                        }
-                    },
-                    error: function() {
-                        showError('Error updating profile');
-                    }
-                });
-            });
-
-            // Update Email
-            $('#updateEmailBtn').click(function() {
-                const username = $('#username').val().trim();
-                
-                if (!username) {
-                    showError('Username is required');
-                    return;
-                }
-
-                // Validate username format
-                if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
-                    showError('Username can only contain letters, numbers, dots, underscores, and hyphens');
-                    return;
-                }
-
-                $.ajax({
-                    url: '@Url.Action("UpdateEmail", "Settings")',
-                    type: 'POST',
-                    data: {
-                        username: username,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showSuccess(response.message);
-                            // Update the current email display
-                            $('#currentEmail').val(username + '@@Model.Domain');
-                        } else {
-                            showError(response.message);
-                        }
-                    },
-                    error: function() {
-                        showError('Error updating email');
-                    }
-                });
-            });
-
-            // Update Password
-            $('#updatePasswordBtn').click(function() {
-                const currentPassword = $('#currentPassword').val();
-                const newPassword = $('#newPassword').val();
-                const confirmPassword = $('#confirmPassword').val();
-                
-                if (!currentPassword || !newPassword || !confirmPassword) {
-                    showError('All password fields are required');
-                    return;
-                }
-
-                if (newPassword.length < 6) {
-                    showError('New password must be at least 6 characters long');
-                    return;
-                }
-
-                if (newPassword !== confirmPassword) {
-                    showError('New password and confirmation do not match');
-                    return;
-                }
-
-                $.ajax({
-                    url: '@Url.Action("UpdatePassword", "Settings")',
-                    type: 'POST',
-                    data: {
-                        currentPassword: currentPassword,
-                        newPassword: newPassword,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showSuccess(response.message);
-                            // Clear password fields
-                            $('#currentPassword, #newPassword, #confirmPassword').val('');
-                        } else {
-                            showError(response.message);
-                        }
-                    },
-                    error: function() {
-                        showError('Error updating password');
-                    }
-                });
-            });
-
-            // Helper functions
-            function showSuccess(message) {
-                $('#successMessage').text(message);
-                $('#successToast').toast('show');
-            }
-
-            function showError(message) {
-                $('#errorMessage').text(message);
-                $('#errorToast').toast('show');
-            }
-        });
-    </script>
-}
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+    const passwordField = document.getElementById('confirmPassword');
+    const icon = this.querySelector('i');
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordField.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+</script>
