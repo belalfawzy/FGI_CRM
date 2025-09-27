@@ -45,9 +45,23 @@ namespace FGI.Services
 
         public async Task<User> RegisterAsync(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return user;
+            try
+            {
+                // Check if email already exists
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+                if (existingUser != null)
+                {
+                    return null; // Email already exists
+                }
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                return user;
+            }
+            catch (Exception)
+            {
+                return null; // Error occurred
+            }
         }
     }
 }

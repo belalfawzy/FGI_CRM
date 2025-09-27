@@ -25,11 +25,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <button class="btn btn-success btn-lg">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
             </div>
             <!-- Floating Elements -->
             <div class="floating-element" style="top: 20px; right: 20px; width: 60px; height: 60px; background: #007bff;"></div>
@@ -50,16 +45,6 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
                                     <i class="fas fa-shield-alt me-2"></i>Security
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
-                                    <i class="fas fa-bell me-2"></i>Notifications
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">
-                                    <i class="fas fa-sliders-h me-2"></i>Preferences
                                 </button>
                             </li>
                         </ul>
@@ -87,19 +72,19 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form>
+                                <form id="profileForm">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="fullName" class="form-label fw-bold">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName" value="@Model.FullName">
+                                            <input type="text" class="form-control" id="fullName" value="@Model.FullName" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="email" class="form-label fw-bold">Email Address</label>
-                                            <input type="email" class="form-control" id="email" value="@Model.Email">
+                                            <input type="email" class="form-control" id="email" value="@Model.Email" readonly>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="username" class="form-label fw-bold">Username</label>
-                                            <input type="text" class="form-control" id="username" value="@Model.Username" readonly>
+                                            <input type="text" class="form-control" id="username" value="@Model.Username" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="role" class="form-label fw-bold">Role</label>
@@ -115,10 +100,10 @@
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="submit" class="btn btn-primary" id="updateProfileBtn">
                                             <i class="fas fa-save me-2"></i>Save Changes
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary">
+                                        <button type="button" class="btn btn-outline-secondary" id="resetProfileBtn">
                                             <i class="fas fa-undo me-2"></i>Reset
                                         </button>
                                     </div>
@@ -144,15 +129,7 @@
                                 <div class="mb-3">
                                     <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                                 </div>
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-success">
-                                        <i class="fas fa-upload me-2"></i>Upload New Photo
-                                    </button>
-                                    <button class="btn btn-outline-danger">
-                                        <i class="fas fa-trash me-2"></i>Remove Photo
-                                    </button>
-                                </div>
-                                <small class="text-muted mt-2 d-block">JPG, PNG or GIF. Max size 2MB.</small>
+                                <small class="text-muted mt-2 d-block">Profile picture feature coming soon</small>
                             </div>
                         </div>
                     </div>
@@ -176,11 +153,11 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form>
+                                <form id="passwordForm">
                                     <div class="mb-3">
                                         <label for="currentPassword" class="form-label fw-bold">Current Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="currentPassword">
+                                            <input type="password" class="form-control" id="currentPassword" required>
                                             <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -189,7 +166,7 @@
                                     <div class="mb-3">
                                         <label for="newPassword" class="form-label fw-bold">New Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="newPassword">
+                                            <input type="password" class="form-control" id="newPassword" required>
                                             <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -198,17 +175,17 @@
                                     <div class="mb-3">
                                         <label for="confirmPassword" class="form-label fw-bold">Confirm New Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="confirmPassword">
+                                            <input type="password" class="form-control" id="confirmPassword" required>
                                             <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-warning">
+                                        <button type="submit" class="btn btn-warning" id="updatePasswordBtn">
                                             <i class="fas fa-key me-2"></i>Update Password
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary">
+                                        <button type="button" class="btn btn-outline-secondary" id="resetPasswordBtn">
                                             <i class="fas fa-undo me-2"></i>Cancel
                                         </button>
                                     </div>
@@ -225,235 +202,24 @@
                                         <i class="fas fa-lock"></i>
                                     </div>
                                     <div>
-                                        <h3 class="card-header-title">Two-Factor Authentication</h3>
-                                        <p class="card-header-subtitle">Add extra security</p>
+                                        <h3 class="card-header-title">Email Settings</h3>
+                                        <p class="card-header-subtitle">Update your email username</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="text-center mb-3">
-                                    <i class="fas fa-mobile-alt fa-3x text-info"></i>
-                                </div>
-                                <p class="text-center">Enable two-factor authentication for enhanced security</p>
-                                <div class="d-grid">
-                                    <button class="btn btn-info">
-                                        <i class="fas fa-plus me-2"></i>Enable 2FA
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notifications Tab -->
-            <div class="tab-pane fade" id="notifications" role="tabpanel">
-                <div class="row">
-                    <div class="col-lg-8 mb-4">
-                        <div class="profile-card">
-                            <div class="card-header-success">
-                                <div class="d-flex align-items-center">
-                                    <div class="card-header-icon">
-                                        <i class="fas fa-bell"></i>
+                                <form id="emailForm">
+                                    <div class="mb-3">
+                                        <label for="emailUsername" class="form-label fw-bold">Email Username</label>
+                                        <input type="text" class="form-control" id="emailUsername" value="@Model.Username" required>
+                                        <small class="text-muted">This will change your email address</small>
                                     </div>
-                                    <div>
-                                        <h3 class="card-header-title">Notification Preferences</h3>
-                                        <p class="card-header-subtitle">Choose what notifications you want to receive</p>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-info" id="updateEmailBtn">
+                                            <i class="fas fa-envelope me-2"></i>Update Email
+                                        </button>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                    <label class="form-check-label fw-bold" for="emailNotifications">
-                                        Email Notifications
-                                    </label>
-                                    <p class="text-muted small">Receive notifications via email</p>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="smsNotifications">
-                                    <label class="form-check-label fw-bold" for="smsNotifications">
-                                        SMS Notifications
-                                    </label>
-                                    <p class="text-muted small">Receive notifications via SMS</p>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
-                                    <label class="form-check-label fw-bold" for="pushNotifications">
-                                        Push Notifications
-                                    </label>
-                                    <p class="text-muted small">Receive push notifications in browser</p>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="leadNotifications" checked>
-                                    <label class="form-check-label fw-bold" for="leadNotifications">
-                                        Lead Notifications
-                                    </label>
-                                    <p class="text-muted small">Get notified about new leads</p>
-                                </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="taskNotifications" checked>
-                                    <label class="form-check-label fw-bold" for="taskNotifications">
-                                        Task Notifications
-                                    </label>
-                                    <p class="text-muted small">Get notified about task updates</p>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-success">
-                                        <i class="fas fa-save me-2"></i>Save Preferences
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary">
-                                        <i class="fas fa-undo me-2"></i>Reset to Default
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 mb-4">
-                        <div class="profile-card">
-                            <div class="card-header-secondary">
-                                <div class="d-flex align-items-center">
-                                    <div class="card-header-icon">
-                                        <i class="fas fa-cog"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-header-title">Notification Settings</h3>
-                                        <p class="card-header-subtitle">Advanced options</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="notificationFrequency" class="form-label fw-bold">Frequency</label>
-                                    <select class="form-select" id="notificationFrequency">
-                                        <option value="immediate">Immediate</option>
-                                        <option value="hourly">Hourly</option>
-                                        <option value="daily" selected>Daily</option>
-                                        <option value="weekly">Weekly</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="quietHours" class="form-label fw-bold">Quiet Hours</label>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <input type="time" class="form-control" id="quietStart" value="22:00">
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="time" class="form-control" id="quietEnd" value="08:00">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-secondary">
-                                        <i class="fas fa-cog me-2"></i>Apply Settings
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preferences Tab -->
-            <div class="tab-pane fade" id="preferences" role="tabpanel">
-                <div class="row">
-                    <div class="col-lg-8 mb-4">
-                        <div class="profile-card">
-                            <div class="card-header-primary">
-                                <div class="d-flex align-items-center">
-                                    <div class="card-header-icon">
-                                        <i class="fas fa-sliders-h"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-header-title">General Preferences</h3>
-                                        <p class="card-header-subtitle">Customize your experience</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="language" class="form-label fw-bold">Language</label>
-                                        <select class="form-select" id="language">
-                                            <option value="en" selected>English</option>
-                                            <option value="ar">العربية</option>
-                                            <option value="fr">Français</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="timezone" class="form-label fw-bold">Timezone</label>
-                                        <select class="form-select" id="timezone">
-                                            <option value="UTC+2" selected>Cairo (UTC+2)</option>
-                                            <option value="UTC+0">London (UTC+0)</option>
-                                            <option value="UTC-5">New York (UTC-5)</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="dateFormat" class="form-label fw-bold">Date Format</label>
-                                        <select class="form-select" id="dateFormat">
-                                            <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="currency" class="form-label fw-bold">Currency</label>
-                                        <select class="form-select" id="currency">
-                                            <option value="EGP" selected>Egyptian Pound (EGP)</option>
-                                            <option value="USD">US Dollar (USD)</option>
-                                            <option value="EUR">Euro (EUR)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Save Preferences
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary">
-                                        <i class="fas fa-undo me-2"></i>Reset
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 mb-4">
-                        <div class="profile-card">
-                            <div class="card-header-warning">
-                                <div class="d-flex align-items-center">
-                                    <div class="card-header-icon">
-                                        <i class="fas fa-palette"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-header-title">Theme Settings</h3>
-                                        <p class="card-header-subtitle">Customize appearance</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Color Theme</label>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-outline-primary active">Light</button>
-                                        <button class="btn btn-outline-dark">Dark</button>
-                                        <button class="btn btn-outline-info">Auto</button>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Accent Color</label>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm">Blue</button>
-                                        <button class="btn btn-success btn-sm">Green</button>
-                                        <button class="btn btn-warning btn-sm">Orange</button>
-                                        <button class="btn btn-danger btn-sm">Red</button>
-                                    </div>
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-warning">
-                                        <i class="fas fa-palette me-2"></i>Apply Theme
-                                    </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -506,4 +272,123 @@ document.getElementById('toggleConfirmPassword').addEventListener('click', funct
         icon.classList.add('fa-eye');
     }
 });
+
+// Profile form submission
+$document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('fullName').value;
+    
+    fetch('@Url.Action("UpdateProfile", "Settings")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: `fullName=${encodeURIComponent(fullName)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        showAlert('danger', 'Error updating profile');
+    });
+});
+
+<script src="~/js/Settings/PasswordValidation.js"></script>
+
+// Password form submission
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (newPassword !== confirmPassword) {
+        showAlert('danger', 'New passwords do not match');
+        return;
+    }
+    
+    if (!validatePassword(newPassword)) {
+        showAlert('danger', 'Password must be at least 8 characters with 1 number, 1 uppercase, 1 lowercase, and 1 special character.');
+        return;
+    }
+    
+    fetch('@Url.Action("UpdatePassword", "Settings")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: `currentPassword=${encodeURIComponent(currentPassword)}&newPassword=${encodeURIComponent(newPassword)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            document.getElementById('passwordForm').reset();
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        showAlert('danger', 'Error updating password');
+    });
+});
+
+// Email form submission
+document.getElementById('emailForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('emailUsername').value;
+    
+    fetch('@Url.Action("UpdateEmail", "Settings")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        },
+        body: `username=${encodeURIComponent(username)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        showAlert('danger', 'Error updating email');
+    });
+});
+
+// Reset buttons
+document.getElementById('resetProfileBtn').addEventListener('click', function() {
+    document.getElementById('profileForm').reset();
+});
+
+document.getElementById('resetPasswordBtn').addEventListener('click', function() {
+    document.getElementById('passwordForm').reset();
+});
+
+// Show alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.profile-container .container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
 </script>

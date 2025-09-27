@@ -160,44 +160,82 @@ namespace FGI.Services
 
         public async Task<object> GetUnitsForSelectAsync(int projectId, string term)
         {
-            IEnumerable<Unit> units;
+            try
+            {
+                _logger.LogInformation("GetUnitsForSelectAsync called with projectId: {ProjectId}, term: {Term}", projectId, term);
+                
+                var query = _context.Units
+                    .Include(u => u.Project)
+                    .Include(u => u.Owner)
+                    .AsQueryable();
 
-            if (projectId > 0)
-            {
-                units = await GetUnitsByProjectIdAsync(projectId);
-            }
-            else
-            {
-                units = await GetAvailableUnitsAsync();
-            }
-
-            if (!string.IsNullOrWhiteSpace(term))
-            {
-                term = term.Trim();
-                units = units.Where(u =>
-                    (!string.IsNullOrWhiteSpace(u.UnitCode) && u.UnitCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace(u.Location) && u.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(term, StringComparison.OrdinalIgnoreCase))
-                ).ToList();
-            }
-
-            var results = units.OrderBy(u => u.UnitCode).Select(u => new
-            {
-                id = u.Id,
-                text = $"{(string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode)} - {(string.IsNullOrWhiteSpace(u.Location) ? "NA" : u.Location)}",
-                disabled = !u.IsAvailable,
-                projectId = u.ProjectId,
-                unit = new
+                if (projectId > 0)
                 {
-                    UnitCode = string.IsNullOrWhiteSpace(u.UnitCode) ? "NA" : u.UnitCode,
-                    UnitType = u.Type,
-                    UnitSaleType = u.UnitType,
-                    Price = u.Price,
-                    Area = u.Area
+                    query = query.Where(u => u.ProjectId == projectId);
+                    _logger.LogInformation("Filtering by projectId: {ProjectId}", projectId);
                 }
-            }).ToList();
+                else
+                {
+                    query = query.Where(u => u.IsAvailable);
+                    _logger.LogInformation("Filtering by available units only");
+                }
 
-            return results;
+                if (!string.IsNullOrWhiteSpace(term))
+                {
+                    term = term.Trim();
+                    _logger.LogInformation("Searching with term: {Term}", term);
+                    query = query.Where(u =>
+                        (!string.IsNullOrWhiteSpace(u.UnitCode) && u.UnitCode.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(u.Location) && u.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Price.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Area.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Bedrooms.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Bathrooms.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Type.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.UnitType.ToString().Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Owner != null && !string.IsNullOrWhiteSpace(u.Owner.Phone) && u.Owner.Phone.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (u.Owner != null && !string.IsNullOrWhiteSpace(u.Owner.Name) && u.Owner.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                    );
+                }
+
+                var units = await query.OrderBy(u => u.UnitCode).ToListAsync();
+                _logger.LogInformation("Found {Count} units", units.Count);
+
+                var results = units.Select(u => new
+                {
+                    id = u.Id,
+                    text = $"{u.UnitCode ?? "NA"} - {u.Owner?.Name ?? "No Owner"} - {u.Price:C0} - {u.Area}m² - {u.Type}",
+                    disabled = !u.IsAvailable,
+                    projectId = u.ProjectId,
+                    unit = new
+                    {
+                        Id = u.Id,
+                        UnitCode = u.UnitCode ?? "NA",
+                        Location = u.Location ?? "NA",
+                        Description = u.Description ?? "NA",
+                        Type = u.Type.ToString(),
+                        UnitSaleType = u.UnitType.ToString(),
+                        Price = u.Price,
+                        Area = u.Area,
+                        Bedrooms = u.Bedrooms,
+                        Bathrooms = u.Bathrooms,
+                        OwnerName = u.Owner?.Name ?? "No Owner",
+                        OwnerPhone = u.Owner?.Phone ?? "N/A",
+                        OwnerEmail = u.Owner?.Email ?? "N/A",
+                        IsAvailable = u.IsAvailable,
+                        ProjectName = u.Project?.Name ?? "N/A"
+                    }
+                }).ToList();
+
+                _logger.LogInformation("Returning {Count} results", results.Count);
+                return results;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetUnitsForSelectAsync: {Error}", ex.Message);
+                throw;
+            }
         }
 
         public async Task<List<Unit>> GetFilteredUnitsAsync(UnitType? type, int? projectId, decimal? minPrice, decimal? maxPrice, int? bedrooms, bool? isAvailable, decimal? minArea, int? bathrooms, UnitSaleType? saleType, string searchTerm)
@@ -263,6 +301,101 @@ namespace FGI.Services
                 .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<List<Unit>> SearchUnitsAsync(string query, int limit, int projectId = 0)
+        {
+            try
+            {
+                _logger.LogInformation("Searching units with query: '{Query}', limit: {Limit}", query, limit);
+
+                // First check total available units
+                var totalAvailable = await _context.Units.CountAsync(u => u.IsAvailable);
+                _logger.LogInformation("Total available units in database: {Count}", totalAvailable);
+
+                var searchQuery = _context.Units
+                    .Include(u => u.Owner)
+                    .Include(u => u.Project)
+                    .Where(u => u.IsAvailable)
+                    .AsQueryable();
+
+                // Filter by project if specified
+                if (projectId > 0)
+                {
+                    searchQuery = searchQuery.Where(u => u.ProjectId == projectId);
+                    _logger.LogInformation("Filtering units by project ID: {ProjectId}", projectId);
+                }
+
+                if (!string.IsNullOrWhiteSpace(query))
+                {
+                    var normalizedQuery = query.Trim().ToLower();
+                    _logger.LogInformation("Normalized query: '{Query}'", normalizedQuery);
+                    
+                    try
+                    {
+                        // Convert to list first to enable client-side evaluation
+                        var allUnits = await searchQuery.ToListAsync();
+                        _logger.LogInformation("Retrieved {Count} units from database", allUnits.Count);
+                        
+                        // Apply search filter on client side
+                        var filteredUnits = allUnits.Where(u =>
+                            (u.Price.ToString().Contains(normalizedQuery)) ||
+                            (u.Area.ToString().Contains(normalizedQuery)) ||
+                            (u.Bedrooms.ToString().Contains(normalizedQuery)) ||
+                            (u.Type.ToString().ToLower().Contains(normalizedQuery)) ||
+                            (u.UnitType.ToString().ToLower().Contains(normalizedQuery)) ||
+                            (!string.IsNullOrWhiteSpace(u.Location) && u.Location.ToLower().Contains(normalizedQuery)) ||
+                            (!string.IsNullOrWhiteSpace(u.Description) && u.Description.ToLower().Contains(normalizedQuery)) ||
+                            (u.Owner != null && !string.IsNullOrWhiteSpace(u.Owner.Name) && u.Owner.Name.ToLower().Contains(normalizedQuery)) ||
+                            (u.Owner != null && !string.IsNullOrWhiteSpace(u.Owner.Phone) && u.Owner.Phone.Contains(normalizedQuery))
+                        ).ToList();
+                        
+                        _logger.LogInformation("Applied client-side filter, found {Count} matching units", filteredUnits.Count);
+                        
+                        // Update searchQuery to use filtered results
+                        searchQuery = filteredUnits.AsQueryable();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error applying search filter: {Error}", ex.Message);
+                        throw;
+                    }
+                }
+
+                _logger.LogInformation("Executing final query...");
+                List<Unit> results;
+                try
+                {
+                    results = searchQuery
+                        .OrderBy(u => u.UnitCode)
+                        .Take(limit)
+                        .ToList();
+                    _logger.LogInformation("Query executed successfully");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error executing search query: {Error}", ex.Message);
+                    throw;
+                }
+
+                _logger.LogInformation("Found {Count} units matching query", results.Count);
+                
+                // Log first few results for debugging
+                if (results.Any())
+                {
+                    var firstResult = results.First();
+                    _logger.LogInformation("First result: ID={Id}, UnitCode={UnitCode}, Owner={OwnerName}", 
+                        firstResult.Id, firstResult.UnitCode, firstResult.Owner?.Name);
+                }
+                
+                return results;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching units: {Error}", ex.Message);
+                throw;
+            }
+        }
+
 
         public async Task<byte[]> ExportUnitsToCsvAsync(List<Unit> units)
         {

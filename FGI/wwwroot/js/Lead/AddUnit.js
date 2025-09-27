@@ -44,7 +44,7 @@ $(document).ready(function() {
 
         // AJAX call to search for unit
         $.ajax({
-            url: '/Sales/AvailableUnits',
+            url: '/Lead/MyUnits',
             type: 'GET',
             data: { 
                 term: searchTerm,
@@ -184,13 +184,17 @@ $(document).ready(function() {
         const email = $('#newOwnerEmail').val().trim();
 
         if (!name) {
-            alert('Owner name is required');
+            if (window.toastNotification) {
+                window.toastNotification.warning('Owner name is required');
+            } else {
+                alert('Owner name is required');
+            }
             return;
         }
 
         // AJAX call to save new owner
         $.ajax({
-            url: '/Sales/AddOwnerAjax',
+            url: '/Lead/AddOwnerAjax',
             type: 'POST',
             data: {
                 name: name,
@@ -215,12 +219,24 @@ $(document).ready(function() {
                             $ownerDropdown.val(response.ownerId);
                         }
                     }
+
+                    if (window.toastNotification) {
+                        window.toastNotification.success('Owner added successfully');
+                    }
                 } else {
-                    alert(response.message || 'Error saving owner');
+                    if (window.toastNotification) {
+                        window.toastNotification.error(response.message || 'Error saving owner');
+                    } else {
+                        alert(response.message || 'Error saving owner');
+                    }
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error saving owner: ' + error);
+                if (window.toastNotification) {
+                    window.toastNotification.error('Error saving owner: ' + error);
+                } else {
+                    alert('Error saving owner: ' + error);
+                }
             }
         });
     });
@@ -228,13 +244,17 @@ $(document).ready(function() {
     function searchOwner() {
         const searchTerm = $('#ownerSearch').val().trim();
         if (!searchTerm) {
-            alert('Please enter search term');
+            if (window.toastNotification) {
+                window.toastNotification.warning('Please enter search term');
+            } else {
+                alert('Please enter search term');
+            }
             return;
         }
 
         // AJAX call to search for owner
         $.ajax({
-            url: '/Sales/SearchOwner',
+            url: '/Lead/SearchOwner',
             type: 'GET',
             data: { term: searchTerm },
             success: function(response) {
@@ -259,7 +279,11 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error searching for owner: ' + error);
+                if (window.toastNotification) {
+                    window.toastNotification.error('Error searching for owner: ' + error);
+                } else {
+                    alert('Error searching for owner: ' + error);
+                }
             }
         });
     }

@@ -11,24 +11,6 @@
             </h6>
         </div>
         <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            }
 
             <form asp-action="AddUnit" method="post" id="unitForm">
                 @Html.AntiForgeryToken()
@@ -257,10 +239,21 @@
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
     <link rel="stylesheet" href="~/css/Sales/AddUnit.css" asp-append-version="true">
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
     <script src="~/js/Sales/AddUnit.js" asp-append-version="true"></script>
+    <script>
+        // Override form submission to use toast notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('unitForm');
+            if (form) {
+                submitFormWithToast(form, '@Url.Action("AddUnit", "Sales")', 'Unit added successfully!', 'Error adding unit');
+            }
+        });
+    </script>
 }

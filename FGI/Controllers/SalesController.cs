@@ -66,33 +66,99 @@ namespace FGI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUnit(Unit unit)
         {
-            if (!ModelState.IsValid)
-            {
-                await LoadProjects();
-                return View(unit);
-            }
-
             try
             {
                 var userId = GetCurrentUserId();
-                if (userId == null) return Forbid();
+                if (userId == null) return Json(new { success = false, message = "User not authenticated" });
 
-                // Remove the owner existence check since we're allowing selection of existing owners
+                // Check if unit code already exists in the same project
+                if (!string.IsNullOrWhiteSpace(unit.UnitCode) && unit.ProjectId.HasValue)
+                {
+                    var existingUnit = await _context.Units
+                        .FirstOrDefaultAsync(u => u.UnitCode == unit.UnitCode && u.ProjectId == unit.ProjectId);
+                    
+                    if (existingUnit != null)
+                    {
+                        return Json(new { 
+                            success = false, 
+                            message = $"Unit code '{unit.UnitCode}' already exists in this project. Please choose a different unit code." 
+                        });
+                    }
+                }
+
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(unit.Location))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Location is required. Please enter the unit location." 
+                    });
+                }
+
+                if (unit.Price <= 0)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Price must be greater than 0. Please enter a valid price." 
+                    });
+                }
+
+                if (unit.Area <= 0)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Area must be greater than 0. Please enter a valid area." 
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    
+                    return Json(new { 
+                        success = false, 
+                        message = "Validation failed", 
+                        errors = errors 
+                    });
+                }
+
+                // Set creation details
                 unit.CreatedById = userId.Value;
                 unit.CreatedAt = DateTime.Now;
                 unit.IsAvailable = true;
 
                 await _unitService.AddUnitAsync(unit);
 
-                TempData["SuccessMessage"] = "Unit added successfully";
-                return RedirectToAction(nameof(MyUnits));
+                return Json(new { success = true, message = "Unit added successfully!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding unit");
-                TempData["ErrorMessage"] = "Error adding unit. Please try again.";
-                await LoadProjects();
-                return View(unit);
+                _logger.LogError(ex, "Error adding unit: {Error}", ex.Message);
+                
+                // Provide more specific error messages
+                if (ex.Message.Contains("duplicate"))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "This unit already exists. Please check the unit code and project." 
+                    });
+                }
+                
+                if (ex.Message.Contains("constraint"))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Invalid data provided. Please check all fields and try again." 
+                    });
+                }
+
+                return Json(new { 
+                    success = false, 
+                    message = "An unexpected error occurred while adding the unit. Please try again or contact support if the problem persists." 
+                });
             }
         }
         [HttpGet]

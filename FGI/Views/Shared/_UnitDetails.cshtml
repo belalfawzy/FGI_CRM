@@ -1,0 +1,105 @@
+@model dynamic
+
+<div class="unit-details-card">
+    <div class="card border-left-primary shadow h-100">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Unit Details
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="unit-detail-item">
+                                <strong>Unit Code:</strong> <span id="unitCode">@(Model?.UnitCode ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Location:</strong> <span id="unitLocation">@(Model?.Location ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Type:</strong> <span id="unitType">@(Model?.Type ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Sale Type:</strong> <span id="unitSaleType">@(Model?.UnitSaleType ?? "N/A")</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="unit-detail-item">
+                                <strong>Price:</strong> <span id="unitPrice" class="text-success">@(Model?.Price?.ToString("C0") ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Area:</strong> <span id="unitArea">@(Model?.Area?.ToString() ?? "N/A") m²</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Bedrooms:</strong> <span id="unitBedrooms">@(Model?.Bedrooms ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Bathrooms:</strong> <span id="unitBathrooms">@(Model?.Bathrooms ?? "N/A")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="unit-detail-item">
+                                <strong>Description:</strong> <span id="unitDescription">@(Model?.Description ?? "No description available")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="unit-detail-item">
+                                <strong>Owner Name:</strong> <span id="unitOwnerName">@(Model?.OwnerName ?? "No Owner")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Owner Phone:</strong> <span id="unitOwnerPhone">@(Model?.OwnerPhone ?? "N/A")</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="unit-detail-item">
+                                <strong>Owner Email:</strong> <span id="unitOwnerEmail">@(Model?.OwnerEmail ?? "N/A")</span>
+                            </div>
+                            <div class="unit-detail-item">
+                                <strong>Project:</strong> <span id="unitProjectName">@(Model?.ProjectName ?? "N/A")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-home fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.unit-details-card {
+    margin-top: 15px;
+}
+
+.unit-detail-item {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.unit-detail-item strong {
+    color: #4a4a4a;
+    font-weight: 600;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+</style>

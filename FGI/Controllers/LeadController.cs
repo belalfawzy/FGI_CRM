@@ -45,19 +45,58 @@ namespace FGI.Controllers
         }
 
         /* for choose unitCode */
-        [HttpGet("Lead/GetUnits")]
+        [HttpGet]
+        [Route("Lead/GetUnits")]
         public async Task<IActionResult> GetUnits(int projectId = 0, string term = "")
         {
             try
             {
+                _logger.LogInformation("GetUnits called with projectId: {ProjectId}, term: {Term}", projectId, term);
                 var results = await _unitService.GetUnitsForSelectAsync(projectId, term);
+                _logger.LogInformation("GetUnits returned {Count} results", ((IEnumerable<object>)results)?.Count() ?? 0);
                 return Json(results);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error searching units");
+                _logger.LogError(ex, "Error searching units: {Error}", ex.Message);
                 return Json(new List<object>());
             }
+        }
+
+        /* Test endpoint for debugging */
+        [HttpGet]
+        [Route("Lead/TestUnits")]
+        public async Task<IActionResult> TestUnits()
+        {
+            try
+            {
+                var results = await _unitService.GetUnitsForSelectAsync(0, "");
+                return Json(new { 
+                    success = true, 
+                    count = ((IEnumerable<object>)results)?.Count() ?? 0, 
+                    data = results 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { 
+                    success = false, 
+                    error = ex.Message 
+                });
+            }
+        }
+
+        /* Simple test endpoint without authentication */
+        [HttpGet]
+        [Route("api/test")]
+        [AllowAnonymous]
+        public IActionResult SimpleTest()
+        {
+            return Json(new { 
+                success = true, 
+                message = "API is working",
+                timestamp = DateTime.Now
+            });
         }
         /*-----------------------------------------------------------------------*/
         [HttpGet]
@@ -125,6 +164,11 @@ namespace FGI.Controllers
         {
             try
             {
+                _logger.LogInformation("Creating lead for client: {ClientName}, phone: {ClientPhone}", 
+                    lead.ClientName, lead.ClientPhone);
+                
+                var isAjaxRequest = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+                _logger.LogInformation("Is AJAX request: {IsAjax}", isAjaxRequest);
                 // Normalize phone number for checking
                 var normalizedPhone = _helperService.NormalizePhoneNumber(lead.ClientPhone);
 
@@ -194,16 +238,20 @@ namespace FGI.Controllers
                 _context.Leads.Add(lead);
                 await _context.SaveChangesAsync();
 
+                _logger.LogInformation("Lead created successfully with ID: {LeadId}", lead.Id);
+
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new
+                    var response = new
                     {
                         success = true,
                         message = string.IsNullOrEmpty(duplicateWarning)
                             ? "Lead saved successfully!"
                             : $"Lead saved successfully! {duplicateWarning}",
-                        redirect = Url.Action("Details", new { id = lead.Id })
-                    });
+                        leadId = lead.Id
+                    };
+                    _logger.LogInformation("Returning AJAX response: {Response}", response);
+                    return Json(response);
                 }
 
                 TempData["Success"] = "Lead saved successfully!";
@@ -323,33 +371,99 @@ namespace FGI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUnit(Unit unit)
         {
-            if (!ModelState.IsValid)
-            {
-                await LoadProjects();
-                return View(unit);
-            }
-
             try
             {
                 var userId = GetCurrentUserId();
-                if (userId == null) return Forbid();
+                if (userId == null) return Json(new { success = false, message = "User not authenticated" });
 
-                // Remove the owner existence check since we're allowing selection of existing owners
+                // Check if unit code already exists in the same project
+                if (!string.IsNullOrWhiteSpace(unit.UnitCode) && unit.ProjectId.HasValue)
+                {
+                    var existingUnit = await _context.Units
+                        .FirstOrDefaultAsync(u => u.UnitCode == unit.UnitCode && u.ProjectId == unit.ProjectId);
+                    
+                    if (existingUnit != null)
+                    {
+                        return Json(new { 
+                            success = false, 
+                            message = $"Unit code '{unit.UnitCode}' already exists in this project. Please choose a different unit code." 
+                        });
+                    }
+                }
+
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(unit.Location))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Location is required. Please enter the unit location." 
+                    });
+                }
+
+                if (unit.Price <= 0)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Price must be greater than 0. Please enter a valid price." 
+                    });
+                }
+
+                if (unit.Area <= 0)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Area must be greater than 0. Please enter a valid area." 
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    
+                    return Json(new { 
+                        success = false, 
+                        message = "Validation failed", 
+                        errors = errors 
+                    });
+                }
+
+                // Set creation details
                 unit.CreatedById = userId.Value;
                 unit.CreatedAt = DateTime.Now;
                 unit.IsAvailable = true;
 
                 await _unitService.AddUnitAsync(unit);
 
-                TempData["SuccessMessage"] = "Unit added successfully";
-                return RedirectToAction(nameof(MyUnits));
+                return Json(new { success = true, message = "Unit added successfully!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding unit");
-                TempData["ErrorMessage"] = "Error adding unit. Please try again.";
-                await LoadProjects();
-                return View(unit);
+                _logger.LogError(ex, "Error adding unit: {Error}", ex.Message);
+                
+                // Provide more specific error messages
+                if (ex.Message.Contains("duplicate"))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "This unit already exists. Please check the unit code and project." 
+                    });
+                }
+                
+                if (ex.Message.Contains("constraint"))
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Invalid data provided. Please check all fields and try again." 
+                    });
+                }
+
+                return Json(new { 
+                    success = false, 
+                    message = "An unexpected error occurred while adding the unit. Please try again or contact support if the problem persists." 
+                });
             }
         }
 

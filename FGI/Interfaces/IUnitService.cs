@@ -17,5 +17,6 @@ namespace FGI.Interfaces
         Task<List<Unit>> GetFilteredUnitsAsync(UnitType? type, int? projectId, decimal? minPrice, decimal? maxPrice, int? bedrooms, bool? isAvailable, decimal? minArea, int? bathrooms, UnitSaleType? saleType, string searchTerm);
         Task<List<Unit>> GetAllUnitsAsync();
         Task<byte[]> ExportUnitsToCsvAsync(List<Unit> units);
+        Task<List<Unit>> SearchUnitsAsync(string query, int limit, int projectId = 0);
     }
 }

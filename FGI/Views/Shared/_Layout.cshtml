@@ -33,19 +33,49 @@
             justify-content: space-between !important;
         }
         
-        .navbar .navbar-nav {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
+        /* Mobile responsive navbar */
+        @@media (max-width: 991.98px) {
+            .navbar .navbar-nav {
+                display: none !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                margin-top: 1rem !important;
+            }
+            
+            .navbar .navbar-nav.show {
+                display: flex !important;
+            }
+            
+            .navbar .nav-item {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .navbar .nav-link {
+                display: flex !important;
+                align-items: center !important;
+                padding: 0.75rem 1rem !important;
+                border-radius: 8px !important;
+                background-color: rgba(255, 255, 255, 0.1) !important;
+            }
         }
         
-        .navbar .nav-item {
-            display: block !important;
-        }
-        
-        .navbar .nav-link {
-            display: flex !important;
-            align-items: center !important;
+        @@media (min-width: 992px) {
+            .navbar .navbar-nav {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+            
+            .navbar .nav-item {
+                display: block !important;
+            }
+            
+            .navbar .nav-link {
+                display: flex !important;
+                align-items: center !important;
+            }
         }
         
         .navbar .navbar-collapse {
@@ -53,6 +83,30 @@
             flex-basis: auto !important;
             flex-grow: 1 !important;
             align-items: center !important;
+        }
+        
+        /* Mobile menu animation */
+        @@media (max-width: 991.98px) {
+            .navbar-collapse {
+                transition: all 0.3s ease-in-out !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            .navbar-collapse.show {
+                max-height: 500px !important;
+            }
+            
+            .navbar-nav {
+                transition: all 0.3s ease-in-out !important;
+                opacity: 0 !important;
+                transform: translateY(-10px) !important;
+            }
+            
+            .navbar-nav.show {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
         }
     </style>
     
@@ -273,31 +327,49 @@
     <!-- Custom JS -->
     <script src="~/js/shared/layout.js" asp-append-version="true"></script>
     
-    <!-- Minimal Navbar Protection Script -->
+    <!-- Enhanced Navbar Script -->
     <script>
-        // Ensure navbar is visible with local TailwindCSS
         document.addEventListener('DOMContentLoaded', function() {
-            function ensureNavbarVisible() {
-                const navbar = document.querySelector('.navbar');
-                const navbarNav = document.querySelector('.navbar .navbar-nav');
-                const navbarCollapse = document.querySelector('.navbar .navbar-collapse');
-                
-                if (navbar && navbar.style.display === 'none') {
-                    navbar.style.display = 'flex';
-                }
-                
-                if (navbarNav && navbarNav.style.display === 'none') {
-                    navbarNav.style.display = 'flex';
-                }
-                
-                if (navbarCollapse && navbarCollapse.style.display === 'none') {
-                    navbarCollapse.style.display = 'flex';
-                }
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            const navbarNav = document.querySelector('.navbar-nav');
+            
+            // Handle navbar toggle
+            if (navbarToggler && navbarCollapse) {
+                navbarToggler.addEventListener('click', function() {
+                    navbarCollapse.classList.toggle('show');
+                    navbarNav.classList.toggle('show');
+                });
             }
             
-            // Run immediately and after a short delay
-            ensureNavbarVisible();
-            setTimeout(ensureNavbarVisible, 100);
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 991.98) {
+                    if (!navbarToggler.contains(event.target) && !navbarCollapse.contains(event.target)) {
+                        navbarCollapse.classList.remove('show');
+                        navbarNav.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Close mobile menu when clicking on nav links
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 991.98) {
+                        navbarCollapse.classList.remove('show');
+                        navbarNav.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 991.98) {
+                    navbarCollapse.classList.remove('show');
+                    navbarNav.classList.remove('show');
+                }
+            });
         });
     </script>
     

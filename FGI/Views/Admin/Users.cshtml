@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "User Management";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css">
 }
 
 <div class="container">
@@ -230,3 +231,28 @@
         background-color: rgba(108, 117, 125, 0.1);
     }
 </style>
+
+<script src="~/js/toast-notifications.js"></script>
+<script src="~/js/Admin/Users.js"></script>
+<script>
+$(document).ready(function() {
+    // Show toast notifications for TempData messages
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+        if (window.toastNotification) {
+            window.toastNotification.success('@Html.Raw(TempData["SuccessMessage"])');
+        }
+        </text>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+        if (window.toastNotification) {
+            window.toastNotification.error('@Html.Raw(TempData["ErrorMessage"])');
+        }
+        </text>
+    }
+});
+</script>

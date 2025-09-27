@@ -1,7 +1,6 @@
 ﻿@model Unit
 @{
     ViewData["Title"] = "Add New Unit";
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 }
 
 <div class="container-fluid">
@@ -12,24 +11,6 @@
             </h6>
         </div>
         <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            }
 
             <form asp-action="AddUnit" method="post" id="unitForm">
                 @Html.AntiForgeryToken()
@@ -258,6 +239,7 @@
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
     <style>
         .card {
             border-radius: 0.35rem;
@@ -368,8 +350,15 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
+    <script src="~/js/Admin/AddUnit.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function() {
+            // Override form submission to use toast notifications
+            const form = document.getElementById('unitForm');
+            if (form) {
+                submitFormWithToast(form, '@Url.Action("AddUnit", "Admin")', 'Unit added successfully!', 'Error adding unit');
+            }
 
             // Initialize price per sqm on page load
             $('#Price').trigger('input');
