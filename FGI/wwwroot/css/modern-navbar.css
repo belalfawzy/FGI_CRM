@@ -1,14 +1,11 @@
-/* Modern Navbar Component - Namespaced and Conflict-Free */
-/* This file contains all navbar-related styles with unique class prefixes */
-
+/* Modern Navbar Component - Fixed Color Scheme */
 .modern-nav {
-    /* Base navbar styles */
-    background: var(--bg-gradient);
+    background: var(--primary-600);
     box-shadow: var(--shadow-lg);
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    min-height: 64px;
+    min-height: 70px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -16,6 +13,8 @@
     margin: 0;
     border: none;
     border-radius: 0;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modern-nav-container {
@@ -29,6 +28,7 @@
     margin: 0 auto;
 }
 
+/* Brand Styles */
 .modern-nav-brand {
     display: flex;
     align-items: center;
@@ -41,23 +41,25 @@
     padding: var(--space-2) 0;
 }
 
-.modern-nav-brand:hover {
-    color: var(--text-inverse);
-    text-decoration: none;
-    transform: translateY(-1px);
-}
+    .modern-nav-brand:hover {
+        color: var(--text-inverse);
+        text-decoration: none;
+        transform: translateY(-1px);
+        opacity: 0.9;
+    }
 
-.modern-nav-brand img {
-    height: 40px;
-    width: auto;
-    transition: var(--transition-base);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
+    .modern-nav-brand img {
+        height: 40px;
+        width: auto;
+        transition: var(--transition-base);
+        filter: brightness(0) invert(1);
+    }
 
-.modern-nav-brand:hover img {
-    transform: scale(1.05);
-}
+    .modern-nav-brand:hover img {
+        transform: scale(1.05);
+    }
 
+/* Mobile Toggle */
 .modern-nav-toggler {
     display: none;
     flex-direction: column;
@@ -74,15 +76,15 @@
     margin: 0;
 }
 
-.modern-nav-toggler:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-}
+    .modern-nav-toggler:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
 
-.modern-nav-toggler:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
-    outline-offset: 2px;
-}
+    .modern-nav-toggler:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline-offset: 2px;
+    }
 
 .modern-nav-toggler-icon {
     display: block;
@@ -94,50 +96,52 @@
     position: relative;
 }
 
-.modern-nav-toggler-icon::before,
-.modern-nav-toggler-icon::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: var(--text-inverse);
-    border-radius: var(--radius-full);
-    transition: var(--transition-base);
-}
+    .modern-nav-toggler-icon::before,
+    .modern-nav-toggler-icon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: var(--text-inverse);
+        border-radius: var(--radius-full);
+        transition: var(--transition-base);
+    }
 
-.modern-nav-toggler-icon::before {
-    top: -6px;
-}
+    .modern-nav-toggler-icon::before {
+        top: -6px;
+    }
 
-.modern-nav-toggler-icon::after {
-    top: 6px;
-}
+    .modern-nav-toggler-icon::after {
+        top: 6px;
+    }
 
 .modern-nav-toggler[aria-expanded="true"] .modern-nav-toggler-icon {
     background: transparent;
 }
 
-.modern-nav-toggler[aria-expanded="true"] .modern-nav-toggler-icon::before {
-    transform: rotate(45deg);
-    top: 0;
-}
+    .modern-nav-toggler[aria-expanded="true"] .modern-nav-toggler-icon::before {
+        transform: rotate(45deg);
+        top: 0;
+    }
 
-.modern-nav-toggler[aria-expanded="true"] .modern-nav-toggler-icon::after {
-    transform: rotate(-45deg);
-    top: 0;
-}
+    .modern-nav-toggler[aria-expanded="true"] .modern-nav-toggler-icon::after {
+        transform: rotate(-45deg);
+        top: 0;
+    }
 
+/* Navigation Collapse */
 .modern-nav-collapse {
     display: flex;
     flex-basis: auto;
     flex-grow: 1;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-6);
 }
 
+/* Navigation Lists */
 .modern-nav-nav {
     display: flex;
-    flex-direction: row;
     align-items: center;
     list-style: none;
     margin: 0;
@@ -145,16 +149,29 @@
     gap: var(--space-1);
 }
 
-.modern-nav-nav.me-auto {
-    margin-right: auto;
-    margin-left: 0;
+    .modern-nav-nav.me-auto {
+        margin-right: auto;
+        margin-left: 0;
+    }
+
+    .modern-nav-nav.ms-auto {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+/* Navigation Groups */
+.modern-nav-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    position: relative;
 }
 
-.modern-nav-nav.ms-auto {
-    margin-left: auto;
-    margin-right: 0;
+.modern-nav-group-title {
+    display: none; /* Hidden on desktop */
 }
 
+/* Navigation Items */
 .modern-nav-item {
     display: block;
     margin: 0;
@@ -170,60 +187,67 @@
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     border-radius: var(--radius-lg);
-    transition: var(--transition-base);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     position: relative;
     overflow: hidden;
 }
 
-.modern-nav-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: var(--transition-base);
-    border-radius: var(--radius-lg);
-}
+    .modern-nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: var(--transition-base);
+        border-radius: var(--radius-lg);
+    }
 
-.modern-nav-link:hover::before {
-    opacity: 1;
-}
+    .modern-nav-link:hover::before {
+        opacity: 1;
+    }
 
-.modern-nav-link:hover,
-.modern-nav-link:focus {
-    color: var(--text-inverse);
-    text-decoration: none;
-    transform: translateY(-1px);
-}
+    .modern-nav-link:hover,
+    .modern-nav-link:focus {
+        color: var(--text-inverse);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
 
-.modern-nav-link.active {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-inverse);
-    font-weight: var(--font-semibold);
-}
+    .modern-nav-link.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text-inverse);
+        font-weight: var(--font-semibold);
+    }
 
-.modern-nav-link i {
-    font-size: var(--text-base);
-    transition: var(--transition-base);
-}
+        .modern-nav-link.active::before {
+            opacity: 1;
+        }
 
-.modern-nav-link:hover i {
-    transform: scale(1.1);
-}
+    .modern-nav-link i {
+        font-size: var(--text-lg);
+        transition: var(--transition-base);
+        color: rgba(255, 255, 255, 0.9);
+    }
 
-/* User Dropdown Styles */
+    .modern-nav-link:hover i,
+    .modern-nav-link.active i {
+        color: var(--text-inverse);
+        transform: scale(1.1);
+    }
+
+/* User Dropdown */
 .modern-user-dropdown {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-3);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-xl);
     color: var(--text-inverse);
     text-decoration: none;
     cursor: pointer;
@@ -233,20 +257,20 @@
     font-weight: var(--font-medium);
 }
 
-.modern-user-dropdown:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-inverse);
-    text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
+    .modern-user-dropdown:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-inverse);
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
 
 .modern-user-avatar {
     width: 36px;
     height: 36px;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
-    color: var(--text-inverse);
+    background: linear-gradient(135deg, #ffffff, #e2e8f0);
+    color: var(--primary-600);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -261,21 +285,34 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
+.modern-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
 .modern-user-name {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: var(--font-semibold);
+    color: var(--text-inverse);
+}
+
+.modern-user-role {
+    font-size: var(--text-xs);
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: capitalize;
 }
 
 .modern-dropdown-arrow {
     font-size: var(--text-sm);
     transition: var(--transition-base);
     margin-left: var(--space-1);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .modern-user-dropdown[aria-expanded="true"] .modern-dropdown-arrow {
     transform: rotate(180deg);
+    color: var(--text-inverse);
 }
 
 /* Dropdown Menu */
@@ -285,20 +322,20 @@
     top: 100%;
     right: 0;
     z-index: var(--z-dropdown);
-    min-width: 200px;
+    min-width: 220px;
     padding: var(--space-2) 0;
     margin: var(--space-2) 0 0 0;
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
-    animation: slideIn var(--transition-base) ease-out;
+    animation: slideIn 0.2s ease-out;
     overflow: hidden;
 }
 
-.modern-dropdown-menu.show {
-    display: block;
-}
+    .modern-dropdown-menu.show {
+        display: block;
+    }
 
 .modern-dropdown-item {
     display: flex;
@@ -318,33 +355,39 @@
     position: relative;
 }
 
-.modern-dropdown-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-tertiary);
-    opacity: 0;
-    transition: var(--transition-base);
-}
+    .modern-dropdown-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--bg-tertiary);
+        opacity: 0;
+        transition: var(--transition-base);
+    }
 
-.modern-dropdown-item:hover::before {
-    opacity: 1;
-}
+    .modern-dropdown-item:hover::before {
+        opacity: 1;
+    }
 
-.modern-dropdown-item:hover {
-    color: var(--primary);
-    text-decoration: none;
-}
+    .modern-dropdown-item:hover {
+        color: var(--primary);
+        text-decoration: none;
+    }
 
-.modern-dropdown-item i {
-    color: var(--primary);
-    font-size: var(--text-base);
-    width: 20px;
-    text-align: center;
-}
+    .modern-dropdown-item i {
+        color: var(--text-secondary);
+        font-size: var(--text-base);
+        width: 20px;
+        text-align: center;
+        transition: var(--transition-base);
+    }
+
+    .modern-dropdown-item:hover i {
+        color: var(--primary);
+        transform: scale(1.1);
+    }
 
 .modern-dropdown-divider {
     height: 1px;
@@ -358,63 +401,95 @@
     .modern-nav-toggler {
         display: flex;
     }
-    
+
     .modern-nav-collapse {
         display: none;
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
-        background: var(--bg-gradient);
-        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-        box-shadow: var(--shadow-xl);
+        background: var(--primary-600);
+        border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        box-shadow: var(--shadow-2xl);
         padding: var(--space-4);
         margin: var(--space-2) var(--space-4) 0;
-        animation: slideIn var(--transition-base) ease-out;
+        animation: slideIn 0.3s ease-out;
+        max-height: 80vh;
+        overflow-y: auto;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
     }
-    
-    .modern-nav-collapse.show {
-        display: flex;
+
+        .modern-nav-collapse.show {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--space-4);
+        }
+
+    .modern-nav-nav {
         flex-direction: column;
         align-items: stretch;
         gap: var(--space-2);
     }
-    
-    .modern-nav-nav {
+
+        .modern-nav-nav.me-auto {
+            margin: 0;
+            order: 1;
+        }
+
+        .modern-nav-nav.ms-auto {
+            margin: 0;
+            order: 2;
+        }
+
+    .modern-nav-group {
         flex-direction: column;
-        align-items: stretch;
         gap: var(--space-1);
+        margin-bottom: var(--space-4);
     }
-    
-    .modern-nav-nav.me-auto {
+
+    .modern-nav-group-title {
+        display: block;
+        font-size: var(--text-xs);
+        font-weight: var(--font-bold);
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: var(--space-3) var(--space-4);
         margin: 0;
-        order: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    .modern-nav-nav.ms-auto {
-        margin: 0;
-        order: 2;
-    }
-    
+
     .modern-nav-link {
         justify-content: flex-start;
         padding: var(--space-4);
         font-size: var(--text-base);
         border-radius: var(--radius-lg);
+        margin-left: var(--space-2);
+        color: rgba(255, 255, 255, 0.9);
     }
-    
+
     .modern-user-dropdown {
         justify-content: flex-start;
         padding: var(--space-4);
         width: 100%;
         border-radius: var(--radius-lg);
+        margin-top: var(--space-2);
+        background: rgba(255, 255, 255, 0.1);
     }
-    
+
     .modern-user-name {
         max-width: none;
+        color: var(--text-inverse);
     }
-    
-    /* Mobile dropdown positioning */
+
+    .modern-user-role {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
     .modern-dropdown-menu {
         position: static;
         display: none;
@@ -422,29 +497,28 @@
         margin: var(--space-2) 0 0 0;
         border-radius: var(--radius-lg);
         box-shadow: none;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-light);
+        background: var(--bg-primary);
     }
-    
-    .modern-dropdown-menu.show {
-        display: block;
-    }
+
+        .modern-dropdown-menu.show {
+            display: block;
+        }
 }
 
 @media (max-width: 640px) {
     .modern-nav-container {
         padding: 0 var(--space-3);
     }
-    
+
     .modern-nav-brand {
         font-size: var(--text-lg);
     }
-    
-    .modern-nav-brand img {
-        height: 32px;
-    }
-    
+
+        .modern-nav-brand img {
+            height: 32px;
+        }
+
     .modern-nav-collapse {
         margin: var(--space-1) var(--space-3) 0;
     }
@@ -456,44 +530,64 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* Override any conflicting styles */
-.modern-nav * {
-    box-sizing: border-box;
+/* Active state indicator */
+.modern-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--text-inverse);
+    border-radius: var(--radius-full);
 }
 
-/* Ensure no other CSS affects modern navbar elements */
-.modern-nav,
-.modern-nav *,
-.modern-nav *:before,
-.modern-nav *:after {
-    -webkit-box-sizing: border-box !important;
-    -moz-box-sizing: border-box !important;
-    box-sizing: border-box !important;
+/* Focus states for accessibility */
+.modern-nav-link:focus-visible,
+.modern-user-dropdown:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
 }
 
-/* Force modern navbar to be visible and properly positioned */
-.modern-nav {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0 !important;
-    background: var(--bg-gradient) !important;
-    box-shadow: var(--shadow-lg) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: var(--z-sticky) !important;
-    opacity: 1 !important;
-    min-height: 64px !important;
-    width: 100% !important;
-    border: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
+/* Smooth scrolling for anchor links */
+html {
+    scroll-behavior: smooth;
 }
 
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .modern-nav {
+        background: var(--primary-800);
+        border-bottom: 2px solid var(--text-inverse);
+    }
+
+    .modern-nav-link {
+        border: 1px solid transparent;
+    }
+
+        .modern-nav-link:hover,
+        .modern-nav-link:focus {
+            border-color: var(--text-inverse);
+        }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .modern-nav-link,
+    .modern-user-dropdown,
+    .modern-nav-brand {
+        transition: none;
+    }
+
+    .modern-dropdown-menu {
+        animation: none;
+    }
+}

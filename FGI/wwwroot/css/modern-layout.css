@@ -6,7 +6,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: var(--bg-secondary);
     position: relative;
 }
 
@@ -650,27 +650,55 @@
     line-height: 1;
 }
 
-/* Modern animations and effects */
-.modern-dashboard-card {
-    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.modern-dashboard-card:nth-child(1) { animation-delay: 0.1s; }
-.modern-dashboard-card:nth-child(2) { animation-delay: 0.2s; }
-.modern-dashboard-card:nth-child(3) { animation-delay: 0.3s; }
-.modern-dashboard-card:nth-child(4) { animation-delay: 0.4s; }
-.modern-dashboard-card:nth-child(5) { animation-delay: 0.5s; }
-.modern-dashboard-card:nth-child(6) { animation-delay: 0.6s; }
-.modern-dashboard-card:nth-child(7) { animation-delay: 0.7s; }
-.modern-dashboard-card:nth-child(8) { animation-delay: 0.8s; }
-
+/* Modern animations and effects - General layout animations */
 @keyframes slideInUp {
     to {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Card animations are now handled in home-modern.css for home page only */
+
+/* Enhanced header styles - moved to home-modern.css for home page only */
+
+/* Modern notification badge - moved to home-modern.css for home page only */
+
+/* Additional hover and interaction styles - moved to home-modern.css for home page only */
+
+/* Ripple effect for card clicks */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Typing effect for greeting */
+.typing-effect {
+    border-right: 2px solid var(--text-inverse);
+    animation: blink-caret 1s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--text-inverse); }
+}
+
+/* Animate-in class for intersection observer */
+.animate-in {
+    animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 /* Staggered animation for page header */

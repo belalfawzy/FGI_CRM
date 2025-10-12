@@ -2,7 +2,7 @@
 
 <div class="unit-details-card">
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header" style="background: var(--bg-gradient); color: var(--text-inverse);">
             <h6 class="mb-0">
                 <i class="fas fa-home me-2"></i>
                 Unit Details
@@ -12,54 +12,54 @@
             <div class="row" data-project-id="@(Model.ProjectId ?? 0)">
                 <div class="col-md-6">
                     <div class="unit-detail-item">
-                        <strong>Unit Code:</strong> 
+                        <strong>Unit Code:</strong>
                         <span>@(Model.UnitCode ?? "N/A")</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Location:</strong> 
+                        <strong>Location:</strong>
                         <span>@(Model.Location ?? "N/A")</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Type:</strong> 
+                        <strong>Type:</strong>
                         <span>@Model.Type.ToString()</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Sale Type:</strong> 
+                        <strong>Sale Type:</strong>
                         <span>@Model.UnitType.ToString()</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Project:</strong> 
+                        <strong>Project:</strong>
                         <span>@(Model.Project?.Name ?? "N/A")</span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="unit-detail-item">
-                        <strong>Price:</strong> 
+                        <strong>Price:</strong>
                         <span class="text-success fw-bold">
-                            @Model.Price.ToString("N0") + " " + Model.Currency
+                            @Model.Price.ToString("N0") @Model.Currency
                         </span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Area:</strong> 
+                        <strong>Area:</strong>
                         <span>@(Model.Area > 0 ? Model.Area.ToString() + " m²" : "N/A")</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Bedrooms:</strong> 
+                        <strong>Bedrooms:</strong>
                         <span>@(Model.Bedrooms.ToString())</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Bathrooms:</strong> 
+                        <strong>Bathrooms:</strong>
                         <span>@Model.Bathrooms.ToString()</span>
                     </div>
                     <div class="unit-detail-item">
-                        <strong>Available:</strong> 
+                        <strong>Available:</strong>
                         <span class="badge @(Model.IsAvailable ? "bg-success" : "bg-danger")">
                             @(Model.IsAvailable ? "Yes" : "No")
                         </span>
                     </div>
                 </div>
             </div>
-            
+
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
                 <div class="row mt-3">
@@ -83,19 +83,19 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="unit-detail-item">
-                                    <strong>Name:</strong> 
+                                    <strong>Name:</strong>
                                     <span>@(Model.Owner.Name ?? "N/A")</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="unit-detail-item">
-                                    <strong>Phone:</strong> 
+                                    <strong>Phone:</strong>
                                     <span>@(Model.Owner.Phone ?? "N/A")</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="unit-detail-item">
-                                    <strong>Email:</strong> 
+                                    <strong>Email:</strong>
                                     <span>@(Model.Owner.Email ?? "N/A")</span>
                                 </div>
                             </div>
@@ -108,28 +108,130 @@
 </div>
 
 <style>
-.unit-details-card {
-    margin-top: 15px;
-}
+    .unit-details-card {
+        margin-top: 15px;
+    }
 
-.unit-detail-item {
-    margin-bottom: 8px;
-    padding: 4px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
+    .unit-detail-item {
+        margin-bottom: 8px;
+        padding: 4px 0;
+        border-bottom: 1px solid var(--border-light);
+    }
 
-.unit-detail-item:last-child {
-    border-bottom: none;
-}
+        .unit-detail-item:last-child {
+            border-bottom: none;
+        }
 
-.unit-detail-item strong {
-    color: #495057;
-    font-weight: 600;
-    min-width: 120px;
-    display: inline-block;
-}
+        .unit-detail-item strong {
+            color: var(--text-primary);
+            font-weight: 600;
+            min-width: 120px;
+            display: inline-block;
+        }
 
-.unit-detail-item span {
-    color: #6c757d;
-}
-</style>
+        .unit-detail-item span {
+            color: var(--text-secondary);
+        }
+
+    .card {
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-sm);
+        background: var(--bg-primary);
+        border: 1px solid var(--border-light);
+    }
+
+    .card-header {
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+        .badge.bg-success {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: var(--success);
+        }
+
+        .badge.bg-danger {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            color: var(--error);
+        }
+
+    .text-primary {
+        color: var(--primary) !important;
+    }
+
+    .text-success {
+        color: var(--success) !important;
+    }
+
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+
+    .fw-bold {
+        font-weight: var(--font-semibold) !important;
+    }
+
+    .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .mb-2 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .mt-1 {
+        margin-top: 0.25rem !important;
+    }
+
+    .mt-3 {
+        margin-top: 1rem !important;
+    }
+
+    .me-1 {
+        margin-right: 0.25rem !important;
+    }
+
+    .me-2 {
+        margin-right: 0.5rem !important;
+    }
+
+    .row {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+    }
+
+    .col-md-6, .col-12, .col-md-4 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .card-body
+
+    {
+        padding: 1rem;
+    }
+
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .unit-detail-item strong {
+        min-width: 100px;
+    }
+
+    }</style>

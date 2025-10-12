@@ -6,26 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FGI CRM System</title>
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
-    <!-- Font Awesome (Primary CDN with fallback) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="this.onerror=null;this.href='~/lib/fontawesome/css/all.min.css';">
-
-    <!-- Bootstrap Icons (Primary CDN with fallback) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" onerror="this.onerror=null;this.href='~/lib/bootstrap-icons/css/bootstrap-icons.css';">
-
-    <!-- Boxicons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+    <!-- Boxicons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="~/Images/FGIcon.png" />
+
     <!-- Modern Design System -->
     <link rel="stylesheet" href="~/css/design-system.css" asp-append-version="true">
-    <!-- Modern Layout -->
     <link rel="stylesheet" href="~/css/modern-layout.css" asp-append-version="true">
-    <!-- Modern Navbar -->
     <link rel="stylesheet" href="~/css/modern-navbar.css" asp-append-version="true">
+
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+    {
+        <link rel="stylesheet" href="~/css/home-modern.css" asp-append-version="true">
+    }
 
     @RenderSection("Styles", required: false)
     @RenderSection("Head", required: false)
@@ -34,121 +35,182 @@
     <header class="modern-header">
         <nav class="modern-nav">
             <div class="modern-nav-container">
+                <!-- Brand -->
                 <a class="modern-nav-brand" asp-controller="Home" asp-action="Index">
                     <img src="~/Images/FGIcon32.png" alt="FGI Logo" height="40">
                     <span>FGI CRM</span>
                 </a>
+
+                <!-- Mobile Toggle -->
                 <button class="modern-nav-toggler" type="button" aria-controls="modernNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="modern-nav-toggler-icon"></span>
                 </button>
+
+                <!-- Navigation Content -->
                 <div class="modern-nav-collapse" id="modernNavbarNav">
                     <ul class="modern-nav-nav me-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
                             var role = Context.User.FindFirst(ClaimTypes.Role)?.Value;
 
+                            <!-- Main Navigation -->
+                            <li class="modern-nav-group">
+                                <div class="modern-nav-group-title">Main</div>
                             <li class="modern-nav-item">
                                 <a class="modern-nav-link" asp-controller="Home" asp-action="Index">
-                                    <i class='bx bx-home-alt'></i> Home
+                                    <i class='bx bx-home-alt'></i>
+                                    <span>Dashboard</span>
                                 </a>
+                            </li>
                             </li>
 
                             @if (role == "Admin")
                             {
+                                <!-- Management Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Management</div>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Admin" asp-action="Users">
-                                        <i class='bx bx-user-circle'></i> Users
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Users</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Admin" asp-action="Projects">
-                                        <i class='bx bx-briefcase'></i> Projects
-                                    </a>
-                                </li>
-                                <li class="modern-nav-item">
-                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="Leads">
-                                        <i class='bx bx-group'></i> All Leads
-                                    </a>
-                                </li>
-                                <li class="modern-nav-item">
-                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AddUnit">
-                                        <i class='bx bx-plus-medical'></i> Add Unit
+                                        <i class='bx bx-briefcase'></i>
+                                        <span>Projects</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Admin" asp-action="Tasks">
-                                        <i class='bx bx-task'></i> Tasks
+                                        <i class='bx bx-task'></i>
+                                        <span>Tasks</span>
                                     </a>
                                 </li>
+                                </li>
+
+                                <!-- Leads & Units Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Leads & Units</div>
                                 <li class="modern-nav-item">
-                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AllUnits">
-                                        <i class='bx bx-buildings'></i> All Units
+                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="Leads">
+                                        <i class='bx bx-group'></i>
+                                        <span>All Leads</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Admin" asp-action="MyLeads">
-                                        <i class='bx bx-user-pin'></i> My Leads
+                                        <i class='bx bx-user-pin'></i>
+                                        <span>My Leads</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
-                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AddLead">
-                                        <i class='bx bx-user-plus'></i> New Lead
+                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AllUnits">
+                                        <i class='bx bx-buildings'></i>
+                                        <span>All Units</span>
                                     </a>
+                                </li>
+                                </li>
+
+                                <!-- Actions Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Actions</div>
+                                <li class="modern-nav-item">
+                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AddLead">
+                                        <i class='bx bx-user-plus'></i>
+                                        <span>New Lead</span>
+                                    </a>
+                                </li>
+                                <li class="modern-nav-item">
+                                    <a class="modern-nav-link" asp-controller="Admin" asp-action="AddUnit">
+                                        <i class='bx bx-plus-medical'></i>
+                                        <span>Add Unit</span>
+                                    </a>
+                                </li>
                                 </li>
                             }
                             else if (role == "Marketing")
                             {
+                                <!-- Leads Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Leads</div>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Lead" asp-action="Index">
-                                        <i class='bx bx-group'></i> Leads
+                                        <i class='bx bx-group'></i>
+                                        <span>All Leads</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Lead" asp-action="Create">
-                                        <i class='bx bx-user-plus'></i> New Lead
+                                        <i class='bx bx-user-plus'></i>
+                                        <span>New Lead</span>
                                     </a>
                                 </li>
+                                </li>
+
+                                <!-- Units Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Units</div>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Lead" asp-action="MyUnits">
-                                        <i class='bx bx-home-alt'></i> My Units
+                                        <i class='bx bx-home-alt'></i>
+                                        <span>My Units</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Lead" asp-action="AddUnit">
-                                        <i class='bx bx-plus-medical'></i> Add Unit
+                                        <i class='bx bx-plus-medical'></i>
+                                        <span>Add Unit</span>
                                     </a>
+                                </li>
                                 </li>
                             }
                             else if (role == "Sales")
                             {
+                                <!-- My Work Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">My Work</div>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Sales" asp-action="MyLeads">
-                                        <i class='bx bx-user-pin'></i> My Leads
+                                        <i class='bx bx-user-pin'></i>
+                                        <span>My Leads</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Sales" asp-action="MyTasks">
-                                        <i class='bx bx-task'></i> Tasks
+                                        <i class='bx bx-task'></i>
+                                        <span>Tasks</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Sales" asp-action="MyUnits">
-                                        <i class='bx bx-home-alt'></i> My Units
+                                        <i class='bx bx-home-alt'></i>
+                                        <span>My Units</span>
+                                    </a>
+                                </li>
+                                </li>
+
+                                <!-- Available Section -->
+                                <li class="modern-nav-group">
+                                    <div class="modern-nav-group-title">Available</div>
+                                <li class="modern-nav-item">
+                                    <a class="modern-nav-link" asp-controller="Sales" asp-action="AvailableUnits">
+                                        <i class='bx bx-buildings'></i>
+                                        <span>Our Units</span>
                                     </a>
                                 </li>
                                 <li class="modern-nav-item">
                                     <a class="modern-nav-link" asp-controller="Sales" asp-action="AddUnit">
-                                        <i class='bx bx-plus-medical'></i> Add Unit
+                                        <i class='bx bx-plus-medical'></i>
+                                        <span>Add Unit</span>
                                     </a>
                                 </li>
-                                <li class="modern-nav-item">
-                                    <a class="modern-nav-link" asp-controller="Sales" asp-action="AvailableUnits">
-                                        <i class="bi bi-buildings-fill"></i> Our Units
-                                    </a>
                                 </li>
                             }
                         }
                     </ul>
+
+                    <!-- User Menu -->
                     <ul class="modern-nav-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
@@ -157,17 +219,20 @@
                                     <div class="modern-user-avatar">
                                         @(User.Identity?.Name?[0] ?? 'U')
                                     </div>
-                                    <span class="modern-user-name">@User.Identity.Name</span>
+                                    <div class="modern-user-info">
+                                        <span class="modern-user-name">@User.Identity.Name</span>
+                                        <span class="modern-user-role">@Context.User.FindFirst(ClaimTypes.Role)?.Value</span>
+                                    </div>
                                     <i class='bx bx-chevron-down modern-dropdown-arrow'></i>
                                 </a>
                                 <ul class="modern-dropdown-menu">
-                                    <li><a class="modern-dropdown-item" asp-controller="Profile" asp-action="Index"><i class='bx bx-user'></i> My Profile</a></li>
-                                    <li><a class="modern-dropdown-item" asp-controller="Settings" asp-action="Index"><i class='bx bx-cog'></i> Settings</a></li>
+                                    <li><a class="modern-dropdown-item" asp-controller="Profile" asp-action="Index"><i class='bx bx-user'></i>My Profile</a></li>
+                                    <li><a class="modern-dropdown-item" asp-controller="Settings" asp-action="Index"><i class='bx bx-cog'></i>Settings</a></li>
                                     <li><hr class="modern-dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">
                                             <button type="submit" class="modern-dropdown-item">
-                                                <i class='bx bx-log-out'></i> Logout
+                                                <i class='bx bx-log-out'></i>Logout
                                             </button>
                                         </form>
                                     </li>
@@ -178,7 +243,7 @@
                         {
                             <li class="modern-nav-item">
                                 <a class="modern-nav-link" asp-controller="Account" asp-action="Login">
-                                    <i class='bx bx-log-in'></i> Login
+                                    <i class='bx bx-log-in'></i>Login
                                 </a>
                             </li>
                         }
@@ -200,51 +265,9 @@
         </div>
     </footer>
 
-    <!-- Bootstrap & jQuery JS -->
+    <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Icon Fallback Detection Script -->
-    <script>
-        // Check if FontAwesome loaded properly
-        document.addEventListener('DOMContentLoaded', function() {
-            // Test FontAwesome
-            var testFA = document.createElement('i');
-            testFA.className = 'fas fa-check';
-            testFA.style.position = 'absolute';
-            testFA.style.left = '-9999px';
-            document.body.appendChild(testFA);
-
-            var faComputed = window.getComputedStyle(testFA);
-            if (faComputed.fontFamily.indexOf('Font Awesome') === -1) {
-                console.warn('FontAwesome CDN failed, loading local fallback');
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = '/lib/fontawesome/css/all.min.css';
-                document.head.appendChild(link);
-            }
-            document.body.removeChild(testFA);
-
-            // Test Bootstrap Icons
-            var testBI = document.createElement('i');
-            testBI.className = 'bi bi-check';
-            testBI.style.position = 'absolute';
-            testBI.style.left = '-9999px';
-            document.body.appendChild(testBI);
-
-            var biComputed = window.getComputedStyle(testBI);
-            if (biComputed.fontFamily.indexOf('bootstrap-icons') === -1) {
-                console.warn('Bootstrap Icons CDN failed, loading local fallback');
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = '/lib/bootstrap-icons/css/bootstrap-icons.css';
-                document.head.appendChild(link);
-            }
-            document.body.removeChild(testBI);
-        });
-    </script>
-
-    <!-- Modern Navbar JS -->
     <script src="~/js/modern-navbar.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)

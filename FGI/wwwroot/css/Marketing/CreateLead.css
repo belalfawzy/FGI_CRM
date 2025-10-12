@@ -1,14 +1,14 @@
 ﻿:root {
-    --primary: #4361ee;
-    --primary-light: #eef2ff;
-    --primary-dark: #3b52d4;
-    --success: #10b981;
-    --success-light: #d1fae5;
+    --primary: #0284c7;
+    --primary-light: #e0f2fe;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-light: #dcfce7;
     --info: #06b6d4;
     --info-light: #cffafe;
-    --warning: #f59e0b;
+    --warning: #d97706;
     --warning-light: #fef3c7;
-    --danger: #ef4444;
+    --danger: #dc2626;
     --danger-light: #fee2e2;
     --light: #f8fafc;
     --dark: #1e293b;
@@ -17,6 +17,7 @@
     --border-radius: 12px;
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
 * {
@@ -76,13 +77,16 @@ body {
     }
 
 .btn-primary {
-    background: var(--primary);
+    background: var(--bg-gradient);
     color: white;
+    position: relative;
+    overflow: hidden;
 }
 
     .btn-primary:hover {
-        background: var(--primary-dark);
+        background: linear-gradient(135deg, var(--primary-dark) 0%, #075985 100%);
         transform: translateY(-2px);
+        box-shadow: 0 8px 25px -8px var(--primary);
     }
 
 .btn i {
@@ -96,6 +100,7 @@ body {
     overflow: hidden;
     transition: var(--transition);
     margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
 }
 
     .card:hover {
@@ -104,12 +109,25 @@ body {
     }
 
 .card-header {
-    background: var(--primary);
+    background: var(--bg-gradient);
     color: white;
     padding: 16px 24px;
     font-weight: 600;
     font-size: 18px;
+    position: relative;
+    overflow: hidden;
 }
+
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
 
 .card-body {
     padding: 24px;
@@ -138,12 +156,13 @@ body {
     border-radius: 8px;
     font-size: 14px;
     transition: var(--transition);
+    background: #ffffff;
 }
 
     .form-control:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
     }
 
 .form-text {
@@ -191,6 +210,7 @@ body {
 .unit-details-card {
     border-left: 4px solid var(--primary);
     margin-top: 20px;
+    background: var(--primary-light);
 }
 
 .unit-details-header {
@@ -340,9 +360,20 @@ body {
     cursor: not-allowed;
 }
 
-.form-control:disabled + .form-text {
-    color: #6c757d;
-    font-style: italic;
+    .form-control:disabled + .form-text {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(180deg);
+    }
 }
 
 /* Responsive design */
