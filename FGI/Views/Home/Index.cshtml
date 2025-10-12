@@ -5,110 +5,79 @@
     var salesUnits = ViewBag.SalesUnits as List<Unit>;
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true">
-}
 
-<div class="container py-4">
-    <div class="greeting-card">
-        <div class="greeting-content">
-            <h1 class="display-4 mb-2">@greeting, <span class="fw-bold">@User.Identity?.Name!</span></h1>
-            <p class="lead mb-0">Welcome to FGI CRM System. Here's what you can do today.</p>
-        </div>
+<div class="modern-container">
+    <div class="modern-page-header">
+        <h1 class="modern-page-title">@greeting, <span class="font-bold">@User.Identity?.Name!</span></h1>
+        <p class="modern-page-subtitle">Welcome to FGI CRM System. Here's what you can do today.</p>
     </div>
 
     @if (ViewBag.UserRole == "Admin")
     {
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Users" class="card dashboard-card card-admin text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-users-cog"></i>
-                            <h5 class="card-title">User Management</h5>
-                            <p class="card-text">Manage system users</p>
-                        </div>
-                    </a>
+        <div class="modern-dashboard-grid">
+            <a asp-controller="Admin" asp-action="Users" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-users-cog"></i>
                 </div>
-            </div>
+                <h3 class="modern-dashboard-card-title">User Management</h3>
+                <p class="modern-dashboard-card-description">Manage system users and permissions</p>
+            </a>
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Projects" class="card dashboard-card card-admin text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-building"></i>
-                            <h5 class="card-title">Projects</h5>
-                            <p class="card-text">Manage projects</p>
-                        </div>
-                    </a>
+            <a asp-controller="Admin" asp-action="Projects" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-building"></i>
                 </div>
-            </div>
+                <h3 class="modern-dashboard-card-title">Projects</h3>
+                <p class="modern-dashboard-card-description">Manage projects and properties</p>
+            </a>
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Leads" class="card dashboard-card card-admin text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-user-tie"></i>
-                            <h5 class="card-title">All Leads</h5>
-                            <p class="card-text">Manage all leads</p>
-                        </div>
-                    </a>
+            <a asp-controller="Admin" asp-action="Leads" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-user-tie"></i>
                 </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AddUnit" class="card dashboard-card card-admin text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-square"></i>
-                        <h5 class="card-title">Add Unit</h5>
-                        <p class="card-text">Add new unit to project</p>
-                    </div>
-                </a>
-            </div>
+                <h3 class="modern-dashboard-card-title">All Leads</h3>
+                <p class="modern-dashboard-card-description">Manage all leads across the system</p>
+            </a>
 
-            <div class="col-md-3 mb-4">
-                <div class="position-relative">
-                    <a asp-controller="Admin" asp-action="Tasks" class="card dashboard-card card-admin text-decoration-none">
-                        <div class="card-body">
-                            <i class="fas fa-tasks"></i>
-                            <h5 class="card-title">Tasks</h5>
-                            <p class="card-text">Unassigned leads</p>
-                        </div>
-                        @if (ViewBag.UnassignedLeadsCount > 0)
-                        {
-                            <span class="notification-badge">
-                                @ViewBag.UnassignedLeadsCount
-                            </span>
-                        }
-                    </a>
+            <a asp-controller="Admin" asp-action="AddUnit" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-plus-square"></i>
                 </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AllUnits" class="card dashboard-card card-admin text-decoration-none">
-                    <div class="card-body">
-                        <i class="bi bi-buildings-fill"></i>
-                        <h5 class="card-title">All Units</h5>
-                        <p class="card-text">See all units</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="MyLeads" class="card dashboard-card card-admin text-decoration-none">
-                    <div class="card-body">
-                        <i class="bi bi-person-fill-lock"></i>
-                        <h5 class="card-title">My Leads</h5>
-                        <p class="card-text">View your own leads</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-4">
-                <a asp-controller="Admin" asp-action="AddLead" class="card dashboard-card card-admin text-decoration-none">
-                    <div class="card-body">
-                        <i class="fas fa-plus-circle"></i>
-                        <h5 class="card-title">New Lead</h5>
-                        <p class="card-text">Create new lead</p>
-                    </div>
-                </a>
-            </div>
+                <h3 class="modern-dashboard-card-title">Add Unit</h3>
+                <p class="modern-dashboard-card-description">Add new unit to project</p>
+            </a>
+
+            <a asp-controller="Admin" asp-action="Tasks" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h3 class="modern-dashboard-card-title">Tasks</h3>
+                <p class="modern-dashboard-card-description">Unassigned leads @(ViewBag.UnassignedLeadsCount > 0 ? $"({ViewBag.UnassignedLeadsCount})" : "")</p>
+            </a>
+
+            <a asp-controller="Admin" asp-action="AllUnits" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="bi bi-buildings-fill"></i>
+                </div>
+                <h3 class="modern-dashboard-card-title">All Units</h3>
+                <p class="modern-dashboard-card-description">View all units in the system</p>
+            </a>
+
+            <a asp-controller="Admin" asp-action="MyLeads" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="bi bi-person-fill-lock"></i>
+                </div>
+                <h3 class="modern-dashboard-card-title">My Leads</h3>
+                <p class="modern-dashboard-card-description">View your assigned leads</p>
+            </a>
+
+            <a asp-controller="Admin" asp-action="AddLead" class="modern-dashboard-card">
+                <div class="modern-dashboard-card-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3 class="modern-dashboard-card-title">New Lead</h3>
+                <p class="modern-dashboard-card-description">Create a new lead</p>
+            </a>
         </div>
     }
     else if (ViewBag.UserRole == "Marketing")

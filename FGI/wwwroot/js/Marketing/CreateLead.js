@@ -11,23 +11,61 @@
     // Owner phone search functionality
     $('#ClientPhone').on('input', function() {
         var phone = $(this).val().trim();
+        var clientNameField = $('#ClientName');
+        var clientNameHint = $('#clientNameHint');
+        
         if (phone.length >= 3) {
             searchOwnerByPhone(phone);
+        } else if (phone.length > 0) {
+            // Enable client name field if phone has some characters
+            clientNameField.prop('disabled', false);
+            clientNameHint.text('Enter client name (max 25 chars)');
+        } else {
+            // Disable client name field if phone is empty
+            clientNameField.prop('disabled', true).val('');
+            clientNameHint.text('Enter phone number first to enable this field');
         }
     });
 
     function searchOwnerByPhone(phone) {
         $.get('/Lead/SearchOwner', { term: phone })
             .done(function(data) {
+                var clientNameField = $('#ClientName');
+                var clientNameHint = $('#clientNameHint');
+                
                 if (data.found) {
-                    $('#ClientName').val(data.name);
-                    if (window.toastNotification) {
-                        window.toastNotification.success('Owner found: ' + data.name);
+                    // Found in database - fill name and keep disabled
+                    clientNameField.val(data.name).prop('disabled', true);
+                    
+                    var message = '';
+                    var toastMessage = '';
+                    
+                    if (data.searchType === 'owner_phone' || data.searchType === 'owner_name') {
+                        message = 'Owner found: ' + data.name;
+                        toastMessage = 'Owner found: ' + data.name;
+                    } else if (data.searchType === 'client_phone' || data.searchType === 'client_name') {
+                        message = 'Client found: ' + data.name;
+                        toastMessage = 'Client found: ' + data.name;
+                    } else {
+                        message = 'Found: ' + data.name;
+                        toastMessage = 'Found: ' + data.name;
                     }
+                    
+                    clientNameHint.text(message);
+                    if (window.toastNotification) {
+                        window.toastNotification.success(toastMessage);
+                    }
+                } else {
+                    // Not found - enable field for manual entry
+                    clientNameField.prop('disabled', false).val('');
+                    clientNameHint.text('Not found in database. Enter client name manually');
                 }
             })
             .fail(function() {
-                console.log('Owner search failed');
+                console.log('Search failed');
+                // On error, enable field for manual entry
+                $('#ClientName').prop('disabled', false);
+                $('#clientNameHint').text('Search failed. Enter client name manually');
             });
     }
 
@@ -41,12 +79,14 @@
             dataType: 'json',
             delay: 300,
             data: function(params) {
+                var projectId = $('#ProjectId').val();
                 var data = {
                     q: params.term,
                     limit: 10,
-                    projectId: $('#ProjectId').val() || 0
+                    projectId: projectId || null  // Only search in specific project if manually selected
                 };
                 console.log('Sending AJAX request with data:', data);
+                console.log('Project manually selected:', projectId ? 'Yes' : 'No');
                 return data;
             },
             processResults: function(data) {
@@ -142,13 +182,10 @@
         var unitId = $(this).val();
         if (unitId) {
             loadUnitDetails(unitId);
-            
-            // Auto-fill project if not already selected
-            if (!$('#ProjectId').val()) {
-                autoFillProjectFromUnit(unitId);
-            }
+            autoFillProjectFromUnit(unitId);  // Always auto-fill project from unit
         } else {
             $('#unitDetailsContainer').hide();
+            $('#ProjectId').val('').trigger('change');  // Clear project when unit is cleared
         }
     });
 
@@ -177,14 +214,13 @@
     function autoFillProjectFromUnit(unitId) {
         console.log('Auto-filling project for unit ID:', unitId);
         
-        // Get unit details to extract project information
-        $.get('/api/units/DetailsPartial/' + unitId)
-            .done(function(data) {
-                // Extract project ID from the unit details
-                var projectId = $(data).find('[data-project-id]').attr('data-project-id');
-                if (projectId && projectId !== '0') {
-                    console.log('Found project ID:', projectId);
-                    $('#ProjectId').val(projectId).trigger('change');
+        // Get unit details directly from the API
+        $.get('/api/units/' + unitId)
+            .done(function(unitData) {
+                console.log('Unit data received:', unitData);
+                if (unitData && unitData.projectId) {
+                    console.log('Found project ID:', unitData.projectId);
+                    $('#ProjectId').val(unitData.projectId);
                     
                     if (window.toastNotification) {
                         window.toastNotification.info('Project automatically selected based on unit');
@@ -315,6 +351,27 @@
         $('#saveText').text('Saving...');
 
         var formData = new FormData(this);
+        
+        // Log form data
+        console.log('=== FORM SUBMISSION START ===');
+        console.log('ClientName:', $('#ClientName').val(), '(Length:', $('#ClientName').val()?.length || 0, ')');
+        console.log('ClientPhone:', $('#ClientPhone').val(), '(Length:', $('#ClientPhone').val()?.length || 0, ')');
+        console.log('UnitId:', $('#UnitId').val());
+        console.log('ProjectId:', $('#ProjectId').val());
+        console.log('Comment:', $('#Comment').val(), '(Length:', $('#Comment').val()?.length || 0, ')');
+        
+        // Check for empty required fields
+        if (!$('#ClientName').val() || $('#ClientName').val().trim() === '') {
+            console.error('ERROR: ClientName is empty!');
+        }
+        if (!$('#ClientPhone').val() || $('#ClientPhone').val().trim() === '') {
+            console.error('ERROR: ClientPhone is empty!');
+        }
+        
+        // Log form data entries
+        for (var pair of formData.entries()) {
+            console.log('FormData:', pair[0] + ': ' + pair[1]);
+        }
 
         $.ajax({
             url: '/Lead/Create',
@@ -365,15 +422,17 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Lead creation error:', {
-                    status: status,
-                    error: error,
-                    responseText: xhr.responseText
-                });
+                console.error('=== AJAX ERROR ===');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response Text:', xhr.responseText);
+                console.error('Status Code:', xhr.status);
+                console.error('Response Headers:', xhr.getAllResponseHeaders());
                 
                 var errorMessage = 'Failed to save lead. Please try again.';
                 try {
                     var response = JSON.parse(xhr.responseText);
+                    console.error('Parsed Response:', response);
                     if (response && response.message) {
                         errorMessage = response.message;
                     }

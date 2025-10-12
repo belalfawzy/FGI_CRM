@@ -333,6 +333,18 @@ body {
     background-color: #ffc107 !important;
 }
 
+/* Disabled field styles */
+.form-control:disabled {
+    background-color: #f8f9fa;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-control:disabled + .form-text {
+    color: #6c757d;
+    font-style: italic;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .col-md-6 {

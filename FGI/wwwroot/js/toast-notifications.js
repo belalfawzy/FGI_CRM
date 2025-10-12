@@ -203,3 +203,5 @@ function submitAjaxFormWithToast(form, url, successMessage, errorMessage = 'An e
 window.toastNotification = toastNotification;
 window.submitFormWithToast = submitFormWithToast;
 window.submitAjaxFormWithToast = submitAjaxFormWithToast;
+
+

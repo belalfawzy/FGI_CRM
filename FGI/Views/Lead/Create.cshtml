@@ -122,14 +122,51 @@
 
 @section Styles {
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/bootstrap-profile.css" asp-append-version="true">
-    <link rel="stylesheet" href="~/css/Marketing/CreateLead.css" asp-append-version="true">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/bootstrap-profile.css">
+    <link rel="stylesheet" href="~/css/toast-notifications.css" asp-append-version="true">
+    
+    <style>
+        /* Lead/Create View - Standard navbar spacing */
+        
+        .select2-container .select2-selection--single {
+            height: calc(1.5em + 0.75rem + 2px);
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: calc(1.5em + 0.75rem);
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem);
+        }
+        
+        .form-control:disabled {
+            background-color: #e9ecef;
+            opacity: 1;
+        }
+        
+        .form-control:disabled + .form-text {
+            color: #6c757d;
+        }
+        
+        /* Toast positioning for smaller screens */
+        @@media (max-width: 768px) {
+            .toast-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
 }
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
     <script src="~/js/Marketing/CreateLead.js" asp-append-version="true"></script>

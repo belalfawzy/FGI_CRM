@@ -164,8 +164,23 @@ namespace FGI.Controllers
         {
             try
             {
-                _logger.LogInformation("Creating lead for client: {ClientName}, phone: {ClientPhone}", 
-                    lead.ClientName, lead.ClientPhone);
+                _logger.LogInformation("=== LEAD CREATE START ===");
+                _logger.LogInformation($"ClientName: '{lead.ClientName}'");
+                _logger.LogInformation($"ClientPhone: '{lead.ClientPhone}'");
+                _logger.LogInformation($"UnitId: {lead.UnitId}");
+                _logger.LogInformation($"ProjectId: {lead.ProjectId}");
+                _logger.LogInformation($"Comment: '{lead.Comment}'");
+                
+                // Check ModelState before validation
+                _logger.LogInformation($"ModelState.IsValid before validation: {ModelState.IsValid}");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    if (state.Errors.Count > 0)
+                    {
+                        _logger.LogWarning($"ModelState Error for '{key}': {string.Join(", ", state.Errors.Select(e => e.ErrorMessage))}");
+                    }
+                }
                 
                 var isAjaxRequest = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
                 _logger.LogInformation("Is AJAX request: {IsAjax}", isAjaxRequest);
@@ -178,14 +193,9 @@ namespace FGI.Controllers
                     ModelState.AddModelError("ClientPhone", "Please enter a valid phone number (at least 8 digits)");
                 }
 
-                // Validate unit selection
-                if (!lead.UnitId.HasValue)
+                // Handle project association based on unit (if unit is selected)
+                if (lead.UnitId.HasValue)
                 {
-                    ModelState.AddModelError("UnitId", "Please select a unit");
-                }
-                else
-                {
-                    // Handle project association based on unit
                     var unit = await _unitService.GetUnitByIdAsync(lead.UnitId.Value);
                     if (unit != null && unit.ProjectId.HasValue)
                     {
@@ -197,13 +207,36 @@ namespace FGI.Controllers
                     }
                 }
 
+                _logger.LogInformation($"ModelState.IsValid after validation: {ModelState.IsValid}");
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogWarning("=== VALIDATION FAILED ===");
+                    foreach (var key in ModelState.Keys)
+                    {
+                        var state = ModelState[key];
+                        if (state.Errors.Count > 0)
+                        {
+                            _logger.LogWarning($"Validation Error for '{key}': {string.Join(", ", state.Errors.Select(e => e.ErrorMessage))}");
+                        }
+                    }
+                    
+                    // Log all model values for debugging
+                    _logger.LogWarning("=== LEAD MODEL VALUES ===");
+                    _logger.LogWarning($"ClientName: '{lead.ClientName}' (Length: {lead.ClientName?.Length ?? 0})");
+                    _logger.LogWarning($"ClientPhone: '{lead.ClientPhone}' (Length: {lead.ClientPhone?.Length ?? 0})");
+                    _logger.LogWarning($"UnitId: {lead.UnitId}");
+                    _logger.LogWarning($"ProjectId: {lead.ProjectId}");
+                    _logger.LogWarning($"Comment: '{lead.Comment}' (Length: {lead.Comment?.Length ?? 0})");
+                    _logger.LogWarning($"CreatedById: {lead.CreatedById}");
+                    _logger.LogWarning($"CurrentStatus: {lead.CurrentStatus}");
+                    
                     var projects = await _projectService.GetAllProjectsAsync();
                     ViewBag.Projects = new SelectList(projects, "Id", "Name", lead.ProjectId);
 
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
+                        var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                        _logger.LogWarning($"Returning AJAX validation errors: {string.Join(", ", errors)}");
                         return Json(new
                         {
                             success = false,
@@ -230,13 +263,9 @@ namespace FGI.Controllers
 
                 // Set creation details
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                lead.CreatedById = userId;
-                lead.CreatedAt = DateTime.Now;
-                lead.CurrentStatus = LeadStatusType.New;
-
-                // Add and save lead
-                _context.Leads.Add(lead);
-                await _context.SaveChangesAsync();
+                
+                // Use LeadService to create lead
+                await _leadService.CreateLeadAsync(lead, userId);
 
                 _logger.LogInformation("Lead created successfully with ID: {LeadId}", lead.Id);
 

@@ -1,0 +1,35 @@
+/* FGI CRM System - Main CSS Bundle */
+/* This file imports all CSS modules in the correct order */
+
+/* ===== BASE STYLES ===== */
+@import url('base/_reset.css');
+@import url('base/_variables.css');
+
+/* ===== VENDOR STYLES ===== */
+/* Bootstrap is loaded via CDN in _Layout.cshtml */
+/* Font Awesome is loaded via CDN in _Layout.cshtml */
+/* Bootstrap Icons is loaded via CDN in _Layout.cshtml */
+/* Boxicons is loaded via CDN in _Layout.cshtml */
+
+/* ===== COMPONENTS ===== */
+@import url('components/_navbar.css');
+@import url('components/_cards.css');
+@import url('components/_forms.css');
+@import url('components/_buttons.css');
+@import url('components/_modals.css');
+@import url('components/_toasts.css');
+
+/* ===== PAGES ===== */
+@import url('pages/_home.css');
+@import url('pages/_login.css');
+@import url('pages/_dashboard.css');
+@import url('pages/_profile.css');
+@import url('pages/_leads.css');
+@import url('pages/_units.css');
+
+/* ===== UTILITIES ===== */
+@import url('utilities/_spacing.css');
+@import url('utilities/_typography.css');
+@import url('utilities/_responsive.css');
+@import url('utilities/_animations.css');
+

@@ -219,6 +219,42 @@ namespace FGI.Controllers
         }
 
         /// <summary>
+        /// Get unit by ID
+        /// </summary>
+        /// <param name="id">Unit ID</param>
+        /// <returns>Unit data</returns>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUnit(int id)
+        {
+            try
+            {
+                var unit = await _unitService.GetUnitByIdAsync(id);
+                if (unit == null)
+                {
+                    return NotFound();
+                }
+
+                return Json(new
+                {
+                    id = unit.Id,
+                    projectId = unit.ProjectId,
+                    ownerName = unit.Owner.Name,
+                    price = unit.Price,
+                    currency = unit.Currency.ToString(),
+                    area = unit.Area,
+                    type = unit.Type.ToString(),
+                    location = unit.Location,
+                    description = unit.Description
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting unit {UnitId}", id);
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        /// <summary>
         /// Get unit details partial view
         /// </summary>
         /// <param name="id">Unit ID</param>

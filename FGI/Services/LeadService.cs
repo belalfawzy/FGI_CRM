@@ -24,11 +24,14 @@ namespace FGI.Services
 
         public async Task CreateLeadAsync(Lead lead, int createdById)
         {
-            // التحقق من أن الوحدة موجودة
-            var unit = await _context.Units.FindAsync(lead.UnitId);
-            if (unit == null)
+            // التحقق من أن الوحدة موجودة (إذا تم تحديدها)
+            if (lead.UnitId.HasValue)
             {
-                throw new Exception("الوحدة المحددة غير موجودة");
+                var unit = await _context.Units.FindAsync(lead.UnitId);
+                if (unit == null)
+                {
+                    throw new Exception("الوحدة المحددة غير موجودة");
+                }
             }
 
             // إذا كان هناك مشروع، التحقق من وجوده
@@ -355,8 +358,8 @@ namespace FGI.Services
 
             if (!string.IsNullOrEmpty(normalizedPhone))
             {
+                // Search in Owners first
                 var owners = await _context.Owners.ToListAsync();
-
                 var matchingOwner = owners.FirstOrDefault(o =>
                     !string.IsNullOrEmpty(o.Phone) &&
                     NormalizePhoneNumber(o.Phone) == normalizedPhone);
@@ -370,13 +373,33 @@ namespace FGI.Services
                         name = matchingOwner.Name,
                         phone = matchingOwner.Phone,
                         email = matchingOwner.Email,
-                        searchType = "phone"
+                        searchType = "owner_phone"
+                    };
+                }
+
+                // Search in Leads (clients) by phone
+                var leads = await _context.Leads.ToListAsync();
+                var matchingLead = leads.FirstOrDefault(l =>
+                    !string.IsNullOrEmpty(l.ClientPhone) &&
+                    NormalizePhoneNumber(l.ClientPhone) == normalizedPhone);
+
+                if (matchingLead != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = matchingLead.Id,
+                        name = matchingLead.ClientName,
+                        phone = matchingLead.ClientPhone,
+                        email = "",
+                        searchType = "client_phone"
                     };
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(term))
             {
+                // Search in Owners by name
                 var ownerByName = await _context.Owners
                     .Where(o => o.Name.Contains(term))
                     .FirstOrDefaultAsync();
@@ -390,7 +413,25 @@ namespace FGI.Services
                         name = ownerByName.Name,
                         phone = ownerByName.Phone,
                         email = ownerByName.Email,
-                        searchType = "name"
+                        searchType = "owner_name"
+                    };
+                }
+
+                // Search in Leads (clients) by name
+                var leadByName = await _context.Leads
+                    .Where(l => l.ClientName.Contains(term))
+                    .FirstOrDefaultAsync();
+
+                if (leadByName != null)
+                {
+                    return new
+                    {
+                        found = true,
+                        id = leadByName.Id,
+                        name = leadByName.ClientName,
+                        phone = leadByName.ClientPhone,
+                        email = "",
+                        searchType = "client_name"
                     };
                 }
             }
