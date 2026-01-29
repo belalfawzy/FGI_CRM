@@ -1,22 +1,22 @@
 // Admin AddLead JavaScript - Same as Marketing CreateLead
 
 $(document).ready(function() {
+    // Initialize Select2 for Project dropdown
+    $('#ProjectId').select2({
+        placeholder: "-- Search All Projects --",
+        allowClear: true,
+        width: '100%'
+    });
+
     // Client phone input behavior
     $('#ClientPhone').on('input', function() {
         var phone = $(this).val().trim();
-        var clientNameField = $('#ClientName');
         var clientNameHint = $('#clientNameHint');
-        
+
         if (phone.length >= 3) {
             searchOwnerByPhone(phone);
-        } else if (phone.length > 0) {
-            // Enable client name field if phone has some characters
-            clientNameField.prop('disabled', false);
-            clientNameHint.text('Enter client name (max 25 chars)');
         } else {
-            // Disable client name field if phone is empty
-            clientNameField.prop('disabled', true).val('');
-            clientNameHint.text('Enter phone number first to enable this field');
+            clientNameHint.text('Enter client name (max 25 chars)');
         }
     });
 
@@ -27,12 +27,12 @@ $(document).ready(function() {
                 var clientNameHint = $('#clientNameHint');
                 
                 if (data.found) {
-                    // Found in database - fill name and keep disabled
-                    clientNameField.val(data.name).prop('disabled', true);
-                    
+                    // Found in database - fill name and make it readonly
+                    clientNameField.val(data.name).prop('readonly', true);
+
                     var message = '';
                     var toastMessage = '';
-                    
+
                     if (data.searchType === 'owner_phone' || data.searchType === 'owner_name') {
                         message = 'Owner found: ' + data.name;
                         toastMessage = 'Owner found: ' + data.name;
@@ -43,7 +43,7 @@ $(document).ready(function() {
                         message = 'Found: ' + data.name;
                         toastMessage = 'Found: ' + data.name;
                     }
-                    
+
                     clientNameHint.text(message);
                     if (window.toastNotification) {
                         window.toastNotification.success(toastMessage);
@@ -52,14 +52,14 @@ $(document).ready(function() {
                     }
                 } else {
                     // Not found - enable field for manual entry
-                    clientNameField.prop('disabled', false).val('');
+                    clientNameField.prop('readonly', false).val('');
                     clientNameHint.text('Not found in database. Enter client name manually');
                 }
             })
             .fail(function() {
                 console.log('Search failed');
-                // On error, enable field for manual entry
-                $('#ClientName').prop('disabled', false);
+                // On error, keep field enabled for manual entry
+                $('#ClientName').prop('readonly', false);
                 $('#clientNameHint').text('Search failed. Enter client name manually');
             });
     }
@@ -184,6 +184,15 @@ $(document).ready(function() {
             $('#ProjectId').val(unitData.projectId);
         }
     }
+
+    // Update unit search when project changes
+    $('#ProjectId').on('change', function() {
+        $('#UnitId').val(null).trigger('change');
+        $('#unitDetailsContainer').empty();
+
+        // Clear and reinitialize the unit select2 to refresh search scope
+        $('#UnitId').empty().append('<option value="">Search by Unit Code, Location, Owner, Price, Area, Type...</option>');
+    });
 
     // Form submission with toast notifications
     $('#leadForm').on('submit', function(e) {

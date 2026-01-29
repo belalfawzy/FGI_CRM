@@ -1,11 +1,11 @@
 ﻿
 :root {
-    --primary: #4e73df;
-    --secondary: #6c757d;
-    --success: #1cc88a;
-    --info: #36b9cc;
-    --warning: #f6c23e;
-    --danger: #e74a3b;
+    --primary: #0284c7;
+    --secondary: #475569;
+    --success: #16a34a;
+    --info: #06b6d4;
+    --warning: #d97706;
+    --danger: #dc2626;
     --light: #f8f9fc;
     --dark: #5a5c69;
 }
@@ -24,7 +24,7 @@ body {
 .card-header {
     border-radius: 10px 10px 0 0 !important;
     font-weight: 600;
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     color: white;
 }
 
@@ -95,7 +95,7 @@ body {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     color: white;
     border-radius: 10px 10px 0 0;
 }

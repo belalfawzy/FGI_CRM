@@ -839,6 +839,8 @@ namespace FGI.Controllers
         [HttpGet]
         public async Task<IActionResult> AddLead()
         {
+            var projects = await _projectService.GetAllProjectsAsync();
+            ViewBag.Projects = new SelectList(projects, "Id", "Name");
             return View();
         }
 

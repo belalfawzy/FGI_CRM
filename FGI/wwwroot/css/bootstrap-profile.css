@@ -33,13 +33,13 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #007bff, #6f42c1, #28a745);
+    background: linear-gradient(90deg, #0284c7, #0369a1, #16a34a);
 }
 
 .profile-header-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@ body {
     color: white;
     font-size: 2rem;
     margin-right: 1.5rem;
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);
 }
 
 .profile-header-title {
@@ -201,7 +201,7 @@ body {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #007bff, #6f42c1);
+    background: linear-gradient(90deg, #0284c7, #0369a1);
 }
 
 .metric-card:hover {
@@ -641,4 +641,37 @@ body {
         transform: translateX(100%);
         opacity: 0;
     }
+}
+
+/* Loading Button Styles */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    cursor: not-allowed !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-loading:disabled {
+    opacity: 0.75;
 }

@@ -112,27 +112,6 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 mb-4">
-                        <div class="profile-card">
-                            <div class="card-header-success">
-                                <div class="d-flex align-items-center">
-                                    <div class="card-header-icon">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="card-header-title">Profile Picture</h3>
-                                        <p class="card-header-subtitle">Update your avatar</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="mb-3">
-                                    <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-                                </div>
-                                <small class="text-muted mt-2 d-block">Profile picture feature coming soon</small>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -158,8 +137,8 @@
                                         <label for="currentPassword" class="form-label fw-bold">Current Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="currentPassword" required>
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword">
-                                                <i class="fas fa-eye"></i>
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword" aria-label="Toggle current password visibility" title="Show password">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -167,8 +146,8 @@
                                         <label for="newPassword" class="form-label fw-bold">New Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="newPassword" required>
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
-                                                <i class="fas fa-eye"></i>
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword" aria-label="Toggle new password visibility" title="Show password">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -176,8 +155,8 @@
                                         <label for="confirmPassword" class="form-label fw-bold">Confirm New Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="confirmPassword" required>
-                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
-                                                <i class="fas fa-eye"></i>
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" aria-label="Toggle confirm password visibility" title="Show password">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -230,150 +209,253 @@
 </div>
 
 <script>
-// Password toggle functionality
-document.getElementById('toggleCurrentPassword').addEventListener('click', function() {
-    const passwordField = document.getElementById('currentPassword');
-    const icon = this.querySelector('i');
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        passwordField.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-});
+// Password toggle functionality with accessibility improvements
+const toggleCurrentPasswordBtn = document.getElementById('toggleCurrentPassword');
+if (toggleCurrentPasswordBtn) {
+    toggleCurrentPasswordBtn.addEventListener('click', function() {
+        const passwordField = document.getElementById('currentPassword');
+        const icon = this.querySelector('i');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            this.setAttribute('title', 'Hide password');
+            this.setAttribute('aria-label', 'Hide current password');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            this.setAttribute('title', 'Show password');
+            this.setAttribute('aria-label', 'Show current password');
+        }
+    });
+}
 
-document.getElementById('toggleNewPassword').addEventListener('click', function() {
-    const passwordField = document.getElementById('newPassword');
-    const icon = this.querySelector('i');
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        passwordField.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-});
+const toggleNewPasswordBtn = document.getElementById('toggleNewPassword');
+if (toggleNewPasswordBtn) {
+    toggleNewPasswordBtn.addEventListener('click', function() {
+        const passwordField = document.getElementById('newPassword');
+        const icon = this.querySelector('i');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            this.setAttribute('title', 'Hide password');
+            this.setAttribute('aria-label', 'Hide new password');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            this.setAttribute('title', 'Show password');
+            this.setAttribute('aria-label', 'Show new password');
+        }
+    });
+}
 
-document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-    const passwordField = document.getElementById('confirmPassword');
-    const icon = this.querySelector('i');
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        passwordField.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-});
+const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+if (toggleConfirmPasswordBtn) {
+    toggleConfirmPasswordBtn.addEventListener('click', function() {
+        const passwordField = document.getElementById('confirmPassword');
+        const icon = this.querySelector('i');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            this.setAttribute('title', 'Hide password');
+            this.setAttribute('aria-label', 'Hide confirm password');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            this.setAttribute('title', 'Show password');
+            this.setAttribute('aria-label', 'Show confirm password');
+        }
+    });
+}
 
 // Profile form submission
-$document.getElementById('profileForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const fullName = document.getElementById('fullName').value;
-    
-    fetch('@Url.Action("UpdateProfile", "Settings")', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-        },
-        body: `fullName=${encodeURIComponent(fullName)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('success', data.message);
-        } else {
-            showAlert('danger', data.message);
+const profileForm = document.getElementById('profileForm');
+const updateProfileBtn = document.getElementById('updateProfileBtn');
+if (profileForm && updateProfileBtn) {
+    profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const fullName = document.getElementById('fullName')?.value;
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        if (!csrfToken) {
+            showAlert('danger', 'Security token missing. Please refresh the page.');
+            return;
         }
-    })
-    .catch(error => {
-        showAlert('danger', 'Error updating profile');
+
+        if (!fullName || fullName.trim() === '') {
+            showAlert('danger', 'Please enter your full name.');
+            return;
+        }
+
+        // Show loading state
+        updateProfileBtn.disabled = true;
+        updateProfileBtn.classList.add('btn-loading');
+
+        fetch('@Url.Action("UpdateProfile", "Settings")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': csrfToken
+            },
+            body: `fullName=${encodeURIComponent(fullName)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Profile update error:', error);
+            showAlert('danger', 'Error updating profile. Please try again.');
+        })
+        .finally(() => {
+            // Remove loading state
+            updateProfileBtn.disabled = false;
+            updateProfileBtn.classList.remove('btn-loading');
+        });
     });
-});
+}
 
 <script src="~/js/Settings/PasswordValidation.js"></script>
 
+<script>
 // Password form submission
-document.getElementById('passwordForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        showAlert('danger', 'New passwords do not match');
-        return;
-    }
-    
-    if (!validatePassword(newPassword)) {
-        showAlert('danger', 'Password must be at least 8 characters with 1 number, 1 uppercase, 1 lowercase, and 1 special character.');
-        return;
-    }
-    
-    fetch('@Url.Action("UpdatePassword", "Settings")', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-        },
-        body: `currentPassword=${encodeURIComponent(currentPassword)}&newPassword=${encodeURIComponent(newPassword)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('success', data.message);
-            document.getElementById('passwordForm').reset();
-        } else {
-            showAlert('danger', data.message);
+const passwordForm = document.getElementById('passwordForm');
+const updatePasswordBtn = document.getElementById('updatePasswordBtn');
+if (passwordForm && updatePasswordBtn) {
+    passwordForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const currentPassword = document.getElementById('currentPassword')?.value;
+        const newPassword = document.getElementById('newPassword')?.value;
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        if (!csrfToken) {
+            showAlert('danger', 'Security token missing. Please refresh the page.');
+            return;
         }
-    })
-    .catch(error => {
-        showAlert('danger', 'Error updating password');
+
+        if (!currentPassword || !newPassword) {
+            showAlert('danger', 'Please fill in all password fields.');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showAlert('danger', 'New passwords do not match');
+            return;
+        }
+
+        if (typeof validatePassword === 'function' && !validatePassword(newPassword)) {
+            showAlert('danger', 'Password must be at least 8 characters with 1 number, 1 uppercase, 1 lowercase, and 1 special character.');
+            return;
+        }
+
+        // Show loading state
+        updatePasswordBtn.disabled = true;
+        updatePasswordBtn.classList.add('btn-loading');
+
+        fetch('@Url.Action("UpdatePassword", "Settings")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': csrfToken
+            },
+            body: `currentPassword=${encodeURIComponent(currentPassword)}&newPassword=${encodeURIComponent(newPassword)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                passwordForm.reset();
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Password update error:', error);
+            showAlert('danger', 'Error updating password. Please try again.');
+        })
+        .finally(() => {
+            // Remove loading state
+            updatePasswordBtn.disabled = false;
+            updatePasswordBtn.classList.remove('btn-loading');
+        });
     });
-});
+}
 
 // Email form submission
-document.getElementById('emailForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const username = document.getElementById('emailUsername').value;
-    
-    fetch('@Url.Action("UpdateEmail", "Settings")', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-        },
-        body: `username=${encodeURIComponent(username)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('success', data.message);
-        } else {
-            showAlert('danger', data.message);
+const emailForm = document.getElementById('emailForm');
+const updateEmailBtn = document.getElementById('updateEmailBtn');
+if (emailForm && updateEmailBtn) {
+    emailForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('emailUsername')?.value;
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        if (!csrfToken) {
+            showAlert('danger', 'Security token missing. Please refresh the page.');
+            return;
         }
-    })
-    .catch(error => {
-        showAlert('danger', 'Error updating email');
+
+        if (!username || username.trim() === '') {
+            showAlert('danger', 'Please enter an email address.');
+            return;
+        }
+
+        // Show loading state
+        updateEmailBtn.disabled = true;
+        updateEmailBtn.classList.add('btn-loading');
+
+        fetch('@Url.Action("UpdateEmail", "Settings")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': csrfToken
+            },
+            body: `username=${encodeURIComponent(username)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Email update error:', error);
+            showAlert('danger', 'Error updating email. Please try again.');
+        })
+        .finally(() => {
+            // Remove loading state
+            updateEmailBtn.disabled = false;
+            updateEmailBtn.classList.remove('btn-loading');
+        });
     });
-});
+}
 
 // Reset buttons
-document.getElementById('resetProfileBtn').addEventListener('click', function() {
-    document.getElementById('profileForm').reset();
-});
+const resetProfileBtn = document.getElementById('resetProfileBtn');
+if (resetProfileBtn && profileForm) {
+    resetProfileBtn.addEventListener('click', function() {
+        profileForm.reset();
+    });
+}
 
-document.getElementById('resetPasswordBtn').addEventListener('click', function() {
-    document.getElementById('passwordForm').reset();
-});
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+if (resetPasswordBtn && passwordForm) {
+    resetPasswordBtn.addEventListener('click', function() {
+        passwordForm.reset();
+    });
+}
 
 // Show alert function
 function showAlert(type, message) {

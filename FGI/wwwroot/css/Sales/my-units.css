@@ -1,10 +1,10 @@
 ﻿:root {
-    --primary: #3b82f6;
-    --secondary: #6c757d;
-    --success: #10b981;
+    --primary: #0284c7;
+    --secondary: #475569;
+    --success: #16a34a;
     --info: #06b6d4;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+    --warning: #d97706;
+    --danger: #dc2626;
     --light: #f8f9fc;
     --dark: #1f2a44;
     --card-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);

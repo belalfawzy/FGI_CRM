@@ -2,7 +2,7 @@
 /* This file ensures consistent navbar behavior across all views */
 
 .main-navbar {
-    background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+    background: linear-gradient(180deg, #0284c7 10%, #0369a1 100%);
     padding: 0.6rem 1rem;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
     position: sticky;
@@ -164,7 +164,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(145deg, #4e73df, #3a56c4);
+    background: linear-gradient(145deg, #0284c7, #0369a1);
     color: white;
     display: flex;
     align-items: center;
@@ -230,7 +230,7 @@
 }
 
 .main-navbar .main-dropdown-item i {
-    color: #4e73df;
+    color: #0284c7;
     width: 1.4rem;
     margin-right: 0.6rem;
     font-size: 1.1rem;
@@ -238,7 +238,7 @@
 
 .main-navbar .main-dropdown-item:hover {
     background-color: #f8f9fa;
-    color: #3a56c4;
+    color: #0369a1;
     text-decoration: none;
 }
 
@@ -261,7 +261,7 @@
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
-        background: linear-gradient(180deg, #4e73df 10%, #224abe 100%) !important;
+        background: linear-gradient(180deg, #0284c7 10%, #0369a1 100%) !important;
         padding: 0.8rem !important;
         border-radius: 12px !important;
         margin-top: 0.5rem !important;

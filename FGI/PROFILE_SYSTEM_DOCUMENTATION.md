@@ -269,9 +269,9 @@ This document describes the implementation of a comprehensive Role-based User Pr
 
 ---
 
-**Created**: [Current Date]
-**Version**: 1.0
-**Author**: FGI Development Team
+**Created**: 8/25
+**Version**: 3.0
+**Author**: Belal Fawzy Abdelmaksoud
 **Last Updated**: [Current Date]
 
 

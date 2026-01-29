@@ -1,14 +1,16 @@
 ﻿:root {
-    --primary: #4e73df;
-    --primary-dark: #3a56c4;
-    --secondary: #6f42c1;
-    --success: #1cc88a;
-    --info: #36b9cc;
-    --warning: #f6c23e;
-    --danger: #e74a3b;
+    /* Color variables now inherit from base/_variables.css */
+    /* Using consistent Sky Blue palette (#0284c7) throughout the application */
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --secondary: #475569;
+    --success: #16a34a;
+    --info: #06b6d4;
+    --warning: #d97706;
+    --danger: #dc2626;
     --light: #f8f9fc;
     --dark: #5a5c69;
-    --bg-gradient: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+    --bg-gradient: linear-gradient(180deg, #0284c7 10%, #0369a1 100%);
     --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
     --transition: all 0.3s ease-in-out;
 }

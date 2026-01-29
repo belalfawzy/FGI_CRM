@@ -135,8 +135,25 @@ namespace FGI.Controllers
                 if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword))
                     return Json(new { success = false, message = "Current password and new password are required" });
 
-                if (newPassword.Length < 6)
-                    return Json(new { success = false, message = "New password must be at least 6 characters long" });
+                // Validate password complexity (must match client-side validation)
+                if (newPassword.Length < 8)
+                    return Json(new { success = false, message = "New password must be at least 8 characters long" });
+
+                // Check for at least one uppercase letter
+                if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"[A-Z]"))
+                    return Json(new { success = false, message = "Password must contain at least one uppercase letter" });
+
+                // Check for at least one lowercase letter
+                if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"[a-z]"))
+                    return Json(new { success = false, message = "Password must contain at least one lowercase letter" });
+
+                // Check for at least one digit
+                if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"\d"))
+                    return Json(new { success = false, message = "Password must contain at least one number" });
+
+                // Check for at least one special character
+                if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"[!@#$%^&*(),.?""':{}|<>]"))
+                    return Json(new { success = false, message = "Password must contain at least one special character (!@#$%^&*(),.?\"':{}|<>)" });
 
                 var success = await _settingsService.UpdatePasswordAsync(userId.Value, currentPassword, newPassword);
                 

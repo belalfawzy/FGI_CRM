@@ -38,6 +38,7 @@
                                    placeholder="Enter client name (max 25 chars)"
                                    maxlength="25" required />
                             <span asp-validation-for="ClientName" class="text-danger"></span>
+                            <small class="form-text text-muted" id="clientNameHint">Enter client name (max 25 chars)</small>
                         </div>
                     </div>
                 </div>
@@ -170,13 +171,5 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/js/toast-notifications.js" asp-append-version="true"></script>
     <script src="~/js/Marketing/CreateLead.js" asp-append-version="true"></script>
-    <script>
-        // Override form submission to use toast notifications
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('leadForm');
-            if (form) {
-                submitFormWithToast(form, '@Url.Action("Create", "Lead")', 'Lead created successfully!', 'Error creating lead');
-            }
-        });
-    </script>
+    <!-- Form submission is handled by CreateLead.js - no need for duplicate handler -->
 }
