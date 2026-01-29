@@ -298,10 +298,32 @@
         border-left: 4px solid var(--error);
     }
 
+    .input-group {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .input-group .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+    }
+
     .input-group-text {
         background-color: var(--bg-primary);
         border: 1px solid var(--border-medium);
+        border-left: none;
         color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        padding: 10px 14px;
+        border-top-right-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg);
+    }
+
+    .input-group .form-control:focus + .input-group-text {
+        border-color: var(--primary);
     }
 
     .modal-content {
@@ -352,6 +374,48 @@
         background-color: var(--bg-tertiary) !important;
     }
 
+    /* Searching indicator */
+    #searchingIndicator {
+        background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        padding: 12px 20px;
+        font-weight: 500;
+        box-shadow: var(--shadow-md);
+        animation: slideDown 0.3s ease-out;
+    }
+
+    #searchingIndicator i {
+        font-size: 1.1rem;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Input focus states */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-100);
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    /* Smooth transitions for inputs */
+    .form-control,
+    .form-select {
+        transition: all 0.2s ease-in-out;
+    }
+
     /* Responsive adjustments */
     @@media (max-width: 768px) {
         .units-table {
@@ -365,6 +429,11 @@
 
         .stats-card {
             margin-bottom: 15px;
+        }
+
+        #searchingIndicator {
+            padding: 10px 15px;
+            font-size: 0.9rem;
         }
     }
 </style>
@@ -457,11 +526,9 @@
                         <input type="text" name="searchTerm" id="searchTerm" class="form-control"
                                placeholder="Search by Unit Code or Owner Phone..."
                                value="@Context.Request.Query["searchTerm"]">
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="fas fa-search text-primary"></i>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
                     </div>
                 </div>
 
@@ -692,18 +759,73 @@
             });
 
             // Auto-submit form when filters change
-            $('#searchTerm, #filterType, #filterProject, #filterMinPrice, #filterMaxPrice, ' +
-              '#filterBedrooms, #filterMinArea, #filterBathrooms, #filterSaleType').on('input change', function() {
-                // Add a small delay for search input to avoid too many requests
-                if ($(this).attr('id') === 'searchTerm') {
-                    clearTimeout($(this).data('timeout'));
-                    $(this).data('timeout', setTimeout(function() {
-                        $('#filterForm').submit();
-                    }, 800));
-                } else {
+            var searchTimeout = null;
+            var countdownInterval = null;
+            var remainingSeconds = 3;
+
+            // Text/number inputs with debounce (3 seconds)
+            $('#searchTerm, #filterMinPrice, #filterMaxPrice, #filterMinArea').on('input', function() {
+                // Clear existing timeouts
+                clearTimeout(searchTimeout);
+                clearInterval(countdownInterval);
+
+                // Reset countdown
+                remainingSeconds = 3;
+
+                // Show searching indicator with countdown
+                showSearchingIndicator(remainingSeconds);
+
+                // Start countdown
+                countdownInterval = setInterval(function() {
+                    remainingSeconds--;
+                    updateCountdown(remainingSeconds);
+
+                    if (remainingSeconds <= 0) {
+                        clearInterval(countdownInterval);
+                    }
+                }, 1000);
+
+                // Set new timeout (3 seconds)
+                searchTimeout = setTimeout(function() {
+                    clearInterval(countdownInterval);
+                    hideSearchingIndicator();
                     $('#filterForm').submit();
-                }
+                }, 3000);
             });
+
+            // Dropdown filters - submit immediately
+            $('#filterType, #filterProject, #filterBedrooms, #filterBathrooms, #filterSaleType').on('change', function() {
+                clearTimeout(searchTimeout);
+                clearInterval(countdownInterval);
+                hideSearchingIndicator();
+                $('#filterForm').submit();
+            });
+
+            // Show/hide searching indicator
+            function showSearchingIndicator(seconds) {
+                if (!$('#searchingIndicator').length) {
+                    $('#filterForm').append(
+                        '<div id="searchingIndicator" style="display: flex; align-items: center; gap: 10px; margin-top: 1rem;">' +
+                        '<i class="fas fa-clock"></i>' +
+                        '<span id="countdownText">Searching in <strong>' + seconds + '</strong> seconds...</span>' +
+                        '</div>'
+                    );
+                } else {
+                    updateCountdown(seconds);
+                }
+            }
+
+            function updateCountdown(seconds) {
+                if (seconds > 0) {
+                    $('#countdownText').html('Searching in <strong>' + seconds + '</strong> second' + (seconds !== 1 ? 's' : '') + '...');
+                } else {
+                    $('#countdownText').html('<i class="fas fa-spinner fa-spin mr-2"></i><strong>Searching now...</strong>');
+                }
+            }
+
+            function hideSearchingIndicator() {
+                $('#searchingIndicator').remove();
+            }
 
             // Preserve filter values from URL
             const urlParams = new URLSearchParams(window.location.search);
